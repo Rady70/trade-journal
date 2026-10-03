@@ -14,7 +14,10 @@ acceptance claim.**
 > by the research account that owns the position ledger; Phase F consumes and
 > displays it unchanged. No strategy, margin, liquidation, sizing or trade
 > behavior changed, and `results.json` remains byte-identical to Phase D. This
-> created a new replay-package identity; its SHA-256 is recorded below.
+> created a new replay-package identity; its SHA-256 is recorded below. The
+> field is an additive extension of the v1 package contract (documented in
+> `REPLAY_PACKAGE.md` section 9); the original v1 package without it remains
+> valid.
 
 The independent re-review of the previous revision found nine issues; all were
 verified true and corrected in this revision: the signed-net requirement, future
@@ -81,8 +84,14 @@ The loader reads the finalized Phase E package and never reconstructs it:
   `MARKETLAB_EXPECTED_CANDLE_CONTENT_SHA256` anchors are **required** for this
   dedicated surface: a missing or malformed anchor disables replay with a named
   error, and a loaded package/cache that does not match its anchor is rejected.
-  A mutually self-consistent but unapproved pair can therefore never be
-  replayed.
+  Concretely, the replay endpoints (`window`, `reveal`) and the status
+  compatibility gate refuse to serve without the anchored identities; the
+  status, basket-index and basket-identity metadata endpoints remain readable
+  for diagnosis; no replay is enabled, and a mutually self-consistent but
+  unapproved pair can never be replayed. The signed `netLots` field is
+  consumed from the Phase E v1 contract's additive signed-net extension (the
+  original v1 package without it remains valid; this surface binds the exact
+  re-exported identity by SHA-256).
 - Before any row is served the loader verifies: the
   `marketlab-single-anchor-replay-package-v1` contract, the documented package
   fingerprint over the payload descriptors, every payload file's byte count,
@@ -241,9 +250,9 @@ All commands were run on Windows from the fork checkout.
 | Check                                 | Command                                                                                                                      | Result                                         |
 | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
 | Upstream suite (base revision)        | `corepack pnpm vitest run`                                                                                                   | 532/532 passed                                 |
-| Full suite with the finalized package | `corepack pnpm vitest run` with `MARKETLAB_REPLAY_AUTHORITATIVE_PACKAGE` / `MARKETLAB_REPLAY_AUTHORITATIVE_CANDLE_CACHE` set | **601/601 passed** (532 upstream + 69 Phase F) |
+| Full suite with the finalized package | `corepack pnpm vitest run` with `MARKETLAB_REPLAY_AUTHORITATIVE_PACKAGE` / `MARKETLAB_REPLAY_AUTHORITATIVE_CANDLE_CACHE` set | **602/602 passed** (532 upstream + 70 Phase F) |
 | Phase F contract/loader tests         | `corepack pnpm vitest run apps/web/tests/marketlab-replay.test.ts`                                                           | 52/52 passed                                   |
-| Phase F UI tests (jsdom + Vela mock)  | `corepack pnpm vitest run apps/web/tests/marketlab-replay-ui.test.ts`                                                        | 11/11 passed                                   |
+| Phase F UI tests (jsdom + Vela mock)  | `corepack pnpm vitest run apps/web/tests/marketlab-replay-ui.test.ts`                                                        | 12/12 passed                                   |
 | Authoritative Phase E tests           | `corepack pnpm vitest run apps/web/tests/marketlab-replay-authoritative.test.ts` with the finalized package                  | 6/6 passed                                     |
 | Typecheck                             | `corepack pnpm --filter web typecheck`, plus `packages/core` and `packages/importers`                                        | passed                                         |
 | Formatting                            | `corepack pnpm exec prettier --check <changed files>`                                                                        | passed                                         |
@@ -266,8 +275,10 @@ candle month, a tampered candle payload rejected at acceptance (not only when a
 window is served), replay/candle symbol and source-digest mismatches, a
 cursor-bounded reveal that returns no future event or account value, an open
 basket whose window ends at the authoritative run end, the candle close-boundary
-rule, and the terminal non-candle step that lets the final open basket finish at
-run end through Play/Next. A dedicated test drives the 12,000-bar monthly chunk
+rule, the terminal non-candle step that lets the final open basket finish at
+run end through Play/Next, a delayed terminal reveal proving a closed basket
+never transiently reads `open at run end`, and the delayed account/cursor
+synchronization race. A dedicated test drives the 12,000-bar monthly chunk
 boundary and proves the next chunk is served without silent truncation.
 
 The authoritative tests independently parse the raw package in the test and

@@ -387,6 +387,37 @@ it("shows the account as synchronizing until the reveal for the current cursor a
   expect(feed()).not.toContain("Synchronizing the exported account state at the cursor");
 });
 
+it("never shows open at run end while the terminal reveal of a closed basket is pending", async () => {
+  let release: (() => void) | undefined;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const delayed = vi.fn(async (afterEventId: number, cursorMs: number) => {
+    if (cursorMs >= WINDOW_END) await gate;
+    const batch = events.filter(
+      (event) => event.id > afterEventId && event.timeMs !== null && event.timeMs <= cursorMs,
+    );
+    return {
+      events: batch,
+      account: carryRow(cursorMs),
+      hasMore: false,
+      lastEventId: batch.length > 0 ? batch[batch.length - 1]!.id : afterEventId,
+    };
+  });
+  await renderReplay(basket, { reveal: delayed });
+  await act(async () => button("Reveal the full basket window").click());
+  // The cursor is at the window end but the terminal reveal is still in
+  // flight: the closed basket must not be presented as open at run end.
+  expect(feed()).not.toContain("open at run end");
+  expect(feed()).toContain("replay in progress");
+  await act(async () => {
+    release?.();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+  expect(feed()).toContain("liquidated (BrokerLiquidation)");
+  expect(feed()).not.toContain("open at run end");
+});
+
 it("destroys the Vela chart and unregisters the indicator on unmount", async () => {
   const local = document.createElement("div");
   document.body.append(local);

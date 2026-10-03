@@ -334,6 +334,8 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
     accountState !== null && cursorMs !== null && accountState.cursorMs === cursorMs
       ? accountState.row
       : null;
+  const revealSynchronized =
+    accountState !== null && cursorMs !== null && accountState.cursorMs === cursorMs;
   const accountSyncing =
     cursorMs !== null && (accountState === null || accountState.cursorMs !== cursorMs);
   const closeEvent = useMemo(
@@ -349,7 +351,15 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
   );
   const complete =
     bars.length > 0 && nextFromMs === null && cursorMs !== null && cursorMs >= basket.windowEndMs;
-  const atRunEnd = cursorMs !== null && cursorMs >= basket.windowEndMs && closeEvent === null;
+  // A terminal outcome is pronounced only after the reveal for the terminal
+  // cursor has actually arrived: while the terminal reveal is in flight the
+  // close event may not be visible yet, and a closed basket must never
+  // transiently read as "open at run end".
+  const atRunEnd =
+    revealSynchronized &&
+    cursorMs !== null &&
+    cursorMs >= basket.windowEndMs &&
+    closeEvent === null;
   const outcome = closeEvent
     ? closeEvent.type === "basket_liquidated"
       ? `liquidated (${String(closeEvent.payload.reason ?? "")})`

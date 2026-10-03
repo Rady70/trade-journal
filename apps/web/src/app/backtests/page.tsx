@@ -90,9 +90,11 @@ function Backtests() {
             <CardContent className="space-y-2 text-sm text-muted-foreground">
               <p>{data.hint}</p>
               <p>
-                Set both environment variables, restart the app, and reload this page. The replay
-                path consumes the finalized Phase E replay package directly; it never reconstructs
-                events from a generic backtest result.
+                Set the four MarketLab replay environment variables (`MARKETLAB_REPLAY_PACKAGE`,
+                `MARKETLAB_CANDLE_CACHE`, `MARKETLAB_REPLAY_EXPECTED_PACKAGE_SHA256` and
+                `MARKETLAB_EXPECTED_CANDLE_CONTENT_SHA256`), restart the app, and reload this page.
+                The replay path consumes the finalized Phase E replay package directly; it never
+                reconstructs events from a generic backtest result.
               </p>
             </CardContent>
           </Card>
