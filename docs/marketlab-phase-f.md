@@ -98,12 +98,15 @@ The loader reads the finalized Phase E package and never reconstructs it:
   SHA-256 and line count, the expected package identity, the published
   event-type whitelist, contiguous `1..N` event ids, exactly one `run_started`
   first and one `run_ended` last, every live event's canonical UTC time, the
-  required fields of every event type (the producer's always-present fields),
-  the basket scope of every event type (basket-scoped types must carry a basket;
-  run-level types must not), the manifest per-type event counts against the
-  actual stream, and the one-active-basket lifecycle (an event may not reference
-  a basket outside its anchor, an anchor may not open while another basket is
-  open, and a live time-only event must fall inside a basket's live span).
+  complete always-present field set of every event type — including the
+  producer's nullable-but-always-present properties — with canonical invariant
+  decimals only (an optional minus, digits and an optional fraction; `+1`,
+  `.5`, `1.`, `1e3` and separators are rejected), the basket scope of every
+  event type (basket-scoped types must carry a basket; run-level types must
+  not), the manifest per-type event counts against the actual stream, and the
+  one-active-basket lifecycle (an event may not reference a basket outside its
+  anchor, an anchor may not open while another basket is open, and a live
+  time-only event must fall inside a basket's live span).
 - The complete telemetry history is read and validated before the package is
   served: actual `event`/`periodic` counts against the manifest, strict
   chronological order in the file (time and quote sequence are never sorted into
@@ -146,15 +149,22 @@ The loader reads the finalized Phase E package and never reconstructs it:
   the hard-BE targets) exist in the browser only once the revealed
   `basket_anchored` event arrives. The status payload carries no run outcome,
   counters, event totals, telemetry totals or payload file descriptors. The
-  window/reveal endpoints return only account state and events at or before the
-  requested cursor. The UI hides nothing that was sent early.
+  reveal endpoint returns only events and the account row at or before the
+  requested cursor, and only within the selected basket's authoritative replay
+  window (a cursor outside it is rejected); the candle window endpoint carries
+  no account data at all. The UI hides nothing that was sent early.
 - The account panel shows the exact exported telemetry row in force at the
-  cursor (event snapshot or ≤300 s periodic sample). It never interpolates and
-  never recomputes a value; decimals are shown exactly as exported. Gross
-  exposure and the exported signed `netLots` are both displayed as LEAN values.
-  The panel is cursor-coherent: while the reveal for a newer cursor is in
-  flight it shows an explicit synchronizing state instead of presenting the
-  previous row as current.
+  cursor (event snapshot or ≤300 s periodic sample), scoped to the selected
+  basket's own lifecycle: before its anchor there is no account row for it
+  (another basket's state is never shown), and after a closed basket's close its
+  final authoritative snapshot is retained through the post-close candle context
+  instead of advancing into the next basket; the final open basket continues
+  through the authoritative run end. The panel never interpolates and never
+  recomputes a value; decimals are shown exactly as exported. Gross exposure and
+  the exported signed `netLots` are both displayed as LEAN values. The panel is
+  cursor-coherent: while the reveal for a newer cursor is in flight it shows an
+  explicit synchronizing state instead of presenting the previous row as
+  current.
 
 ### SingleAnchor semantics preserved
 
@@ -250,10 +260,10 @@ All commands were run on Windows from the fork checkout.
 | Check                                 | Command                                                                                                                      | Result                                         |
 | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
 | Upstream suite (base revision)        | `corepack pnpm vitest run`                                                                                                   | 532/532 passed                                 |
-| Full suite with the finalized package | `corepack pnpm vitest run` with `MARKETLAB_REPLAY_AUTHORITATIVE_PACKAGE` / `MARKETLAB_REPLAY_AUTHORITATIVE_CANDLE_CACHE` set | **602/602 passed** (532 upstream + 70 Phase F) |
-| Phase F contract/loader tests         | `corepack pnpm vitest run apps/web/tests/marketlab-replay.test.ts`                                                           | 52/52 passed                                   |
+| Full suite with the finalized package | `corepack pnpm vitest run` with `MARKETLAB_REPLAY_AUTHORITATIVE_PACKAGE` / `MARKETLAB_REPLAY_AUTHORITATIVE_CANDLE_CACHE` set | **606/606 passed** (532 upstream + 74 Phase F) |
+| Phase F contract/loader tests         | `corepack pnpm vitest run apps/web/tests/marketlab-replay.test.ts`                                                           | 55/55 passed                                   |
 | Phase F UI tests (jsdom + Vela mock)  | `corepack pnpm vitest run apps/web/tests/marketlab-replay-ui.test.ts`                                                        | 12/12 passed                                   |
-| Authoritative Phase E tests           | `corepack pnpm vitest run apps/web/tests/marketlab-replay-authoritative.test.ts` with the finalized package                  | 6/6 passed                                     |
+| Authoritative Phase E tests           | `corepack pnpm vitest run apps/web/tests/marketlab-replay-authoritative.test.ts` with the finalized package                  | 7/7 passed                                     |
 | Typecheck                             | `corepack pnpm --filter web typecheck`, plus `packages/core` and `packages/importers`                                        | passed                                         |
 | Formatting                            | `corepack pnpm exec prettier --check <changed files>`                                                                        | passed                                         |
 
@@ -261,25 +271,30 @@ The fail-closed tests include, beyond the earlier mutations: an unsupported
 contract, fingerprint mismatches, payload hash/line mismatches, unknown event
 types, duplicate/out-of-order/gapped ids, duplicate `run_started`, an event
 before its anchor, an anchor while a basket is open, a recap with a live time,
-missing required event fields (for example a strategy exit without a reason — no
-reason is invented), a basket-scoped event without a basket, a basket number on
-a run-level event, a live event no basket span contains, a live event stream
+a dropped always-present event field (no reason is invented and no producer
+field may be dropped), a basket-scoped event without a basket, a basket number
+on a run-level event, a live event no basket span contains, a live event stream
 whose id order breaks authoritative time order (reveal pagination must never
 skip an earlier-time event), a missing `netLots` decimal, invalid JSON with a
 matching manifest, phantom/mistimed/duplicate/missing telemetry snapshots,
 out-of-order telemetry (rejected, never sorted), telemetry counts that do not
 match the manifest, telemetry rows outside their shard year, non-canonical
-decimals, an expected-identity mismatch, a missing required identity anchor, a
-candle content-fingerprint mismatch, a repeated candle month, a missing interior
+decimals (including `+1`, `.5`, `1.`, `1e3` and separators), an
+expected-identity mismatch, a missing required identity anchor, a candle
+content-fingerprint mismatch, a repeated candle month, a missing interior
 candle month, a tampered candle payload rejected at acceptance (not only when a
 window is served), replay/candle symbol and source-digest mismatches, a
-cursor-bounded reveal that returns no future event or account value, an open
-basket whose window ends at the authoritative run end, the candle close-boundary
-rule, the terminal non-candle step that lets the final open basket finish at
-run end through Play/Next, a delayed terminal reveal proving a closed basket
-never transiently reads `open at run end`, and the delayed account/cursor
-synchronization race. A dedicated test drives the 12,000-bar monthly chunk
-boundary and proves the next chunk is served without silent truncation.
+cursor-bounded reveal that returns no future event or account value, a reveal
+cursor outside the selected basket window, an open basket whose window ends at
+the authoritative run end, the candle close-boundary rule, the terminal
+non-candle step that lets the final open basket finish at run end through
+Play/Next, a delayed terminal reveal proving a closed basket never transiently
+reads `open at run end`, the delayed account/cursor synchronization race, and
+the basket-scoped account regression: with the next basket opening a position
+inside a closed basket's post-close context, the account stays the closed
+basket's final snapshot and a pre-anchor cursor has no row for it. A dedicated
+test drives the 12,000-bar monthly chunk boundary and proves the next chunk is
+served without silent truncation.
 
 The authoritative tests independently parse the raw package in the test and
 prove: the exact package SHA-256, all 1,454 events present exactly once, in

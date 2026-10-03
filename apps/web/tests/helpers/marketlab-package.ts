@@ -308,7 +308,136 @@ export function syntheticEvents(): Record<string, unknown>[] {
       completed: true,
       quoteTicksProcessed: 1300,
     },
-  ].map((event, index) => ({ ...event, id: index + 1 }));
+  ].map((event, index) => ({ ...withProducerDefaults(event), id: index + 1 }));
+}
+
+/**
+ * Adds the producer's always-present fields that a fixture does not vary, so
+ * every synthetic event satisfies the full Phase E event-contract schema.
+ */
+export function withProducerDefaults(event: Record<string, unknown>): Record<string, unknown> {
+  const lot = typeof event.placedLot === "string" ? event.placedLot : "0.00";
+  const time = typeof event.time === "string" ? event.time : SYNTHETIC_START;
+  const fill = typeof event.fillPrice === "string" ? event.fillPrice : "0.0";
+  switch (event.type) {
+    case "entry_executed":
+      return {
+        decisionBid: fill,
+        decisionAsk: fill,
+        normalizedRequiredLot: lot,
+        rawRequestedLot: lot,
+        exactRequiredLot: null,
+        hardBreakevenTarget: null,
+        targetSpread: null,
+        targetBid: null,
+        targetAsk: null,
+        existingProfitAtTarget: null,
+        marginalProfitPerLot: null,
+        projectedProfitAfter: null,
+        sizingOutcome: null,
+        ...event,
+      };
+    case "forced_liquidation":
+      return {
+        rawRequestedLot: null,
+        exactRequiredLot: null,
+        normalizedRequiredLot: event.placedLot ?? "0.00",
+        liquidationTime: time,
+        triggerTime: time,
+        beforeFloatingProfit: "0.0",
+        beforeUsedMargin: "0.0",
+        beforeFreeMargin: "0.0",
+        beforeMarginLevelPercent: null,
+        beforeOpenPositions: 3,
+        afterFloatingProfit: "0.0",
+        afterUsedMargin: "0.0",
+        afterFreeMargin: "0.0",
+        afterMarginLevelPercent: null,
+        ...event,
+      };
+    case "strategy_exit":
+    case "basket_liquidated":
+      return {
+        legs: 0,
+        buyLots: "0.0",
+        sellLots: "0.0",
+        grossLots: "0.0",
+        netLots: "0.0",
+        hardBreakevenModeActive: false,
+        rawProfit: "0.0",
+        exitProfit: "0.0",
+        threshold: "0.0",
+        buyClosePrice: "0.0",
+        sellClosePrice: "0.0",
+        commission: "0.0",
+        realizedProfit: "0.0",
+        liquidatedRealizedProfit: "0.0",
+        liquidatedPositions: 0,
+        historicalEntries: 0,
+        ...event,
+      };
+    case "margin_call_entered":
+    case "margin_call_left":
+      return { balance: "1000.0", ...event };
+    case "entry_rejected":
+      return {
+        rawRequestedLots: "0.10",
+        maximumVolume: "50.0",
+        normalizedRequiredLots: "0.10",
+        accountUsedMargin: "10.0",
+        accountFreeMargin: "990.0",
+        accountMarginLevelPercent: null,
+        projectedUsedMargin: "10.0",
+        projectedFreeMargin: "990.0",
+        exactRequiredLots: null,
+        hardBreakevenTarget: null,
+        targetSpread: null,
+        targetBid: null,
+        targetAsk: null,
+        existingProfitAtTarget: null,
+        marginalProfitPerLot: null,
+        projectedProfitAfter: null,
+        sizingOutcome: null,
+        ...event,
+      };
+    case "entry_rejection_summary":
+      return {
+        minNormalizedRequiredLots: "0.10",
+        maxNormalizedRequiredLots: "0.10",
+        minProjectedFreeMargin: "990.0",
+        maxProjectedFreeMargin: "990.0",
+        parityAlgorithm: "sha256",
+        parityHash: sha256("synthetic-parity"),
+        outcome: null,
+        ...event,
+      };
+    case "run_ended":
+      return {
+        basketsClosed: 2,
+        basketsLiquidated: 1,
+        forcedLiquidations: 1,
+        legsOpened: 4,
+        distinctRejectedEntries: 1,
+        rejectedEntryAttempts: 1,
+        skippedFirstEntryQuotes: 1,
+        strategyEligibleQuotes: 4,
+        quoteOnlyQuotes: 10,
+        deliveryFirstUtc: SYNTHETIC_START,
+        deliveryLastUtc: SYNTHETIC_END,
+        deliveryQuoteCount: SYNTHETIC_SOURCE_ROWS,
+        deliverySemanticDigest: SYNTHETIC_SOURCE_DIGEST,
+        engineRealizedProfit: "20.0",
+        failureKind: null,
+        failureCondition: null,
+        failureMessage: null,
+        failureQuoteTime: null,
+        failureBid: null,
+        failureAsk: null,
+        ...event,
+      };
+    default:
+      return event;
+  }
 }
 
 export function syntheticTelemetry(events: Record<string, unknown>[]): Record<string, unknown>[] {

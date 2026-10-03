@@ -119,7 +119,7 @@ try {
     });
     if (!selected) throw new Error("basket #276 option not found");
     await waitForText("Basket #276");
-    await waitForText("Exported LEAN value", 180000);
+    await waitForText("loaded candles", 180000);
     await sleep(500);
     await page.screenshot({ path: `${outDir}\\02-basket-276-start.png`, fullPage: true });
     transcript.steps.push({
@@ -145,6 +145,7 @@ try {
       }
     }
     if (!revealedEntry) throw new Error("entry #1 was not revealed by stepping the cursor");
+    await waitForText("Exported LEAN value", 120000);
     const beforeLiquidation = await bodyText();
     if (beforeLiquidation.includes("Forced close"))
       throw new Error("forced liquidation was visible before the cursor reached it");
@@ -161,9 +162,7 @@ try {
     if (netCursorText) {
       const netCursorMs = Date.parse(netCursorText.replace(" ", "T"));
       const netReveal = await (
-        await fetch(
-          `${APP}/api/marketlab-replay/baskets/276/reveal?after=0&cursor=${netCursorMs}`,
-        )
+        await fetch(`${APP}/api/marketlab-replay/baskets/276/reveal?after=0&cursor=${netCursorMs}`)
       ).json();
       if (panelNet !== netReveal.account?.netLots) {
         throw new Error(
@@ -172,7 +171,8 @@ try {
       }
     }
     transcript.steps.push({
-      check: "progressive reveal: entry visible, forced liquidation still hidden, signed net matches export",
+      check:
+        "progressive reveal: entry visible, forced liquidation still hidden, signed net matches export",
       pass: true,
       panelSignedNet: panelNet,
     });
@@ -298,7 +298,7 @@ try {
     });
     if (!selectedOpen) throw new Error("basket #280 option not found");
     await waitForText("Basket #280", 120000);
-    await waitForText("Exported LEAN value", 180000);
+    await waitForText("loaded candles", 180000);
     // Place the cursor about 1/1000 of the six-year window before the run end
     // (a few days) and let Play at 64x run to the last candle and then through
     // the explicit non-candle terminal step to the authoritative run end.

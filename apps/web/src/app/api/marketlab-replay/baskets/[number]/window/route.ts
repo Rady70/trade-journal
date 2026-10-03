@@ -5,11 +5,12 @@ import { basketWindow, ReplayPackageError } from "@/server/marketlab-replay";
 type Context = { params: Promise<{ number: string }> };
 
 /**
- * One bounded replay window for a basket: derived M1 candle bars whose closes
- * fall inside the basket's authoritative window, plus the exact exported
- * account row in force at the window start as a carry-in. `from` is epoch
+ * One bounded replay window for a basket: only derived M1 candle bars whose
+ * closes fall inside the basket's authoritative window. `from` is epoch
  * milliseconds or a canonical UTC timestamp. The server clips the window to
  * the basket's authoritative event window and never interpolates a value.
+ * Account state is not returned here; it is served only through the
+ * cursor-bounded reveal endpoint, scoped to the selected basket.
  */
 export const GET = handler(async (request: Request, { params }: Context) => {
   const { number } = await params;

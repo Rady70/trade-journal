@@ -269,8 +269,6 @@ export interface ReplayWindowResponse {
   nextFromMs: number | null;
   windowStartMs: number;
   windowEndMs: number;
-  /** The exact exported row in force at `fromMs` (carry-in), or null. */
-  account: AccountRow | null;
   candleCache: { contract: string; manifestSha256: string; contentSha256: string };
 }
 

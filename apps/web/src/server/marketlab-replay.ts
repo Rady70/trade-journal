@@ -318,12 +318,20 @@ export function candleContentFingerprint(files: CandleManifestFile[]): string {
   return sha256(rows);
 }
 
-type ReplayFieldKind = "string" | "decimal" | "positiveInt" | "nonNegativeInt" | "boolean";
+type ReplayFieldKind =
+  | "string"
+  | "nullableString"
+  | "decimal"
+  | "nullableDecimal"
+  | "positiveInt"
+  | "nonNegativeInt"
+  | "boolean";
 
 /**
- * The fields every authoritative event of each type must carry for the replay
- * surface to present it truthfully. Derived from the Phase E producer; nullable
- * producer fields are deliberately not required.
+ * The fields every authoritative event of each type carries in the Phase E
+ * producer, including producer fields that are always present but nullable.
+ * Derived from the exact producer serialization; a package that drops any
+ * always-present field is rejected rather than presented as a replay.
  */
 const EVENT_FIELDS: Record<ReplayEventType, Record<string, ReplayFieldKind>> = {
   run_started: {
@@ -356,9 +364,22 @@ const EVENT_FIELDS: Record<ReplayEventType, Record<string, ReplayFieldKind>> = {
     tradeNumber: "positiveInt",
     quoteSequence: "positiveInt",
     side: "string",
+    decisionBid: "decimal",
+    decisionAsk: "decimal",
     placedLot: "decimal",
     fillPrice: "decimal",
+    normalizedRequiredLot: "decimal",
     regime: "string",
+    rawRequestedLot: "nullableDecimal",
+    exactRequiredLot: "nullableDecimal",
+    hardBreakevenTarget: "nullableDecimal",
+    targetSpread: "nullableDecimal",
+    targetBid: "nullableDecimal",
+    targetAsk: "nullableDecimal",
+    existingProfitAtTarget: "nullableDecimal",
+    marginalProfitPerLot: "nullableDecimal",
+    projectedProfitAfter: "nullableDecimal",
+    sizingOutcome: "nullableString",
   },
   entry_rejected: {
     tradeNumber: "positiveInt",
@@ -367,15 +388,46 @@ const EVENT_FIELDS: Record<ReplayEventType, Record<string, ReplayFieldKind>> = {
     quoteSequence: "positiveInt",
     bid: "decimal",
     ask: "decimal",
+    rawRequestedLots: "decimal",
+    maximumVolume: "decimal",
+    normalizedRequiredLots: "decimal",
+    accountUsedMargin: "decimal",
+    accountFreeMargin: "decimal",
+    accountMarginLevelPercent: "nullableDecimal",
+    projectedUsedMargin: "decimal",
+    projectedFreeMargin: "decimal",
     message: "string",
+    exactRequiredLots: "nullableDecimal",
+    hardBreakevenTarget: "nullableDecimal",
+    targetSpread: "nullableDecimal",
+    targetBid: "nullableDecimal",
+    targetAsk: "nullableDecimal",
+    existingProfitAtTarget: "nullableDecimal",
+    marginalProfitPerLot: "nullableDecimal",
+    projectedProfitAfter: "nullableDecimal",
+    sizingOutcome: "nullableString",
   },
   entry_rejection_summary: {
     tradeNumber: "positiveInt",
     side: "string",
     reason: "string",
     attempts: "positiveInt",
+    firstQuoteSequence: "nonNegativeInt",
     firstTime: "string",
+    firstBid: "decimal",
+    firstAsk: "decimal",
+    lastQuoteSequence: "nonNegativeInt",
     lastTime: "string",
+    lastBid: "decimal",
+    lastAsk: "decimal",
+    minNormalizedRequiredLots: "decimal",
+    maxNormalizedRequiredLots: "decimal",
+    minProjectedFreeMargin: "decimal",
+    maxProjectedFreeMargin: "decimal",
+    parityAlgorithm: "string",
+    parityHash: "string",
+    message: "string",
+    outcome: "nullableString",
   },
   first_entry_skipped: {
     quoteSequence: "positiveInt",
@@ -397,7 +449,22 @@ const EVENT_FIELDS: Record<ReplayEventType, Record<string, ReplayFieldKind>> = {
     bid: "decimal",
     ask: "decimal",
     anchor: "decimal",
+    legs: "nonNegativeInt",
+    buyLots: "decimal",
+    sellLots: "decimal",
+    grossLots: "decimal",
+    netLots: "decimal",
+    hardBreakevenModeActive: "boolean",
+    rawProfit: "decimal",
+    exitProfit: "decimal",
+    threshold: "decimal",
+    buyClosePrice: "decimal",
+    sellClosePrice: "decimal",
+    commission: "decimal",
     realizedProfit: "decimal",
+    liquidatedRealizedProfit: "decimal",
+    liquidatedPositions: "nonNegativeInt",
+    historicalEntries: "nonNegativeInt",
   },
   basket_liquidated: {
     reason: "string",
@@ -405,14 +472,34 @@ const EVENT_FIELDS: Record<ReplayEventType, Record<string, ReplayFieldKind>> = {
     bid: "decimal",
     ask: "decimal",
     anchor: "decimal",
+    legs: "nonNegativeInt",
+    buyLots: "decimal",
+    sellLots: "decimal",
+    grossLots: "decimal",
+    netLots: "decimal",
+    hardBreakevenModeActive: "boolean",
+    rawProfit: "decimal",
+    exitProfit: "decimal",
+    threshold: "decimal",
+    buyClosePrice: "decimal",
+    sellClosePrice: "decimal",
+    commission: "decimal",
     realizedProfit: "decimal",
+    liquidatedRealizedProfit: "decimal",
+    liquidatedPositions: "nonNegativeInt",
+    historicalEntries: "nonNegativeInt",
   },
   stop_out_triggered: {
     reason: "string",
     quoteSequence: "positiveInt",
     bid: "decimal",
     ask: "decimal",
+    balance: "decimal",
+    floatingProfit: "decimal",
     equity: "decimal",
+    usedMargin: "decimal",
+    freeMargin: "decimal",
+    marginLevelPercent: "decimal",
     openPositions: "nonNegativeInt",
   },
   forced_liquidation: {
@@ -421,43 +508,109 @@ const EVENT_FIELDS: Record<ReplayEventType, Record<string, ReplayFieldKind>> = {
     side: "string",
     placedLot: "decimal",
     entryPrice: "decimal",
-    reason: "string",
+    entryTime: "string",
+    regime: "string",
+    rawRequestedLot: "nullableDecimal",
+    exactRequiredLot: "nullableDecimal",
+    normalizedRequiredLot: "decimal",
+    liquidationTime: "string",
+    triggerTime: "string",
     triggerQuoteSequence: "positiveInt",
+    triggerBid: "decimal",
+    triggerAsk: "decimal",
     closePrice: "decimal",
+    commission: "decimal",
     realizedProfit: "decimal",
+    reason: "string",
+    beforeBalance: "decimal",
+    beforeFloatingProfit: "decimal",
+    beforeEquity: "decimal",
+    beforeUsedMargin: "decimal",
+    beforeFreeMargin: "decimal",
+    beforeMarginLevelPercent: "nullableDecimal",
+    beforeOpenPositions: "nonNegativeInt",
+    afterBalance: "decimal",
+    afterFloatingProfit: "decimal",
+    afterEquity: "decimal",
+    afterUsedMargin: "decimal",
+    afterFreeMargin: "decimal",
+    afterMarginLevelPercent: "nullableDecimal",
+    afterOpenPositions: "nonNegativeInt",
   },
   basket_close_failed: {
     reason: "string",
     quoteSequence: "positiveInt",
+    bid: "decimal",
+    ask: "decimal",
     message: "string",
   },
   hard_breakeven_violated: {
     tradeNumber: "positiveInt",
     side: "string",
     quoteSequence: "positiveInt",
+    bid: "decimal",
+    ask: "decimal",
+    placedLot: "decimal",
     fillPrice: "decimal",
+    hardBreakevenTarget: "decimal",
+    projectedProfitAfterFill: "decimal",
+    sizingProjectedProfitAfter: "decimal",
+    message: "string",
   },
   margin_call_entered: {
     quoteSequence: "positiveInt",
     bid: "decimal",
     ask: "decimal",
+    balance: "decimal",
     equity: "decimal",
+    usedMargin: "decimal",
+    freeMargin: "decimal",
+    marginLevelPercent: "decimal",
     openPositions: "nonNegativeInt",
   },
   margin_call_left: {
     quoteSequence: "positiveInt",
     bid: "decimal",
     ask: "decimal",
+    balance: "decimal",
     equity: "decimal",
+    usedMargin: "decimal",
+    freeMargin: "decimal",
+    marginLevelPercent: "nullableDecimal",
     openPositions: "nonNegativeInt",
   },
   run_ended: {
     completed: "boolean",
+    basketsClosed: "nonNegativeInt",
+    basketsLiquidated: "nonNegativeInt",
+    forcedLiquidations: "nonNegativeInt",
+    legsOpened: "nonNegativeInt",
+    distinctRejectedEntries: "nonNegativeInt",
+    rejectedEntryAttempts: "nonNegativeInt",
+    skippedFirstEntryQuotes: "nonNegativeInt",
+    strategyEligibleQuotes: "nonNegativeInt",
+    quoteOnlyQuotes: "nonNegativeInt",
     quoteTicksProcessed: "nonNegativeInt",
+    deliveryFirstUtc: "string",
+    deliveryLastUtc: "string",
+    deliveryQuoteCount: "nonNegativeInt",
+    deliverySemanticDigest: "string",
+    engineRealizedProfit: "decimal",
+    failureKind: "nullableString",
+    failureCondition: "nullableString",
+    failureMessage: "nullableString",
+    failureQuoteTime: "nullableString",
+    failureBid: "nullableDecimal",
+    failureAsk: "nullableDecimal",
   },
 };
 
-const DECIMAL_PATTERN = /^[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/;
+/**
+ * The Phase E producer writes canonical invariant decimals only: an optional
+ * minus sign, digits, and an optional fractional part. Scientific notation,
+ * leading plus signs and bare/omitted digit forms are rejected.
+ */
+const DECIMAL_PATTERN = /^-?\d+(?:\.\d+)?$/;
 
 /** Event types the Phase E producer always scopes to a basket. */
 const BASKET_SCOPED_TYPES = new Set<string>([
@@ -492,13 +645,17 @@ function requireEventField(
   const valid =
     kind === "string"
       ? typeof value === "string" && value.length > 0 && value.length <= 4096
-      : kind === "decimal"
-        ? isDecimalText(value)
-        : kind === "positiveInt"
-          ? isPositiveInt(value)
-          : kind === "nonNegativeInt"
-            ? isNonNegativeInt(value)
-            : typeof value === "boolean";
+      : kind === "nullableString"
+        ? value === null || (typeof value === "string" && value.length > 0 && value.length <= 4096)
+        : kind === "decimal"
+          ? isDecimalText(value)
+          : kind === "nullableDecimal"
+            ? value === null || isDecimalText(value)
+            : kind === "positiveInt"
+              ? isPositiveInt(value)
+              : kind === "nonNegativeInt"
+                ? isNonNegativeInt(value)
+                : typeof value === "boolean";
   if (!valid) {
     throw new ReplayPackageError(
       `Event ${id} (${type}) has an invalid "${key}" for the published contract.`,
@@ -1347,7 +1504,8 @@ function compatibilityError(loaded: LoadedReplayPackage, cache: LoadedCandleCach
 /**
  * Reads one bounded replay window: derived candles from the qualified cache.
  * Account state and events are served separately, strictly through the cursor
- * endpoints. The server never interpolates or recomputes a value.
+ * endpoints; the candle window carries no account data. The server never
+ * interpolates or recomputes a value.
  */
 export function basketWindow(number: number, requestedFromMs: number) {
   const loaded = loadPackage();
@@ -1392,7 +1550,6 @@ export function basketWindow(number: number, requestedFromMs: number) {
     nextFromMs,
     windowStartMs: summary.windowStartMs,
     windowEndMs: summary.windowEndMs,
-    account: accountAtCursor(loaded.telemetry, fromMs),
     candleCache: {
       contract: cache.manifest.contract,
       manifestSha256: cache.manifestSha256,
@@ -1402,13 +1559,32 @@ export function basketWindow(number: number, requestedFromMs: number) {
 }
 
 /**
+ * The exported account row in force at the cursor, scoped to the selected
+ * basket's own lifecycle. No other basket's state is ever shown: before the
+ * basket's anchor there is no account row for it, and after its close the
+ * basket's final authoritative snapshot is retained through any post-close
+ * candle context instead of advancing into the next basket. The final open
+ * basket continues through the authoritative run end.
+ */
+function basketAccountAtCursor(
+  loaded: LoadedReplayPackage,
+  summary: BasketSummary,
+  cursorMs: number,
+): AccountRow | null {
+  if (cursorMs < summary.anchorTimeMs) return null;
+  const bound = summary.status === "open" ? summary.windowEndMs : summary.lastLiveTimeMs;
+  return accountAtCursor(loaded.telemetry, Math.min(cursorMs, bound));
+}
+
+/**
  * Returns only the basket events at or before the requested cursor, in exact
  * package order after the last delivered id, plus the exact exported account
- * row in force at that cursor. No future event or value crosses the boundary.
+ * row in force at that cursor. No future event or value crosses the boundary,
+ * and the cursor must lie inside the basket's authoritative replay window.
  */
 export function basketReveal(number: number, afterEventId: number, cursorMs: number) {
   const loaded = loadPackage();
-  basketSummary(number);
+  const summary = basketSummary(number);
   const cache = loadCandleCache();
   const incompatibility = compatibilityError(loaded, cache);
   if (incompatibility !== null) throw new ReplayPackageError(incompatibility);
@@ -1417,6 +1593,11 @@ export function basketReveal(number: number, afterEventId: number, cursorMs: num
   }
   if (!Number.isFinite(cursorMs)) {
     throw new ReplayPackageError("The reveal cursor time is invalid.");
+  }
+  if (cursorMs < summary.windowStartMs || cursorMs > summary.windowEndMs) {
+    throw new ReplayPackageError(
+      `The reveal cursor is outside the basket ${number} replay window.`,
+    );
   }
   const events = loaded.eventsByBasket.get(number) ?? [];
   const eligible = events.filter(
@@ -1428,7 +1609,7 @@ export function basketReveal(number: number, afterEventId: number, cursorMs: num
   const lastEventId = batch.length > 0 ? batch[batch.length - 1]!.id : afterEventId;
   return {
     events: batch,
-    account: accountAtCursor(loaded.telemetry, cursorMs),
+    account: basketAccountAtCursor(loaded, summary, cursorMs),
     hasMore,
     lastEventId,
   };

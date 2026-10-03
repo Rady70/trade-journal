@@ -24,6 +24,7 @@ import {
   SYNTHETIC_SOURCE_ROWS,
   syntheticEvents,
   syntheticTelemetry,
+  withProducerDefaults,
   writeCandleMonths,
   writeManifest,
   writeReplayEvents,
@@ -416,7 +417,7 @@ describe("derived candle cache validation", () => {
 });
 
 describe("bounded replay windows", () => {
-  it("returns derived bars inside the basket window and a telemetry carry-in row", () => {
+  it("returns derived bars inside the basket window without account data", () => {
     const ctx = fixture();
     const status = replayStatus();
     const basket = status.baskets.find((candidate) => candidate.number === 1)!;
@@ -431,8 +432,11 @@ describe("bounded replay windows", () => {
       expect(bar[0] + 60_000).toBeLessThanOrEqual(window.windowEndMs);
     }
     expect(window.nextFromMs).toBeNull();
-    expect(window.account).not.toBeNull();
-    expect(window.account!.timeMs).toBeLessThanOrEqual(window.fromMs);
+    // Account state is served only by the cursor-bounded reveal endpoint.
+    expect(Object.prototype.hasOwnProperty.call(window, "account")).toBe(false);
+    const anchorAccount = basketReveal(1, 0, ISO("2024-01-01T00:30:00.000Z")).account;
+    expect(anchorAccount).not.toBeNull();
+    expect(anchorAccount!.openPositions).toBe(0);
     expect(window.candleCache.contract).toBe("marketlab-xauusd-m1-candle-cache-v1");
     expect(ctx.manifest.contract).toBe("marketlab-single-anchor-replay-package-v1");
   });
@@ -464,6 +468,38 @@ describe("bounded replay windows", () => {
     const later = basketReveal(1, after, ISO("2024-01-01T00:38:00.000Z"));
     expect(later.events.length).toBeGreaterThan(0);
     expect(later.events.every((event) => event.id > after)).toBe(true);
+  });
+
+  it("scopes the exported account state to the selected basket", () => {
+    fixture();
+    const loaded = loadPackage();
+    const basket1 = loaded.byNumber.get(1)!;
+    const close1 = loaded.eventsByBasket
+      .get(1)!
+      .find((event) => event.type === "strategy_exit" || event.type === "basket_liquidated")!;
+    const anchor2 = loaded.eventsByBasket
+      .get(2)!
+      .find((event) => event.type === "basket_anchored")!;
+    const entry2 = loaded.eventsByBasket.get(2)!.find((event) => event.type === "entry_executed")!;
+    // The next basket opens its first position inside basket 1's post-close
+    // replay context (the 30-minute candle pad after the close).
+    expect(anchor2.timeMs!).toBeGreaterThan(close1.timeMs!);
+    expect(entry2.timeMs!).toBeLessThanOrEqual(basket1.windowEndMs);
+    // Post-close context: the account stays basket 1's final snapshot instead
+    // of advancing into basket 2's open position.
+    const postClose = basketReveal(1, 0, ISO("2024-01-01T00:40:00.000Z"));
+    expect(postClose.account).not.toBeNull();
+    expect(postClose.account!.timeMs).toBe(close1.timeMs);
+    expect(postClose.account!.openPositions).toBe(0);
+    // Pre-anchor context of basket 2: no account row for this basket at all.
+    expect(basketReveal(2, 0, ISO("2024-01-01T00:20:00.000Z")).account).toBeNull();
+  });
+
+  it("rejects a reveal cursor outside the basket replay window", () => {
+    fixture();
+    const summary = loadPackage().byNumber.get(1)!;
+    expect(() => basketReveal(1, 0, summary.windowStartMs - 1)).toThrow(/outside the basket/);
+    expect(() => basketReveal(1, 0, summary.windowEndMs + 1)).toThrow(/outside the basket/);
   });
 
   it("extends an open final basket's window to the authoritative run end", () => {
@@ -512,8 +548,8 @@ describe("bounded replay windows", () => {
         completed: true,
         quoteTicksProcessed: 2,
       },
-    ].map((event, index) => ({ ...event, id: index + 1 }));
-    const rows = events.map((event, index) => ({
+    ].map((event, index) => ({ ...withProducerDefaults(event), id: index + 1 }));
+    const rows = events.map((event: Record<string, unknown>, index: number) => ({
       kind: "event",
       eventId: event.id,
       time: event.time,
@@ -595,7 +631,7 @@ describe("API route handlers", () => {
     expect(windowResponse.status).toBe(200);
     const windowBody = await windowResponse.json();
     expect(windowBody.bars.length).toBeGreaterThan(0);
-    expect(windowBody.account.timeMs).toBeLessThanOrEqual(windowBody.fromMs);
+    expect(Object.prototype.hasOwnProperty.call(windowBody, "account")).toBe(false);
 
     const { GET: GET_REVEAL } =
       await import("../src/app/api/marketlab-replay/baskets/[number]/reveal/route");
@@ -675,7 +711,7 @@ describe("hardening: malformed but hash-consistent packages", () => {
     expect(() => basketDetail(1)).toThrow(ReplayPackageError);
   };
   const renumber = (events: Record<string, unknown>[]): Record<string, unknown>[] =>
-    events.map((event, index) => ({ ...event, id: index + 1 }));
+    events.map((event, index) => ({ ...withProducerDefaults(event), id: index + 1 }));
   const without = (event: Record<string, unknown>, key: string) => {
     const copy = { ...event };
     delete copy[key];
@@ -748,7 +784,11 @@ describe("hardening: malformed but hash-consistent packages", () => {
       time: "2024-01-01T00:37:30.000Z",
       bid: "98.6",
       ask: "99.0",
+      balance: "900.0",
       equity: "900.0",
+      usedMargin: "0.0",
+      freeMargin: "900.0",
+      marginLevelPercent: null,
       openPositions: 0,
     };
     const inserted = renumber([...events.slice(0, anchor2), orphan, ...events.slice(anchor2)]);
@@ -808,13 +848,25 @@ describe("hardening: malformed but hash-consistent packages", () => {
   });
 
   it("rejects non-canonical telemetry decimals", () => {
+    for (const form of ["1,000.00", "+1", ".5", "1.", "1e3"]) {
+      const ctx = fixture();
+      const telemetry = syntheticTelemetry(syntheticEvents()).map((row, index) =>
+        index === 0 ? { ...row, balance: form } : row,
+      );
+      writeReplayPackage(ctx.packageRoot, syntheticEvents(), telemetry, {});
+      expectRejected();
+      expect(replayStatus().error).toContain('exact decimal "balance"');
+    }
+  });
+
+  it("rejects an event that drops an always-present producer field", () => {
     const ctx = fixture();
-    const telemetry = syntheticTelemetry(syntheticEvents()).map((row, index) =>
-      index === 0 ? { ...row, balance: "1,000.00" } : row,
+    const events = syntheticEvents().map((event) =>
+      event.type === "strategy_exit" ? { ...event, netLots: undefined } : event,
     );
-    writeReplayPackage(ctx.packageRoot, syntheticEvents(), telemetry, {});
+    writeReplayEvents(ctx.packageRoot, ctx.manifest, events);
     expectRejected();
-    expect(replayStatus().error).toContain('exact decimal "balance"');
+    expect(replayStatus().error).toContain('"netLots"');
   });
 
   it("rejects a telemetry row outside its shard year", () => {

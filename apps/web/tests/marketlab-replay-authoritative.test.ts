@@ -196,10 +196,15 @@ describe.skipIf(!enabled)("authoritative finalized Phase E package", () => {
     const rawRows = new Map(
       telemetry.map((row) => [`${row.kind}|${row.eventId}|${row.time}`, row]),
     );
-    const cursor = window.bars[10]![0] + 60_000;
+    // The window response carries no account data; the reveal is the only
+    // account path, and it is scoped to the selected basket (the window's
+    // pre-anchor context has no account row for this basket).
+    expect(Object.prototype.hasOwnProperty.call(window, "account")).toBe(false);
+    expect(basketReveal(276, 0, window.fromMs).account).toBeNull();
+    const cursor = basket.anchorTimeMs;
     const revealed = basketReveal(276, 0, cursor);
     expect(revealed.account).not.toBeNull();
-    for (const row of [window.account!, revealed.account!]) {
+    for (const row of [revealed.account!]) {
       const raw = rawRows.get(`${row.kind}|${row.eventId}|${row.time}`);
       expect(raw).toBeDefined();
       expect(raw!.balance).toBe(row.balance);
@@ -214,6 +219,33 @@ describe.skipIf(!enabled)("authoritative finalized Phase E package", () => {
       expect(event.timeMs).not.toBeNull();
       expect(event.timeMs!).toBeLessThanOrEqual(cursor);
     }
+  });
+
+  it("scopes the exported account state to the selected basket across a close", () => {
+    const loaded = loadPackage();
+    const basket5 = loaded.byNumber.get(5)!;
+    const basket6 = loaded.byNumber.get(6)!;
+    const close5 = loaded.eventsByBasket
+      .get(5)!
+      .find((event) => event.type === "strategy_exit" || event.type === "basket_liquidated")!;
+    const anchor6 = loaded.eventsByBasket
+      .get(6)!
+      .find((event) => event.type === "basket_anchored")!;
+    const entry6 = loaded.eventsByBasket.get(6)!.find((event) => event.type === "entry_executed")!;
+    // The premise of the regression: basket 6 opens a position inside basket
+    // 5's post-close replay context.
+    expect(anchor6.timeMs!).toBeGreaterThan(close5.timeMs!);
+    expect(entry6.timeMs!).toBeLessThanOrEqual(basket5.windowEndMs);
+    // At the end of basket 5's window the account is basket 5's final exported
+    // snapshot (flat after its close), never basket 6's open position.
+    const postClose = basketReveal(5, 0, basket5.windowEndMs);
+    expect(postClose.account).not.toBeNull();
+    expect(postClose.account!.timeMs).toBe(close5.timeMs);
+    expect(postClose.account!.openPositions).toBe(0);
+    // Basket 6's pre-anchor context has no account row for this basket.
+    expect(basketReveal(6, 0, basket6.windowStartMs).account).toBeNull();
+    // A reveal cursor outside a basket's replay window is rejected.
+    expect(() => basketReveal(5, 0, basket5.windowEndMs + 1)).toThrow(/outside the basket/);
   });
 
   it("keeps the final open basket replayable through the authoritative run end", () => {

@@ -585,7 +585,7 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
               </>
             ) : (
               <p className="text-sm text-muted-foreground">
-                No exported account snapshot at or before the cursor.
+                No exported account snapshot for this basket at the cursor.
               </p>
             )}
           </CardContent>

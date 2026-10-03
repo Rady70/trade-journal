@@ -21,7 +21,10 @@ puppeteer-core harness that drives the installed Microsoft Edge against a local
   30 forced liquidations, 4 Stop Outs and 1 Escape exit in ascending package
   order with the candle chart rendered; the account panel balance equals the
   exported `25550.58500`, the signed net exposure equals the exported `netLots`,
-  and the outcome reads `closed (Escape)`.
+  the account state is scoped to the selected basket (never a neighbouring
+  basket's position), and the outcome reads `closed (Escape)`. The candle window
+  response carries no account data; account rows come only from the
+  cursor-bounded reveal.
 - `transcript-valid.json` / `05-basket-280-run-end.png`: the final open basket
   #280 is scrubbed near the run end and Play runs through the last candle and
   the explicit non-candle terminal step; `open at run end` appears only when

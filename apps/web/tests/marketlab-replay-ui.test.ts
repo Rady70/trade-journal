@@ -159,7 +159,6 @@ const chunkOne: ReplayWindowResponse = {
   nextFromMs: minuteMs(4),
   windowStartMs: WINDOW_START,
   windowEndMs: WINDOW_END,
-  account: carryRow(WINDOW_START),
   candleCache: { contract: "c", manifestSha256: "m", contentSha256: "x" },
 };
 const mergedChunk: ReplayWindowResponse = {
@@ -169,7 +168,6 @@ const mergedChunk: ReplayWindowResponse = {
   nextFromMs: null,
   windowStartMs: WINDOW_START,
   windowEndMs: WINDOW_END,
-  account: carryRow(WINDOW_START),
   candleCache: { contract: "c", manifestSha256: "m", contentSha256: "x" },
 };
 
@@ -342,7 +340,6 @@ it("advances the final open basket to the authoritative run end without a final 
     nextFromMs: null,
     windowStartMs: WINDOW_START,
     windowEndMs: runEndMs,
-    account: null,
     candleCache: { contract: "c", manifestSha256: "m", contentSha256: "x" },
   };
   const loader = vi.fn(async (fromMs: number) =>
