@@ -22,6 +22,7 @@ The governing boundary is unchanged:
 | Selected base revision | `6e0bb0e94c863c39347a7be3283d6061fddc257f` (upstream `main`, 2026-09-30) |
 | MarketLab fork | `https://github.com/Rady70/trade-journal` |
 | Implementation branch | `marketlab/phase-f-single-anchor-replay` |
+| Review PR | [Rady70/trade-journal#1](https://github.com/Rady70/trade-journal/pull/1) (open; not merged) |
 
 The base is the current upstream `main`, one commit after the planning snapshot.
 That commit (`Fix account currencies and hedged CSV imports (#32)`) improves
