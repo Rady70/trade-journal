@@ -269,6 +269,82 @@ it("keeps candle context when scrubbing to the end of the window", async () => {
   expect(feed()).not.toContain("No derived candles available at the cursor.");
 });
 
+it("keeps revealed history when stepping across a chunk boundary with context", async () => {
+  const merged: ReplayWindowResponse = {
+    fromMs: WINDOW_START,
+    toMs: minuteMs(8),
+    bars: [bar(0), bar(1), bar(2), bar(3), bar(4), bar(5), bar(6), bar(7)],
+    account: [accountRow(iso(minuteMs(1)), "1000.00000", 1)],
+    nextFromMs: null,
+    windowStartMs: WINDOW_START,
+    windowEndMs: WINDOW_END,
+    candleCache: { contract: "c", manifestSha256: "m", contentSha256: "x" },
+  };
+  let calls = 0;
+  const contextLoader = vi.fn(async (_fromMs: number) => {
+    calls += 1;
+    return calls === 1 ? chunkOne : merged;
+  });
+  await act(async () =>
+    root.render(
+      createElement(
+        TooltipProvider,
+        null,
+        createElement(
+          PrivacyProvider,
+          null,
+          createElement(MarketlabReplay, { basket, events, loadWindow: contextLoader }),
+        ),
+      ),
+    ),
+  );
+  for (let index = 0; index < 3; index += 1) {
+    await act(async () => button("Next candle").click());
+  }
+  expect(feed()).not.toContain("Stop Out MarginLevel");
+  await act(async () => button("Next candle").click());
+  expect(contextLoader).toHaveBeenCalledWith(WINDOW_START);
+  expect(feed()).toContain("Stop Out MarginLevel");
+  const lastData = vela.setMarket.mock.calls.at(-1)?.[0] as { data: unknown[] };
+  expect(lastData.data.length).toBeGreaterThanOrEqual(5);
+});
+
+it("does not fall back to the terminal outcome when the candle cache ends before the close", async () => {
+  const short: ReplayWindowResponse = {
+    fromMs: WINDOW_START,
+    toMs: minuteMs(3),
+    bars: [bar(0), bar(1), bar(2)],
+    account: [accountRow(iso(minuteMs(1)), "1000.00000", 1)],
+    nextFromMs: null,
+    windowStartMs: WINDOW_START,
+    windowEndMs: WINDOW_END,
+    candleCache: { contract: "c", manifestSha256: "m", contentSha256: "x" },
+  };
+  await act(async () =>
+    root.render(
+      createElement(
+        TooltipProvider,
+        null,
+        createElement(
+          PrivacyProvider,
+          null,
+          createElement(MarketlabReplay, {
+            basket,
+            events,
+            loadWindow: async () => short,
+          }),
+        ),
+      ),
+    ),
+  );
+  for (let index = 0; index < 3; index += 1) {
+    await act(async () => button("Next candle").click());
+  }
+  expect(feed()).toContain("replay in progress");
+  expect(feed()).not.toContain("liquidated (BrokerLiquidation)");
+  expect(feed()).not.toContain("Forced close");
+});
+
 it("does not reveal the basket outcome or future totals before the cursor", async () => {
   await renderReplay();
   expect(feed()).toContain("replay in progress");

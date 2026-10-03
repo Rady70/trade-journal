@@ -63,7 +63,10 @@ try {
     transcript.steps.push({ check: "invalid package rejected with a clear reason", pass: true });
   } else {
     await waitForText("Authoritative package provenance");
-    transcript.steps.push({ check: "backtests surface loaded with package provenance", pass: true });
+    transcript.steps.push({
+      check: "backtests surface loaded with package provenance",
+      pass: true,
+    });
     await page.screenshot({ path: `${outDir}\\01-backtests-landing.png`, fullPage: true });
 
     const status = await (await fetch(`${APP}/api/marketlab-replay`)).json();
@@ -71,7 +74,13 @@ try {
     transcript.package = {
       packageSha256: status.package.packageSha256,
       candlesContentSha256: status.candles.contentSha256,
-      basket276: { entries: basket.entries, forced: basket.forcedLiquidations, stopOuts: basket.stopOutEpisodes, status: basket.status, exitReason: basket.exitReason },
+      basket276: {
+        entries: basket.entries,
+        forced: basket.forcedLiquidations,
+        stopOuts: basket.stopOutEpisodes,
+        status: basket.status,
+        exitReason: basket.exitReason,
+      },
     };
 
     await page.click('button[aria-label="SingleAnchor basket"]');
@@ -89,11 +98,17 @@ try {
     await waitForText("Exported LEAN value", 180000);
     await sleep(500);
     await page.screenshot({ path: `${outDir}\\02-basket-276-start.png`, fullPage: true });
-    transcript.steps.push({ check: "selected basket #276 from the authoritative basket list", pass: true });
+    transcript.steps.push({
+      check: "selected basket #276 from the authoritative basket list",
+      pass: true,
+    });
     const startText = (await bodyText()).toLowerCase();
     if (!startText.includes("replay in progress"))
       throw new Error("the basket outcome is visible before the replay reaches it");
-    if (!startText.includes("authoritative events revealed") || /\/\s*\d+\s*significant/.test(startText))
+    if (
+      !startText.includes("authoritative events revealed") ||
+      /\/\s*\d+\s*significant/.test(startText)
+    )
       throw new Error("the replay shows future event totals");
 
     let revealedEntry = false;
@@ -109,8 +124,12 @@ try {
     const beforeLiquidation = await bodyText();
     if (beforeLiquidation.includes("Forced close"))
       throw new Error("forced liquidation was visible before the cursor reached it");
-    const revealedForced = await page.$$eval('[data-marketlab-event="forced_liquidation"]', (els) => els.length);
-    if (revealedForced !== 0) throw new Error(`expected 0 revealed forced liquidations, saw ${revealedForced}`);
+    const revealedForced = await page.$$eval(
+      '[data-marketlab-event="forced_liquidation"]',
+      (els) => els.length,
+    );
+    if (revealedForced !== 0)
+      throw new Error(`expected 0 revealed forced liquidations, saw ${revealedForced}`);
     transcript.steps.push({
       check: "progressive reveal: entry visible, forced liquidation still hidden",
       pass: true,
@@ -124,7 +143,12 @@ try {
     const cursorAfter = (await bodyText()).match(/Cursor through ([^\n·]+)/)?.[1] ?? null;
     if (!cursorAfter || cursorAfter === cursorBefore)
       throw new Error(`Play did not advance the cursor (${cursorBefore} -> ${cursorAfter})`);
-    transcript.steps.push({ check: "Play advances the cursor; Pause stops it", pass: true, cursorBefore, cursorAfter });
+    transcript.steps.push({
+      check: "Play advances the cursor; Pause stops it",
+      pass: true,
+      cursorBefore,
+      cursorAfter,
+    });
 
     await page.click('button[aria-label="Restart replay"]');
     await sleep(600);
@@ -148,8 +172,7 @@ try {
       const ids = [...document.querySelectorAll("[data-marketlab-event-id]")].map((el) =>
         Number(el.getAttribute("data-marketlab-event-id")),
       );
-      const count = (type) =>
-        document.querySelectorAll(`[data-marketlab-event="${type}"]`).length;
+      const count = (type) => document.querySelectorAll(`[data-marketlab-event="${type}"]`).length;
       return {
         entries: count("entry_executed"),
         forced: count("forced_liquidation"),
@@ -162,9 +185,13 @@ try {
     if (counts.entries !== basket.entries)
       throw new Error(`revealed entries ${counts.entries} != authoritative ${basket.entries}`);
     if (counts.forced !== basket.forcedLiquidations)
-      throw new Error(`revealed forced liquidations ${counts.forced} != authoritative ${basket.forcedLiquidations}`);
+      throw new Error(
+        `revealed forced liquidations ${counts.forced} != authoritative ${basket.forcedLiquidations}`,
+      );
     if (counts.stopOuts !== basket.stopOutEpisodes)
-      throw new Error(`revealed Stop Outs ${counts.stopOuts} != authoritative ${basket.stopOutEpisodes}`);
+      throw new Error(
+        `revealed Stop Outs ${counts.stopOuts} != authoritative ${basket.stopOutEpisodes}`,
+      );
     if (counts.exits !== 1) throw new Error(`revealed strategy exits ${counts.exits} != 1`);
     if (!counts.ascending) throw new Error("revealed event ids are not in ascending package order");
     const chartState = await page.evaluate(() => {
@@ -188,10 +215,13 @@ try {
     ).json();
     const expectedBalance = endWindow.account[endWindow.account.length - 1]?.balance;
     if (!balance || balance !== expectedBalance) {
-      throw new Error(`account panel balance ${balance} does not match exported ${expectedBalance}`);
+      throw new Error(
+        `account panel balance ${balance} does not match exported ${expectedBalance}`,
+      );
     }
     transcript.steps.push({
-      check: "scrub reveals all authoritative events exactly once and in order; candle chart and exported balance at the cursor",
+      check:
+        "scrub reveals all authoritative events exactly once and in order; candle chart and exported balance at the cursor",
       pass: true,
       exportedBalance: expectedBalance,
       counts,

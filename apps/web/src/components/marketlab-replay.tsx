@@ -272,7 +272,7 @@ export function MarketlabReplay({ basket, events, loadWindow }: MarketlabReplayP
     ? basket.status === "liquidated"
       ? `liquidated (${String(closeEvent.payload.reason ?? "")})`
       : `closed (${String(closeEvent.payload.reason ?? "")})`
-    : complete
+    : complete && basket.status === "open"
       ? statusLabel(basket)
       : "replay in progress";
   const anchorRevealed = cursorMs !== null && cursorMs >= basket.anchorTimeMs;

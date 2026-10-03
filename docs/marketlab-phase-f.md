@@ -124,7 +124,8 @@ The loader reads the finalized Phase E package and never reconstructs it:
   forced liquidations, stop out, Margin Call, hard-BE and exit annotations are
   revealed only at or before the cursor. The card title shows
   `replay in progress` until the close event is revealed, then the authoritative
-  outcome.
+  outcome; an open basket shows `open at run end` only when its window is fully
+  loaded. An incomplete candle cache never substitutes for the close event.
 - Controls: Restart, Previous candle, Play/Pause, Next candle, reveal full
   window, speed (1×/2×/4×/16×/64× candles per second), scrubber, cursor time.
 - Account panel synchronized to the cursor from exported values: balance,

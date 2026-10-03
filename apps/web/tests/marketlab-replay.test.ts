@@ -547,9 +547,10 @@ describe("hardening: malformed but hash-consistent packages", () => {
 
   it("rejects an event-id gap", () => {
     const ctx = fixture();
-    const events = syntheticEvents().map((event, index) =>
-      index === 3 ? { ...event, id: 99 } : { ...event, id: index + 1 },
-    );
+    const events = syntheticEvents().map((event, index) => ({
+      ...event,
+      id: index >= 3 ? index + 2 : index + 1,
+    }));
     writeReplayEvents(ctx.packageRoot, ctx.manifest, events);
     expectRejected();
     expect(replayStatus().error).toContain("1..N");
@@ -639,6 +640,15 @@ describe("hardening: malformed but hash-consistent packages", () => {
     );
     writeReplayPackage(ctx.packageRoot, syntheticEvents(), telemetry, {});
     expect(() => basketWindow(1, 0)).toThrow(/does not bind/);
+  });
+
+  it("rejects non-canonical telemetry decimals", () => {
+    const ctx = fixture();
+    const telemetry = syntheticTelemetry(syntheticEvents()).map((row, index) =>
+      index === 0 ? { ...row, balance: "1,000.00" } : row,
+    );
+    writeReplayPackage(ctx.packageRoot, syntheticEvents(), telemetry, {});
+    expect(() => basketWindow(1, 0)).toThrow(/exact decimal "balance"/);
   });
 
   it("rejects a telemetry row outside its shard year", () => {
