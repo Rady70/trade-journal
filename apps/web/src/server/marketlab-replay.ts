@@ -17,12 +17,14 @@ import {
   indexBaskets,
   parseUtcMs,
   ReplayPackageError,
-  REPLAY_CHUNK_ACCOUNT_ROWS,
   REPLAY_CHUNK_BARS,
   REPLAY_EVENT_TYPES,
   REPLAY_PACKAGE_CONTRACT,
   REPLAY_RECAP_TYPE,
+  REPLAY_REVEAL_BATCH,
+  toBasketIdentity,
   type AccountRow,
+  type BasketIdentity,
   type BasketSummary,
   type CompactBar,
   type ReplayEventType,
@@ -33,6 +35,7 @@ import {
 } from "@/lib/marketlab-replay";
 
 const SHA256_HEX = /^[0-9a-f]{64}$/;
+const SHA256_DIGEST_PATTERN = /^sha256:[0-9a-f]{64}$/;
 const TELEMETRY_FILE = /^telemetry-(\d{4})\.jsonl$/;
 const CANDLE_MONTH_FILE = /^xauusd-m1-(\d{4})-(\d{2})\.csv$/;
 const CANDLE_HEADER = "time,open,high,low,close,ticks";
@@ -63,6 +66,16 @@ export interface CandleManifest {
   time_basis?: string;
   empty_minutes?: string;
   content_sha256?: string;
+  inputs?: {
+    composition?: {
+      ordered_source_semantic_digest?: string;
+      accepted_row_count?: number;
+    };
+    qualification_record?: {
+      sha256?: string;
+      overall_qualification?: string;
+    };
+  };
   files: CandleManifestFile[];
 }
 
@@ -82,6 +95,8 @@ export interface LoadedReplayPackage {
   eventsByBasket: Map<number, ReplayEventView[]>;
   byNumber: Map<number, BasketSummary>;
   expectedPackageSha256: string | null;
+  /** Validated, chronologically ordered telemetry rows for every shard. */
+  telemetry: AccountRow[];
 }
 
 type CacheEntry<T> = { key: string; value: T };
@@ -263,14 +278,22 @@ function validateManifest(body: unknown): ReplayManifest {
     }
     eventCounts[type] = count;
   }
-  if (body.telemetryCounts !== undefined) {
-    if (
-      !isPlainObject(body.telemetryCounts) ||
-      !isNonNegativeInt(body.telemetryCounts.event) ||
-      !isNonNegativeInt(body.telemetryCounts.periodic)
-    ) {
-      throw new ReplayPackageError("Replay manifest telemetryCounts is invalid.");
-    }
+  if (
+    !isPlainObject(body.telemetryCounts) ||
+    !isNonNegativeInt(body.telemetryCounts.event) ||
+    !isNonNegativeInt(body.telemetryCounts.periodic)
+  ) {
+    throw new ReplayPackageError("Replay manifest telemetryCounts is invalid.");
+  }
+  if (!isPlainObject(body.delivered)) {
+    throw new ReplayPackageError("Replay manifest has no delivered-stream identity.");
+  }
+  if (
+    !isPositiveInt(body.delivered.quoteCount) ||
+    typeof body.delivered.semanticDigest !== "string" ||
+    body.delivered.semanticDigest.length === 0
+  ) {
+    throw new ReplayPackageError("Replay manifest delivered-stream identity is invalid.");
   }
   if (
     body.telemetryIntervalSeconds !== undefined &&
@@ -651,7 +674,9 @@ export function loadPackage(): LoadedReplayPackage {
     eventsByBasket,
     byNumber,
     expectedPackageSha256: expectedSha256,
+    telemetry: [],
   };
+  loaded.telemetry = verifyTelemetry(loaded);
   packageCache = { key, value: loaded };
   return loaded;
 }
@@ -694,13 +719,29 @@ export function loadCandleCache(): LoadedCandleCache {
       )}.`,
     );
   }
-  if (body.symbol !== "XAUUSD" || body.resolution !== "M1" || body.time_basis !== "UTC") {
-    throw new ReplayPackageError("Candle cache is not the qualified XAUUSD M1 UTC dataset.");
+  if (
+    body.symbol !== "XAUUSD" ||
+    body.market !== "dukascopy" ||
+    body.resolution !== "M1" ||
+    body.time_basis !== "UTC"
+  ) {
+    throw new ReplayPackageError(
+      "Candle cache is not the qualified XAUUSD Dukascopy M1 UTC dataset.",
+    );
   }
   if (body.price_basis !== "mid_of_best_bid_ask" || body.empty_minutes !== "absent") {
     throw new ReplayPackageError(
       "Candle cache price/emptiness basis is not the qualified contract.",
     );
+  }
+  const composition = isPlainObject(body.inputs) ? body.inputs.composition : undefined;
+  if (
+    !isPlainObject(composition) ||
+    typeof composition.ordered_source_semantic_digest !== "string" ||
+    !SHA256_DIGEST_PATTERN.test(composition.ordered_source_semantic_digest) ||
+    !isPositiveInt(composition.accepted_row_count)
+  ) {
+    throw new ReplayPackageError("Candle cache has no qualified source-composition identity.");
   }
   if (!Array.isArray(body.files) || body.files.length === 0) {
     throw new ReplayPackageError("Candle-cache manifest has no monthly files.");
@@ -728,9 +769,18 @@ export function loadCandleCache(): LoadedCandleCache {
       sha256: String(digest),
     };
   });
+  let previousMonth: string | null = null;
   for (const file of files) {
     const match = CANDLE_MONTH_FILE.exec(file.name)!;
-    byMonth.set(`${match[1]}-${match[2]}`, file);
+    const key = `${match[1]}-${match[2]}`;
+    if (byMonth.has(key)) {
+      throw new ReplayPackageError(`Candle-cache manifest repeats month ${key}.`);
+    }
+    if (previousMonth !== null && key <= previousMonth) {
+      throw new ReplayPackageError("Candle-cache manifest months are not in ascending order.");
+    }
+    previousMonth = key;
+    byMonth.set(key, file);
   }
   if (typeof body.content_sha256 !== "string" || !SHA256_HEX.test(body.content_sha256)) {
     throw new ReplayPackageError("Candle-cache manifest has no content SHA-256.");
@@ -976,8 +1026,63 @@ function basketSummary(number: number): BasketSummary {
   return summary;
 }
 
+/**
+ * Reads, orders and covers the complete telemetry history before any row is
+ * served. Malformed order, wrong counts, duplicate snapshots and missing
+ * snapshots for live events are rejected; nothing is silently reordered.
+ */
+function verifyTelemetry(loaded: LoadedReplayPackage): AccountRow[] {
+  const eventsById = new Map(loaded.events.map((view) => [view.id, view]));
+  const liveIds = new Set(loaded.events.filter((view) => view.live).map((view) => view.id));
+  const expected = loaded.manifest.telemetryCounts;
+  if (!expected) throw new ReplayPackageError("Replay manifest has no telemetry counts.");
+  const rows: AccountRow[] = [];
+  const snapshotIds = new Set<number>();
+  let eventCount = 0;
+  let periodicCount = 0;
+  let previousTimeMs = -1;
+  let previousQuoteSequence = -1;
+  for (const file of loaded.manifest.files) {
+    if (!TELEMETRY_FILE.test(file.name)) continue;
+    for (const row of readTelemetryYear(
+      loaded.root,
+      file,
+      eventsById,
+      loaded.manifest.packageSha256,
+    )) {
+      if (row.timeMs < previousTimeMs || row.quoteSequence < previousQuoteSequence) {
+        throw new ReplayPackageError(`${file.name} telemetry is not chronologically ordered.`);
+      }
+      previousTimeMs = row.timeMs;
+      previousQuoteSequence = row.quoteSequence;
+      if (row.kind === "event") {
+        if (row.eventId === null || snapshotIds.has(row.eventId)) {
+          throw new ReplayPackageError(`${file.name} repeats a telemetry snapshot.`);
+        }
+        snapshotIds.add(row.eventId);
+        eventCount += 1;
+      } else {
+        periodicCount += 1;
+      }
+      rows.push(row);
+    }
+  }
+  if (eventCount !== expected.event || periodicCount !== expected.periodic) {
+    throw new ReplayPackageError(
+      `Telemetry counts do not match the manifest: ${eventCount}/${periodicCount} vs ${expected.event}/${expected.periodic}.`,
+    );
+  }
+  for (const id of liveIds) {
+    if (!snapshotIds.has(id)) {
+      throw new ReplayPackageError(`Telemetry is missing the snapshot for live event #${id}.`);
+    }
+  }
+  return rows;
+}
+
 /** Read-only status for the Backtests landing screen. Never throws for a bad package. */
 export function replayStatus(): ReplayStatus {
+  const noCompatibility = { valid: false, error: null as string | null };
   let config: ReplayPackageConfig;
   try {
     config = replayPackageConfig();
@@ -990,6 +1095,7 @@ export function replayStatus(): ReplayStatus {
       package: null,
       candles: emptyCandleStatus(false, null),
       baskets: [],
+      compatibility: noCompatibility,
     };
   }
   if (!config.configured) {
@@ -1001,6 +1107,7 @@ export function replayStatus(): ReplayStatus {
       package: null,
       candles: emptyCandleStatus(config.candleRoot !== null, config.hint),
       baskets: [],
+      compatibility: noCompatibility,
     };
   }
   let candleStatus: ReplayStatus["candles"];
@@ -1032,6 +1139,19 @@ export function replayStatus(): ReplayStatus {
   try {
     const loaded = loadPackage();
     const { manifest } = loaded;
+    let compatibility = noCompatibility;
+    if (candleStatus.valid) {
+      try {
+        const cache = loadCandleCache();
+        const error = compatibilityError(loaded, cache);
+        compatibility = { valid: error === null, error };
+      } catch (error) {
+        compatibility = {
+          valid: false,
+          error: error instanceof Error ? error.message : "Candle cache is invalid.",
+        };
+      }
+    }
     return {
       configured: true,
       valid: true,
@@ -1061,7 +1181,8 @@ export function replayStatus(): ReplayStatus {
         files: manifest.files,
       },
       candles: candleStatus,
-      baskets: loaded.baskets,
+      baskets: loaded.baskets.map(toBasketIdentity),
+      compatibility,
     };
   } catch (error) {
     return {
@@ -1072,6 +1193,7 @@ export function replayStatus(): ReplayStatus {
       package: null,
       candles: candleStatus,
       baskets: [],
+      compatibility: noCompatibility,
     };
   }
 }
@@ -1094,25 +1216,66 @@ function emptyCandleStatus(configured: boolean, error: string | null): ReplaySta
 const expectedCandleIdentityEnforced = (): boolean =>
   (process.env.MARKETLAB_EXPECTED_CANDLE_CONTENT_SHA256 ?? "").trim().length > 0;
 
-export function basketDetail(number: number): {
-  basket: BasketSummary;
-  events: ReplayEventView[];
-} {
-  const loaded = loadPackage();
+/** The pre-cursor selector identity only; no events, outcome or counts. */
+export function basketDetail(number: number): { basket: BasketIdentity } {
   const summary = basketSummary(number);
-  const events = loaded.eventsByBasket.get(number) ?? [];
-  return { basket: summary, events };
+  return { basket: toBasketIdentity(summary) };
+}
+
+/** Cross-checks the replay package against the qualified candle cache. */
+function compatibilityError(loaded: LoadedReplayPackage, cache: LoadedCandleCache): string | null {
+  const manifest = loaded.manifest;
+  const candle = cache.manifest;
+  if (manifest.symbol !== candle.symbol) {
+    return `Replay symbol ${manifest.symbol} does not match candle cache symbol ${String(
+      candle.symbol,
+    )}.`;
+  }
+  if (manifest.market !== candle.market) {
+    return `Replay market ${manifest.market} does not match candle cache market ${String(
+      candle.market,
+    )}.`;
+  }
+  const delivered = manifest.delivered;
+  const composition = candle.inputs?.composition;
+  if (
+    delivered &&
+    typeof delivered.semanticDigest === "string" &&
+    composition &&
+    typeof composition.ordered_source_semantic_digest === "string" &&
+    delivered.semanticDigest !== composition.ordered_source_semantic_digest
+  ) {
+    return "Replay delivered semantic digest does not match the candle cache source composition.";
+  }
+  if (
+    delivered &&
+    typeof delivered.quoteCount === "number" &&
+    composition &&
+    typeof composition.accepted_row_count === "number" &&
+    delivered.quoteCount !== composition.accepted_row_count
+  ) {
+    return "Replay delivered quote count does not match the candle cache source rows.";
+  }
+  const months = [...cache.byMonth.keys()].sort();
+  const startMonth = monthKey(parseUtcMs(manifest.startUtc)!);
+  const endMonth = monthKey(parseUtcMs(manifest.endUtc)!);
+  if (months.length > 0 && (months[0]! > startMonth || months[months.length - 1]! < endMonth)) {
+    return "The candle cache does not cover the replay window months.";
+  }
+  return null;
 }
 
 /**
- * Reads one bounded replay window: candles from the derived M1 cache plus the
- * exact exported account telemetry rows covering the same cursor range. The
- * server never interpolates or recomputes a value; it selects rows.
+ * Reads one bounded replay window: derived candles from the qualified cache.
+ * Account state and events are served separately, strictly through the cursor
+ * endpoints. The server never interpolates or recomputes a value.
  */
 export function basketWindow(number: number, requestedFromMs: number) {
   const loaded = loadPackage();
   const summary = basketSummary(number);
   const cache = loadCandleCache();
+  const incompatibility = compatibilityError(loaded, cache);
+  if (incompatibility !== null) throw new ReplayPackageError(incompatibility);
   const fromMs = Math.max(summary.windowStartMs, requestedFromMs);
   if (fromMs > summary.windowEndMs) {
     throw new ReplayPackageError(`The requested time is after the basket ${number} replay window.`);
@@ -1127,7 +1290,9 @@ export function basketWindow(number: number, requestedFromMs: number) {
       const monthBars = readCandleMonth(cache.root, descriptor);
       for (const bar of monthBars) {
         if (bar[0] < fromMs) continue;
-        if (bar[0] > summary.windowEndMs) break;
+        // One consistent boundary: a candle belongs to the window only when it
+        // closes inside it, matching the bar-close reveal model.
+        if (bar[0] + 60_000 > summary.windowEndMs) break;
         if (bars.length === REPLAY_CHUNK_BARS) {
           nextFromMs = bar[0];
           break;
@@ -1140,42 +1305,15 @@ export function basketWindow(number: number, requestedFromMs: number) {
     month = nextMonthKey(month);
   }
   const lastBar = bars.length > 0 ? bars[bars.length - 1] : undefined;
-  const toMs = lastBar ? lastBar[0] + 60_000 : Math.min(fromMs + 60_000, summary.windowEndMs);
-
-  const years = new Set<number>();
-  for (let probe = fromMs; probe <= toMs; probe = nextYearStart(probe)) {
-    years.add(new Date(probe).getUTCFullYear());
-  }
-  if (fromMs > 0) years.add(new Date(fromMs - 1).getUTCFullYear());
-  const eventsById = new Map(loaded.events.map((view) => [view.id, view]));
-  const combined: AccountRow[] = [];
-  for (const year of [...years].sort((a, b) => a - b)) {
-    const descriptor = loaded.manifest.files.find(
-      (file) => file.year === year && TELEMETRY_FILE.test(file.name),
-    );
-    if (!descriptor) continue;
-    combined.push(
-      ...readTelemetryYear(loaded.root, descriptor, eventsById, loaded.manifest.packageSha256),
-    );
-  }
-  // Stable time sort preserves the package's occurrence order at equal times.
-  combined.sort((a, b) => a.timeMs - b.timeMs);
-  const carry = accountAtCursor(combined, fromMs);
-  const windowRows = combined.filter((row) => row.timeMs > fromMs && row.timeMs <= toMs);
-  const account = carry ? [carry, ...windowRows] : windowRows;
-  if (account.length > REPLAY_CHUNK_ACCOUNT_ROWS) {
-    throw new ReplayPackageError(
-      `Replay window for basket ${number} has ${account.length} account rows, above the ${REPLAY_CHUNK_ACCOUNT_ROWS} bound.`,
-    );
-  }
+  const toMs = lastBar ? lastBar[0] + 60_000 : Math.min(fromMs, summary.windowEndMs);
   return {
     fromMs,
     toMs,
     bars,
-    account,
     nextFromMs,
     windowStartMs: summary.windowStartMs,
     windowEndMs: summary.windowEndMs,
+    account: accountAtCursor(loaded.telemetry, fromMs),
     candleCache: {
       contract: cache.manifest.contract,
       manifestSha256: cache.manifestSha256,
@@ -1184,9 +1322,34 @@ export function basketWindow(number: number, requestedFromMs: number) {
   };
 }
 
-const nextYearStart = (ms: number): number => {
-  const date = new Date(ms);
-  return Date.UTC(date.getUTCFullYear() + 1, 0, 1);
-};
+/**
+ * Returns only the basket events at or before the requested cursor, in exact
+ * package order after the last delivered id, plus the exact exported account
+ * row in force at that cursor. No future event or value crosses the boundary.
+ */
+export function basketReveal(number: number, afterEventId: number, cursorMs: number) {
+  const loaded = loadPackage();
+  basketSummary(number);
+  if (!Number.isSafeInteger(afterEventId) || afterEventId < 0) {
+    throw new ReplayPackageError("The reveal cursor id is invalid.");
+  }
+  if (!Number.isFinite(cursorMs)) {
+    throw new ReplayPackageError("The reveal cursor time is invalid.");
+  }
+  const events = loaded.eventsByBasket.get(number) ?? [];
+  const eligible = events.filter(
+    (view) =>
+      view.live && view.timeMs !== null && view.id > afterEventId && view.timeMs <= cursorMs,
+  );
+  const batch = eligible.slice(0, REPLAY_REVEAL_BATCH);
+  const hasMore = eligible.length > REPLAY_REVEAL_BATCH;
+  const lastEventId = batch.length > 0 ? batch[batch.length - 1]!.id : afterEventId;
+  return {
+    events: batch,
+    account: accountAtCursor(loaded.telemetry, cursorMs),
+    hasMore,
+    lastEventId,
+  };
+}
 
 export { ReplayPackageError };

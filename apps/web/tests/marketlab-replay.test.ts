@@ -12,6 +12,7 @@ import {
 } from "../src/lib/marketlab-replay";
 import {
   basketDetail,
+  basketReveal,
   basketWindow,
   loadPackage,
   replayStatus,
@@ -19,6 +20,8 @@ import {
 } from "../src/server/marketlab-replay";
 import {
   sha256,
+  SYNTHETIC_SOURCE_DIGEST,
+  SYNTHETIC_SOURCE_ROWS,
   syntheticEvents,
   syntheticTelemetry,
   writeCandleMonths,
@@ -75,28 +78,44 @@ describe("authoritative event semantics", () => {
     fixture();
     const status = replayStatus();
     expect(status.valid).toBe(true);
-    const basket1 = status.baskets.find((basket) => basket.number === 1)!;
-    expect(basket1.status).toBe("liquidated");
-    expect(basket1.exitReason).toBe("BrokerLiquidation");
-    expect(basket1.entries).toBe(3);
-    expect(basket1.tradeNumbers).toEqual([1, 2, 3]);
-    expect(basket1.forcedLiquidations).toBe(1);
-    expect(basket1.stopOutEpisodes).toBe(1);
-    expect(basket1.marginCallEntries).toBe(1);
-    expect(basket1.hardBreakevenActivations).toBe(1);
-    const basket2 = status.baskets.find((basket) => basket.number === 2)!;
-    expect(basket2.status).toBe("closed");
-    expect(basket2.exitReason).toBe("Trailing");
-    expect(basket2.liveRejections).toBe(1);
-    expect(basket2.entries).toBe(1);
+    const summary1 = loadPackage().byNumber.get(1)!;
+    expect(summary1.status).toBe("liquidated");
+    expect(summary1.exitReason).toBe("BrokerLiquidation");
+    expect(summary1.entries).toBe(3);
+    expect(summary1.tradeNumbers).toEqual([1, 2, 3]);
+    expect(summary1.forcedLiquidations).toBe(1);
+    expect(summary1.stopOutEpisodes).toBe(1);
+    expect(summary1.marginCallEntries).toBe(1);
+    expect(summary1.hardBreakevenActivations).toBe(1);
+    const summary2 = loadPackage().byNumber.get(2)!;
+    expect(summary2.status).toBe("closed");
+    expect(summary2.exitReason).toBe("Trailing");
+    expect(summary2.liveRejections).toBe(1);
+    expect(summary2.entries).toBe(1);
+    // The pre-cursor selector identity carries no outcome or counts.
+    const identity = status.baskets.find((basket) => basket.number === 1)!;
+    expect(Object.keys(identity).sort()).toEqual([
+      "anchor",
+      "anchorTime",
+      "anchorTimeMs",
+      "lower",
+      "lowerTarget",
+      "number",
+      "step",
+      "upper",
+      "upperTarget",
+      "windowEndMs",
+      "windowStartMs",
+    ]);
   });
 
   it("passes every event payload through unmodified and in package order", () => {
     fixture();
-    const detail = basketDetail(1);
-    const ids = detail.events.map((event) => event.id);
+    const basket1 = loadPackage().byNumber.get(1)!;
+    const revealed = basketReveal(1, 0, basket1.windowEndMs);
+    const ids = revealed.events.map((event) => event.id);
     expect(ids).toEqual([...ids].sort((a, b) => a - b));
-    const entry = detail.events.find(
+    const entry = revealed.events.find(
       (event) => event.type === "entry_executed" && event.payload.tradeNumber === 2,
     )!;
     expect(entry.payload.side).toBe("Sell");
@@ -106,7 +125,7 @@ describe("authoritative event semantics", () => {
     expect(entry.payload).toEqual(
       syntheticEvents().find((event) => event.tradeNumber === 2 && event.type === "entry_executed"),
     );
-    const anchor = detail.events.find((event) => event.type === "basket_anchored")!;
+    const anchor = revealed.events.find((event) => event.type === "basket_anchored")!;
     expect(anchor.payload.upper).toBe("101.0");
     expect(anchor.payload.lower).toBe("99.0");
     expect(anchor.payload.lowerTarget).toBe("90.0");
@@ -115,17 +134,17 @@ describe("authoritative event semantics", () => {
 
   it("reveals no event before its authoritative time and keeps run-end recaps out of the basket clock", () => {
     fixture();
-    const events = basketDetail(2).events;
-    expect(events.some((event) => event.type === "entry_rejection_summary")).toBe(false);
-    expect(revealEvents(events, ISO("2024-01-01T00:38:00.000Z")).length).toBe(1);
-    expect(
-      revealEvents(events, ISO("2024-01-01T00:39:00.000Z")).map((event) => event.type),
-    ).toEqual(["basket_anchored", "entry_executed"]);
-    expect(
-      revealEvents(events, ISO("2024-01-01T00:39:30.000Z")).some(
-        (event) => event.timeMs !== null && event.timeMs > ISO("2024-01-01T00:39:30.000Z"),
-      ),
-    ).toBe(false);
+    const at38 = basketReveal(2, 0, ISO("2024-01-01T00:38:00.000Z")).events;
+    expect(at38.some((event) => event.type === "entry_rejection_summary")).toBe(false);
+    expect(at38).toHaveLength(1);
+    const at39 = basketReveal(2, 0, ISO("2024-01-01T00:39:00.000Z")).events;
+    expect(at39.map((event) => event.type)).toEqual(["basket_anchored", "entry_executed"]);
+    const incremental = basketReveal(2, at39[at39.length - 1]!.id, ISO("2024-01-01T00:41:00.000Z"));
+    expect(incremental.events.map((event) => event.type)).toEqual([
+      "entry_rejected",
+      "trailing_activated",
+      "strategy_exit",
+    ]);
     const allEvents = loadPackage().events;
     const recap = allEvents.find((event) => event.type === "entry_rejection_summary")!;
     expect(recap.live).toBe(false);
@@ -318,13 +337,13 @@ describe("fail-closed package validation", () => {
     expect(replayStatus().error).toContain("invalid JSON");
   });
 
-  it("rejects malformed telemetry values when a window is served", () => {
+  it("rejects malformed telemetry values at package load", () => {
     const ctx = fixture();
     const telemetry = syntheticTelemetry(syntheticEvents()) as Array<Record<string, unknown>>;
     telemetry[0] = { ...telemetry[0], marginLevelPercent: 42 };
     writeReplayPackage(ctx.packageRoot, syntheticEvents(), telemetry, {});
-    expect(replayStatus().valid).toBe(true);
-    expect(() => basketWindow(1, 0)).toThrow(ReplayPackageError);
+    expectRejected();
+    expect(replayStatus().error).toContain("marginLevelPercent");
   });
 
   it("rejects a missing telemetry payload", () => {
@@ -402,16 +421,12 @@ describe("bounded replay windows", () => {
     expect(window.fromMs).toBe(basket.windowStartMs);
     for (const bar of window.bars) {
       expect(bar[0]).toBeGreaterThanOrEqual(window.fromMs);
-      expect(bar[0]).toBeLessThanOrEqual(window.windowEndMs);
+      // One consistent boundary: every loaded candle closes inside the window.
+      expect(bar[0] + 60_000).toBeLessThanOrEqual(window.windowEndMs);
     }
     expect(window.nextFromMs).toBeNull();
-    expect(window.account.length).toBeGreaterThan(0);
-    expect(window.account[0]!.timeMs).toBeLessThanOrEqual(window.fromMs);
-    for (let index = 1; index < window.account.length; index += 1) {
-      expect(window.account[index]!.timeMs).toBeGreaterThanOrEqual(
-        window.account[index - 1]!.timeMs,
-      );
-    }
+    expect(window.account).not.toBeNull();
+    expect(window.account!.timeMs).toBeLessThanOrEqual(window.fromMs);
     expect(window.candleCache.contract).toBe("marketlab-xauusd-m1-candle-cache-v1");
     expect(ctx.manifest.contract).toBe("marketlab-single-anchor-replay-package-v1");
   });
@@ -425,10 +440,105 @@ describe("bounded replay windows", () => {
     expect(() => basketWindow(2, basket.windowEndMs + 1)).toThrow(/after the basket/);
     expect(() => basketDetail(999)).toThrow(ReplayPackageError);
   });
+
+  it("never returns a basket event or account value after the reveal cursor", () => {
+    fixture();
+    const cursor = ISO("2024-01-01T00:36:00.000Z");
+    const reveal = basketReveal(1, 0, cursor);
+    expect(reveal.events.length).toBeGreaterThan(0);
+    for (const event of reveal.events) {
+      expect(event.timeMs).not.toBeNull();
+      expect(event.timeMs!).toBeLessThanOrEqual(cursor);
+    }
+    expect(reveal.account).not.toBeNull();
+    expect(reveal.account!.timeMs).toBeLessThanOrEqual(cursor);
+    const after = reveal.lastEventId;
+    const nextBatch = basketReveal(1, after, cursor);
+    expect(nextBatch.events).toHaveLength(0);
+    const later = basketReveal(1, after, ISO("2024-01-01T00:38:00.000Z"));
+    expect(later.events.length).toBeGreaterThan(0);
+    expect(later.events.every((event) => event.id > after)).toBe(true);
+  });
+
+  it("extends an open final basket's window to the authoritative run end", () => {
+    const ctx = fixture();
+    const runEnd = "2024-01-31T23:59:59.678Z";
+    const events = [
+      {
+        type: "run_started",
+        time: "2024-01-01T00:00:00.000Z",
+        modelRevision: "marketlab-single-anchor-broker-liquidation-v1",
+        stopOutModel: "BrokerLiquidation",
+        symbol: "XAUUSD",
+        market: "dukascopy",
+        startDate: "2024-01-01",
+        endDate: "2024-01-31",
+        quoteTimeZone: "UTC",
+      },
+      {
+        type: "basket_anchored",
+        basket: 1,
+        quoteSequence: 1,
+        time: "2024-01-01T00:00:00.000Z",
+        bid: "99.8",
+        ask: "100.2",
+        anchor: "100.0",
+        step: "1",
+        upper: "101.0",
+        lower: "99.0",
+        lowerTarget: "90.0",
+        upperTarget: "110.0",
+      },
+      {
+        type: "entry_executed",
+        basket: 1,
+        tradeNumber: 1,
+        quoteSequence: 2,
+        time: "2024-01-01T00:01:00.000Z",
+        side: "Buy",
+        placedLot: "0.10",
+        fillPrice: "100.0",
+        regime: "Arithmetic",
+      },
+      {
+        type: "run_ended",
+        time: runEnd,
+        completed: true,
+        quoteTicksProcessed: 2,
+      },
+    ].map((event, index) => ({ ...event, id: index + 1 }));
+    const rows = events.map((event, index) => ({
+      kind: "event",
+      eventId: event.id,
+      time: event.time,
+      quoteSequence: index + 1,
+      balance: "1000.00000",
+      equity: "1000.00000",
+      floatingProfit: "0.00000",
+      floatingObservable: true,
+      realizedProfit: "0.00000",
+      usedMargin: "0.00000",
+      freeMargin: "1000.00000",
+      marginLevelPercent: null,
+      marginCallActive: false,
+      openPositions: 1,
+      grossLots: "0.10",
+      absoluteNetLots: "0.10",
+    }));
+    writeReplayPackage(ctx.packageRoot, events, rows, {});
+    const summary = loadPackage().byNumber.get(1)!;
+    expect(summary.status).toBe("open");
+    expect(summary.runEndMs).toBe(ISO(runEnd));
+    expect(summary.windowEndMs).toBe(ISO(runEnd));
+    expect(summary.lastLiveTimeMs).toBe(ISO("2024-01-01T00:01:00.000Z"));
+    const reveal = basketReveal(1, 0, summary.windowEndMs);
+    expect(reveal.events.some((event) => event.type === "strategy_exit")).toBe(false);
+    expect(() => basketWindow(1, ISO(runEnd) + 1)).toThrow(/after the basket/);
+  });
 });
 
 describe("API route handlers", () => {
-  it("serves package status, basket detail and a window", async () => {
+  it("serves package status, basket identity, a window and a cursor reveal", async () => {
     fixture();
     const { GET } = await import("../src/app/api/marketlab-replay/route");
     const index = await GET();
@@ -436,7 +546,11 @@ describe("API route handlers", () => {
     const indexBody = await index.json();
     expect(indexBody.valid).toBe(true);
     expect(indexBody.baskets).toHaveLength(2);
+    expect(indexBody.baskets[0]).not.toHaveProperty("status");
+    expect(indexBody.baskets[0]).not.toHaveProperty("entries");
+    expect(indexBody.baskets[0]).not.toHaveProperty("tradeNumbers");
     expect(indexBody.package.packageSha256).toMatch(/^[0-9a-f]{64}$/);
+    expect(indexBody.compatibility.valid).toBe(true);
 
     const { GET: GET_BASKET } =
       await import("../src/app/api/marketlab-replay/baskets/[number]/route");
@@ -446,7 +560,8 @@ describe("API route handlers", () => {
     expect(detail.status).toBe(200);
     const detailBody = await detail.json();
     expect(detailBody.basket.number).toBe(1);
-    expect(detailBody.events.length).toBeGreaterThan(0);
+    expect(detailBody.basket.anchor).toBe("100.0");
+    expect(detailBody).not.toHaveProperty("events");
 
     const missing = await GET_BASKET(new Request("http://test/api/marketlab-replay/baskets/999"), {
       params: Promise.resolve({ number: "999" }),
@@ -469,7 +584,30 @@ describe("API route handlers", () => {
     expect(windowResponse.status).toBe(200);
     const windowBody = await windowResponse.json();
     expect(windowBody.bars.length).toBeGreaterThan(0);
-    expect(windowBody.account.length).toBeGreaterThan(0);
+    expect(windowBody.account.timeMs).toBeLessThanOrEqual(windowBody.fromMs);
+
+    const { GET: GET_REVEAL } =
+      await import("../src/app/api/marketlab-replay/baskets/[number]/reveal/route");
+    const revealResponse = await GET_REVEAL(
+      new Request(
+        "http://test/api/marketlab-replay/baskets/1/reveal?after=0&cursor=2024-01-01T00%3A37%3A00.000Z",
+      ),
+      { params: Promise.resolve({ number: "1" }) },
+    );
+    expect(revealResponse.status).toBe(200);
+    const revealBody = await revealResponse.json();
+    expect(revealBody.events.length).toBeGreaterThan(0);
+    expect(
+      revealBody.events.every(
+        (event: { timeMs: number }) => event.timeMs <= ISO("2024-01-01T00:37:00.000Z"),
+      ),
+    ).toBe(true);
+    expect(revealBody.account.timeMs).toBeLessThanOrEqual(ISO("2024-01-01T00:37:00.000Z"));
+    const badReveal = await GET_REVEAL(
+      new Request("http://test/api/marketlab-replay/baskets/1/reveal?after=0&cursor=nope"),
+      { params: Promise.resolve({ number: "1" }) },
+    );
+    expect(badReveal.status).toBe(400);
 
     const badFrom = await GET_WINDOW(
       new Request("http://test/api/marketlab-replay/baskets/1/window?from=not-a-time"),
@@ -507,7 +645,8 @@ describe("API route handlers", () => {
 describe("typed event views", () => {
   it("exposes derived lookup fields without touching the payload", () => {
     fixture();
-    const detail = basketDetail(2);
+    const summary = loadPackage().byNumber.get(2)!;
+    const detail = basketReveal(2, 0, summary.windowEndMs);
     const entry: ReplayEventView = detail.events.find((event) => event.type === "entry_executed")!;
     expect(entry.timeMs).toBe(ISO("2024-01-01T00:39:00.000Z"));
     expect(entry.payload.time).toBe("2024-01-01T00:39:00.000Z");
@@ -607,6 +746,12 @@ describe("hardening: malformed but hash-consistent packages", () => {
     expect(replayStatus().error).toContain("outside every basket");
   });
 
+  const orderedTelemetry = (rows: Record<string, unknown>[]) =>
+    rows
+      .slice()
+      .sort((a, b) => String(a.time).localeCompare(String(b.time)))
+      .map((row, index) => ({ ...row, quoteSequence: index + 1 }));
+
   it("rejects a telemetry snapshot that references a missing event", () => {
     const ctx = fixture();
     const telemetry = syntheticTelemetry(syntheticEvents());
@@ -628,18 +773,26 @@ describe("hardening: malformed but hash-consistent packages", () => {
       grossLots: "0.00",
       absoluteNetLots: "0.00",
     };
-    writeReplayPackage(ctx.packageRoot, syntheticEvents(), [...telemetry, phantom], {});
-    expect(replayStatus().valid).toBe(true);
-    expect(() => basketWindow(1, 0)).toThrow(/does not bind/);
+    writeReplayPackage(
+      ctx.packageRoot,
+      syntheticEvents(),
+      orderedTelemetry([...telemetry, phantom]),
+      {},
+    );
+    expectRejected();
+    expect(replayStatus().error).toContain("does not bind");
   });
 
   it("rejects a telemetry row whose time does not match its event", () => {
     const ctx = fixture();
-    const telemetry = syntheticTelemetry(syntheticEvents()).map((row) =>
-      row.eventId === 3 ? { ...row, time: "2024-01-01T00:31:30.000Z" } : row,
+    const telemetry = orderedTelemetry(
+      syntheticTelemetry(syntheticEvents()).map((row) =>
+        row.eventId === 3 ? { ...row, time: "2024-01-01T00:31:30.000Z" } : row,
+      ),
     );
     writeReplayPackage(ctx.packageRoot, syntheticEvents(), telemetry, {});
-    expect(() => basketWindow(1, 0)).toThrow(/does not bind/);
+    expectRejected();
+    expect(replayStatus().error).toContain("does not bind");
   });
 
   it("rejects non-canonical telemetry decimals", () => {
@@ -648,7 +801,8 @@ describe("hardening: malformed but hash-consistent packages", () => {
       index === 0 ? { ...row, balance: "1,000.00" } : row,
     );
     writeReplayPackage(ctx.packageRoot, syntheticEvents(), telemetry, {});
-    expect(() => basketWindow(1, 0)).toThrow(/exact decimal "balance"/);
+    expectRejected();
+    expect(replayStatus().error).toContain('exact decimal "balance"');
   });
 
   it("rejects a telemetry row outside its shard year", () => {
@@ -658,8 +812,93 @@ describe("hardening: malformed but hash-consistent packages", () => {
       ...telemetry.find((row) => row.kind === "periodic")!,
       time: "2023-12-31T23:59:00.000Z",
     };
-    writeReplayPackage(ctx.packageRoot, syntheticEvents(), [...telemetry, stray], {});
-    expect(() => basketWindow(1, 0)).toThrow(/outside its shard year/);
+    writeReplayPackage(
+      ctx.packageRoot,
+      syntheticEvents(),
+      orderedTelemetry([...telemetry, stray]),
+      {},
+    );
+    expectRejected();
+    expect(replayStatus().error).toContain("outside its shard year");
+  });
+
+  it("rejects telemetry that is out of order rather than sorting it into plausibility", () => {
+    const ctx = fixture();
+    const telemetry = syntheticTelemetry(syntheticEvents());
+    const swapped = [...telemetry];
+    const first = swapped[0]!;
+    swapped[0] = swapped[1]!;
+    swapped[1] = first;
+    writeReplayPackage(ctx.packageRoot, syntheticEvents(), swapped, {});
+    expectRejected();
+    expect(replayStatus().error).toContain("not chronologically ordered");
+  });
+
+  it("rejects a duplicate telemetry snapshot", () => {
+    const ctx = fixture();
+    const telemetry = syntheticTelemetry(syntheticEvents());
+    const duplicate = { ...telemetry.find((row) => row.kind === "event")! };
+    writeReplayPackage(
+      ctx.packageRoot,
+      syntheticEvents(),
+      orderedTelemetry([...telemetry, duplicate]),
+      {},
+    );
+    expectRejected();
+    expect(replayStatus().error).toMatch(/repeats the snapshot/);
+  });
+
+  it("rejects missing snapshots for live events", () => {
+    const ctx = fixture();
+    const telemetry = syntheticTelemetry(syntheticEvents()).filter((row) => row.eventId !== 3);
+    writeReplayPackage(ctx.packageRoot, syntheticEvents(), telemetry, {});
+    expectRejected();
+    expect(replayStatus().error).toContain("missing the snapshot for live event #3");
+  });
+
+  it("rejects telemetry whose counts do not match the manifest", () => {
+    const ctx = fixture();
+    const telemetry = syntheticTelemetry(syntheticEvents());
+    writeReplayPackage(ctx.packageRoot, syntheticEvents(), telemetry, {
+      telemetryCounts: { event: telemetry.length + 1, periodic: 0 },
+    });
+    expectRejected();
+    expect(replayStatus().error).toContain("counts do not match");
+  });
+
+  it("rejects a replay package that is incompatible with the candle source", () => {
+    const ctx = fixture({
+      symbol: "EURUSD",
+    });
+    const status = replayStatus();
+    expect(status.valid).toBe(true);
+    expect(status.compatibility.valid).toBe(false);
+    expect(status.compatibility.error).toContain("does not match candle cache symbol");
+    expect(() => basketWindow(1, 0)).toThrow(/does not match candle cache symbol/);
+  });
+
+  it("rejects a replay package whose delivered identity does not match the candle source", () => {
+    const ctx = fixture({
+      delivered: {
+        quoteCount: SYNTHETIC_SOURCE_ROWS,
+        semanticDigest: `sha256:${"0".repeat(64)}`,
+      },
+    });
+    const status = replayStatus();
+    expect(status.compatibility.valid).toBe(false);
+    expect(status.compatibility.error).toContain("semantic digest");
+    expect(() => basketWindow(1, 0)).toThrow(/semantic digest/);
+  });
+
+  it("rejects a candle cache that repeats a month descriptor", () => {
+    const ctx = fixture();
+    const manifestPath = join(ctx.candleRoot, "manifest.json");
+    const candleManifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+    candleManifest.files = [...candleManifest.files, { ...candleManifest.files[0] }];
+    writeFileSync(manifestPath, JSON.stringify(candleManifest), "utf8");
+    const status = replayStatus();
+    expect(status.candles.valid).toBe(false);
+    expect(status.candles.error).toContain("repeats month 2024-01");
   });
 
   it("rejects a package that does not match the expected identity anchor", () => {
@@ -769,7 +1008,8 @@ describe("hardening: malformed but hash-consistent packages", () => {
     expect(first.nextFromMs).toBe(Date.parse("2024-02-01T00:00:00.000Z"));
     const second = basketWindow(1, first.nextFromMs!);
     expect(second.bars[0]![0]).toBe(Date.parse("2024-02-01T00:00:00.000Z"));
-    expect(second.bars[second.bars.length - 1]![0]).toBe(Date.parse("2024-02-01T00:40:00.000Z"));
+    // The candle closing at the window end is the last one served.
+    expect(second.bars[second.bars.length - 1]![0]).toBe(Date.parse("2024-02-01T00:39:00.000Z"));
     expect(second.nextFromMs).toBeNull();
   });
 });

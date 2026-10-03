@@ -71,16 +71,26 @@ try {
 
     const status = await (await fetch(`${APP}/api/marketlab-replay`)).json();
     const basket = status.baskets.find((candidate) => candidate.number === 276);
+    if (Object.prototype.hasOwnProperty.call(basket, "entries"))
+      throw new Error("the basket index exposes pre-cursor counts");
+    if (Object.prototype.hasOwnProperty.call(basket, "status"))
+      throw new Error("the basket index exposes a pre-cursor outcome");
+    const revealAll = await (
+      await fetch(
+        `${APP}/api/marketlab-replay/baskets/276/reveal?after=0&cursor=${basket.windowEndMs}`,
+      )
+    ).json();
+    const authoritative = {
+      entries: revealAll.events.filter((event) => event.type === "entry_executed").length,
+      forced: revealAll.events.filter((event) => event.type === "forced_liquidation").length,
+      stopOuts: revealAll.events.filter((event) => event.type === "stop_out_triggered").length,
+      exits: revealAll.events.filter((event) => event.type === "strategy_exit").length,
+    };
     transcript.package = {
       packageSha256: status.package.packageSha256,
       candlesContentSha256: status.candles.contentSha256,
-      basket276: {
-        entries: basket.entries,
-        forced: basket.forcedLiquidations,
-        stopOuts: basket.stopOutEpisodes,
-        status: basket.status,
-        exitReason: basket.exitReason,
-      },
+      compatibility: status.compatibility,
+      basket276: authoritative,
     };
 
     await page.click('button[aria-label="SingleAnchor basket"]');
@@ -182,17 +192,20 @@ try {
         total: ids.length,
       };
     });
-    if (counts.entries !== basket.entries)
-      throw new Error(`revealed entries ${counts.entries} != authoritative ${basket.entries}`);
-    if (counts.forced !== basket.forcedLiquidations)
+    if (counts.entries !== authoritative.entries)
       throw new Error(
-        `revealed forced liquidations ${counts.forced} != authoritative ${basket.forcedLiquidations}`,
+        `revealed entries ${counts.entries} != authoritative ${authoritative.entries}`,
       );
-    if (counts.stopOuts !== basket.stopOutEpisodes)
+    if (counts.forced !== authoritative.forced)
       throw new Error(
-        `revealed Stop Outs ${counts.stopOuts} != authoritative ${basket.stopOutEpisodes}`,
+        `revealed forced liquidations ${counts.forced} != authoritative ${authoritative.forced}`,
       );
-    if (counts.exits !== 1) throw new Error(`revealed strategy exits ${counts.exits} != 1`);
+    if (counts.stopOuts !== authoritative.stopOuts)
+      throw new Error(
+        `revealed Stop Outs ${counts.stopOuts} != authoritative ${authoritative.stopOuts}`,
+      );
+    if (counts.exits !== authoritative.exits)
+      throw new Error(`revealed strategy exits ${counts.exits} != ${authoritative.exits}`);
     if (!counts.ascending) throw new Error("revealed event ids are not in ascending package order");
     const chartState = await page.evaluate(() => {
       const text = document.body.innerText;
@@ -208,12 +221,12 @@ try {
       throw new Error("the derived candle chart is not rendered at the scrubbed cursor");
     const balance = await readBalance();
 
-    const endWindow = await (
+    const endReveal = await (
       await fetch(
-        `${APP}/api/marketlab-replay/baskets/276/window?from=${basket.windowEndMs - 1000}`,
+        `${APP}/api/marketlab-replay/baskets/276/reveal?after=0&cursor=${basket.windowEndMs}`,
       )
     ).json();
-    const expectedBalance = endWindow.account[endWindow.account.length - 1]?.balance;
+    const expectedBalance = endReveal.account?.balance;
     if (!balance || balance !== expectedBalance) {
       throw new Error(
         `account panel balance ${balance} does not match exported ${expectedBalance}`,

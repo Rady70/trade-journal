@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { NativeIndicatorContext, NativeIndicatorOutput, Vela } from "@luxalgo/vela";
 import {
   toVelaBar,
-  type BasketSummary,
+  type BasketIdentity,
   type CompactBar,
   type ReplayEventView,
 } from "@/lib/marketlab-replay";
@@ -12,7 +12,7 @@ import {
 interface ReplayPaint {
   bars: CompactBar[];
   events: ReplayEventView[];
-  basket: BasketSummary;
+  basket: BasketIdentity;
   cursorMs: number | null;
   paintKey: string;
 }
@@ -40,6 +40,9 @@ const readNumber = (value: unknown): number | null =>
 
 const readText = (value: unknown, fallback = ""): string =>
   typeof value === "string" ? value : typeof value === "number" ? String(value) : fallback;
+
+const marginText = (value: unknown): string =>
+  typeof value === "string" && value.length > 0 ? `${value}%` : "not defined";
 
 /**
  * Builds the Vela native-indicator output from authoritative events plus the
@@ -228,7 +231,7 @@ export function buildReplayPaint(paint: ReplayPaint): NativeIndicatorOutput {
           });
         }
         label({
-          text: `STOP OUT ${readText(payload.reason)} · margin ${readText(payload.marginLevelPercent)}%`,
+          text: `STOP OUT ${readText(payload.reason)} · margin level ${marginText(payload.marginLevelPercent)}`,
           y: 0,
           yloc: "top",
           style: "label_down",
@@ -267,7 +270,7 @@ export function buildReplayPaint(paint: ReplayPaint): NativeIndicatorOutput {
           style: "label_down",
           color: COLORS.marginCall,
           size: "tiny",
-          tooltip: `${view.time ?? ""} · level ${readText(payload.marginLevelPercent)}% · equity ${readText(payload.equity)}`,
+          tooltip: `${view.time ?? ""} · level ${marginText(payload.marginLevelPercent)} · equity ${readText(payload.equity)}`,
         });
         break;
       }
@@ -371,7 +374,7 @@ export function MarketlabReplayChart({
   symbol: string;
   bars: CompactBar[];
   events: ReplayEventView[];
-  basket: BasketSummary;
+  basket: BasketIdentity;
   cursorMs: number | null;
   height?: number;
 }) {

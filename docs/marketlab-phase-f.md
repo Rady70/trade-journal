@@ -1,7 +1,18 @@
 # MarketLab Backtests — Phase F implementation record
 
-Status: **implemented and ready for independent review (2026-10-03). Phase G–I
-have not started. This is not a Phase G acceptance claim.**
+Status: **implemented and ready for independent review (2026-10-03), with one
+explicit contract decision requested. Phase G–I have not started. This is not a
+Phase G acceptance claim.**
+
+> **Open contract decision (signed net exposure).** The finalized Phase E
+> telemetry exports `grossLots` and `absoluteNetLots` only. A _signed_ net
+> exposure is not present in the authoritative package, and Phase F must not
+> reconstruct it locally. The account panel therefore displays the exact
+> exported `absoluteNetLots` labelled as absolute, with a visible note that a
+> signed value is not exported. To display a signed net exposure, either the
+> governing requirement must formally accept `absoluteNetLots` as the Phase F
+> field or a separately authorized Phase E export change must add the signed
+> value. No such change was made.
 
 This record covers the Phase F MarketLab adaptation of LuxAlgo Trade Journal: a
 dedicated **MarketLab Backtests** path that consumes the finalized Phase E
@@ -38,15 +49,16 @@ schema, broker sync or analytics is modified):
 | Path                                                                     | Role                                                                                               |
 | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
 | `apps/web/src/lib/marketlab-replay.ts`                                   | Phase E contracts, fail-closed error type, basket indexing, cursor reveal, exact account selection |
-| `apps/web/src/server/marketlab-replay.ts`                                | read-only package/candle-cache loader with full verification, bounded window reader, status        |
-| `apps/web/src/app/api/marketlab-replay/route.ts`                         | package status + basket index                                                                      |
-| `apps/web/src/app/api/marketlab-replay/baskets/[number]/route.ts`        | one basket: identity and full ordered event stream                                                 |
-| `apps/web/src/app/api/marketlab-replay/baskets/[number]/window/route.ts` | bounded derived candles + exact exported account rows                                              |
+| `apps/web/src/server/marketlab-replay.ts`                                | read-only package/candle-cache loader with full verification, compatibility binding, reveal reader |
+| `apps/web/src/app/api/marketlab-replay/route.ts`                         | package status + pre-cursor basket identity index                                                  |
+| `apps/web/src/app/api/marketlab-replay/baskets/[number]/route.ts`        | one basket: pre-cursor selector identity only                                                      |
+| `apps/web/src/app/api/marketlab-replay/baskets/[number]/window/route.ts` | bounded derived candles (close-bounded) + carry-in account row                                     |
+| `apps/web/src/app/api/marketlab-replay/baskets/[number]/reveal/route.ts` | cursor-bounded events + the exact exported account row at the cursor                               |
 | `apps/web/src/app/backtests/page.tsx`                                    | the MarketLab Backtests surface                                                                    |
 | `apps/web/src/components/marketlab-replay.tsx`                           | replay state machine, controls, account panel, event feed                                          |
 | `apps/web/src/components/marketlab-replay-chart.tsx`                     | Vela chart with authoritative event annotations                                                    |
 | `apps/web/src/components/shell.tsx`                                      | one `Backtests` navigation entry (minimal upstream edit)                                           |
-| `.env.example`                                                           | the two optional replay environment variables (minimal upstream edit)                              |
+| `.env.example`                                                           | the replay environment variables (minimal upstream edit)                                           |
 
 ### Authoritative input
 
@@ -54,13 +66,14 @@ The loader reads the finalized Phase E package and never reconstructs it:
 
 - `MARKETLAB_REPLAY_PACKAGE` points to `<run>\storage\single-anchor\replay`
   (or to the run directory); `MARKETLAB_CANDLE_CACHE` points to the derived M1
-  candle cache directory. The optional `MARKETLAB_REPLAY_EXPECTED_PACKAGE_SHA256`
-  and `MARKETLAB_EXPECTED_CANDLE_CONTENT_SHA256` anchors pin the exact finalized
-  identities when set.
+  candle cache directory. The `MARKETLAB_REPLAY_EXPECTED_PACKAGE_SHA256` and
+  `MARKETLAB_EXPECTED_CANDLE_CONTENT_SHA256` anchors pin the exact finalized
+  identities; the finalized Phase F run sets both, and the UI reports whether
+  they are anchored.
 - Before any row is served the loader verifies: the
   `marketlab-single-anchor-replay-package-v1` contract, the documented package
   fingerprint over the payload descriptors, every payload file's byte count,
-  SHA-256 and line count, the optional expected package identity, the published
+  SHA-256 and line count, the expected package identity, the published
   event-type whitelist, contiguous `1..N` event ids, exactly one `run_started`
   first and one `run_ended` last, every live event's canonical UTC time, the
   required fields of every event type (the producer's always-present fields),
@@ -69,15 +82,22 @@ The loader reads the finalized Phase E package and never reconstructs it:
   actual stream, and the one-active-basket lifecycle (an event may not reference
   a basket outside its anchor, an anchor may not open while another basket is
   open, and a live time-only event must fall inside a basket's live span).
-- Telemetry rows are validated when a window is served: canonical UTC time
-  inside the shard's year, an `event` snapshot must bind to an existing live
-  event at exactly that time, repeated snapshots for one event are rejected,
-  every decimal field is a canonical decimal string, and the account state
-  fields are typed.
-- The candle cache is verified separately and fails closed: contract, symbol,
-  M1/UTC/mid-of-best-bid-ask basis, the documented `content_sha256` fingerprint,
-  the optional expected content identity, per-file rows/bytes/SHA-256, monthly
-  membership, integer ticks and strict OHLC parsing.
+- The complete telemetry history is read and validated before the package is
+  served: actual `event`/`periodic` counts against the manifest, strict
+  chronological order (time and quote sequence are never sorted into
+  plausibility), exactly one bound snapshot for every live event, no repeated or
+  phantom snapshot, canonical times inside the shard year, canonical decimal
+  strings and typed account fields.
+- Authoritative source binding: the replay and candle contracts must declare the
+  same symbol and market, the replay `delivered.semanticDigest` must equal the
+  candle composition's `ordered_source_semantic_digest`, the delivered quote
+  count must equal the composition's accepted row count, and the candle months
+  must cover the replay window. A mismatch blocks replay.
+- The candle cache is verified separately and fails closed: contract, symbol
+  (`XAUUSD`), market (`dukascopy`), M1/UTC/mid-of-best-bid-ask basis, the
+  documented `content_sha256` fingerprint, the expected content identity,
+  per-file rows/bytes/SHA-256, strictly ascending unique monthly descriptors,
+  monthly membership, integer ticks and strict OHLC parsing.
 - A malformed, incompatible or tampered package produces a named error and an
   empty basket list; it is never rendered as a plausible replay.
 
@@ -90,10 +110,16 @@ The loader reads the finalized Phase E package and never reconstructs it:
   the raw lines.
 - Candles are derived visualization data from the qualified Dukascopy M1 cache.
   They are never used to decide, move or infer an event. The UI states this
-  explicitly.
-- The account panel shows the latest exported telemetry row at or before the
+  explicitly, and every loaded candle closes inside the declared window.
+- Nothing after the cursor crosses the API boundary: the basket index and
+  basket detail responses carry no outcome, counts, trade numbers or events,
+  and the window/reveal endpoints return only account state and events at or
+  before the requested cursor. The UI hides nothing that was sent early.
+- The account panel shows the exact exported telemetry row in force at the
   cursor (event snapshot or ≤300 s periodic sample). It never interpolates and
-  never recomputes a value; the UI shows the exact exported decimals.
+  never recomputes a value; decimals are shown exactly as exported. Phase E
+  exports `absoluteNetLots`, not a signed net exposure, and the panel labels
+  that explicitly; a signed value is not reconstructed.
 
 ### SingleAnchor semantics preserved
 
@@ -114,7 +140,9 @@ The loader reads the finalized Phase E package and never reconstructs it:
   run-level; they are not part of a basket's replay timeline (run-level surfaces
   are Phase H).
 - Basket windows are the authoritative anchor/last-live-event times plus a fixed
-  30-minute context pad; nothing else is inferred.
+  30-minute context pad. The basket still open at the end of the run remains
+  replayable through the authoritative `run_ended` time, and its window end is
+  exactly that run end; nothing else is inferred.
 
 ### Replay controls and screen
 
@@ -163,13 +191,17 @@ corepack pnpm install --frozen-lockfile
 
 $env:MARKETLAB_REPLAY_PACKAGE = '<run>\storage\single-anchor\replay'
 $env:MARKETLAB_CANDLE_CACHE   = '<derived M1 candle cache>'
+$env:MARKETLAB_REPLAY_EXPECTED_PACKAGE_SHA256 = '5dcd8bfa...6097a'
+$env:MARKETLAB_EXPECTED_CANDLE_CONTENT_SHA256 = 'ab1b0c7f...65d9d'
 
 corepack pnpm --filter web dev -- -p 4321
 # open http://127.0.0.1:4321/backtests
 ```
 
-With neither variable set the page shows a clear not-configured state; with one
-set incorrectly it shows the exact loader error.
+The two identity anchors are optional in the code but are required for the
+finalized Phase F data path; the UI reports whether they are anchored. With
+neither replay variable set the page shows a clear not-configured state; with
+one set incorrectly it shows the exact loader error.
 
 ## 4. Validation performed
 
@@ -178,10 +210,10 @@ All commands were run on Windows from the fork checkout.
 | Check                                 | Command                                                                                                                      | Result                                         |
 | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
 | Upstream suite (base revision)        | `corepack pnpm vitest run`                                                                                                   | 532/532 passed                                 |
-| Full suite with the finalized package | `corepack pnpm vitest run` with `MARKETLAB_REPLAY_AUTHORITATIVE_PACKAGE` / `MARKETLAB_REPLAY_AUTHORITATIVE_CANDLE_CACHE` set | **582/582 passed** (532 upstream + 50 Phase F) |
-| Phase F contract/loader tests         | `corepack pnpm vitest run apps/web/tests/marketlab-replay.test.ts`                                                           | 38/38 passed                                   |
-| Phase F UI tests (jsdom + Vela mock)  | `corepack pnpm vitest run apps/web/tests/marketlab-replay-ui.test.ts`                                                        | 7/7 passed                                     |
-| Authoritative Phase E tests           | `corepack pnpm vitest run apps/web/tests/marketlab-replay-authoritative.test.ts` with the finalized package                  | 5/5 passed                                     |
+| Full suite with the finalized package | `corepack pnpm vitest run` with `MARKETLAB_REPLAY_AUTHORITATIVE_PACKAGE` / `MARKETLAB_REPLAY_AUTHORITATIVE_CANDLE_CACHE` set | **595/595 passed** (532 upstream + 63 Phase F) |
+| Phase F contract/loader tests         | `corepack pnpm vitest run apps/web/tests/marketlab-replay.test.ts`                                                           | 48/48 passed                                   |
+| Phase F UI tests (jsdom + Vela mock)  | `corepack pnpm vitest run apps/web/tests/marketlab-replay-ui.test.ts`                                                        | 9/9 passed                                     |
+| Authoritative Phase E tests           | `corepack pnpm vitest run apps/web/tests/marketlab-replay-authoritative.test.ts` with the finalized package                  | 6/6 passed                                     |
 | Typecheck                             | `corepack pnpm --filter web typecheck`, plus `packages/core` and `packages/importers`                                        | passed                                         |
 | Formatting                            | `corepack pnpm exec prettier --check <changed files>`                                                                        | passed                                         |
 
@@ -192,10 +224,15 @@ before its anchor, an anchor while a basket is open, a recap with a live time,
 missing required event fields (for example a strategy exit without a reason — no
 reason is invented), a basket-scoped event without a basket, a basket number on
 a run-level event, a live event no basket span contains, invalid JSON with a
-matching manifest, phantom/mistimed/duplicate telemetry snapshots, telemetry
-rows outside their shard year, an expected-identity mismatch, and a candle
-content-fingerprint mismatch. A dedicated test drives the 12,000-bar monthly
-chunk boundary and proves the next chunk is served without silent truncation.
+matching manifest, phantom/mistimed/duplicate/missing telemetry snapshots,
+out-of-order telemetry (rejected, never sorted), telemetry counts that do not
+match the manifest, telemetry rows outside their shard year, non-canonical
+decimals, an expected-identity mismatch, a candle content-fingerprint mismatch,
+a repeated candle month, replay/candle symbol and source-digest mismatches, a
+cursor-bounded reveal that returns no future event or account value, an open
+basket whose window ends at the authoritative run end, and the candle
+close-boundary rule. A dedicated test drives the 12,000-bar monthly chunk
+boundary and proves the next chunk is served without silent truncation.
 
 The authoritative tests independently parse the raw package in the test and
 prove: the exact package SHA-256, all 1,454 events present exactly once, in
@@ -252,19 +289,30 @@ ran the development server. No upstream configuration was weakened or changed.
 
 ## 5. Known limitations
 
+- **Open contract decision:** signed net exposure is not exported by Phase E;
+  the panel shows the authoritative `absoluteNetLots` and states that a signed
+  value is not exported. Displaying a signed value requires a formal acceptance
+  of `absoluteNetLots` or a separately authorized Phase E export change.
 - One basket at a time. Run summary, basket table filters, run-level timeline
   and jump-to-event are Phase H, including the run-level view of the
   `entry_rejection_summary` run-end recaps.
 - Replay is bar-close granularity on derived 1-minute candles, not a tick
-  simulation and not an execution authority.
+  simulation and not an execution authority. A loaded candle always closes
+  inside the replay window.
+- Events and account rows reach the browser strictly through the cursor
+  endpoints; the price series in a loaded chunk extends beyond the cursor but is
+  derived visualization data, not authoritative state.
 - The account panel depends on the exported sampling: exact snapshots at every
   significant event and periodic samples at most every 300 simulated seconds.
   Between samples the panel shows the last exported row; it does not
-  interpolate, and a non-observable floating P/L is labelled rather than
-  valued.
+  interpolate, and a non-observable floating P/L is labelled rather than valued.
+- The final basket remains open through the authoritative run end; its window
+  is the full remaining run and is replayed in bounded chunks. Labelling it
+  `open at run end` requires the cursor to reach that run end.
 - Margin Call transitions and trailing activations inherit the documented
   Phase E parity limits; the UI displays the exported rows as-is and does not
-  reconstruct them.
+  reconstruct them. A NotDefined margin level renders as `not defined`, never as
+  a percentage.
 - Boundary price lines are displayed only while near the revealed candle range;
   exact values remain in the basket header and the activation annotation.
 - Long baskets are replayed in bounded chunks; stepping past a chunk boundary

@@ -8,8 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { OptionSelect } from "@/components/ui/option-select";
 import { useApi } from "@/lib/use-api";
 import type {
-  BasketSummary,
-  ReplayEventView,
+  BasketIdentity,
+  ReplayRevealResponse,
   ReplayStatus,
   ReplayWindowResponse,
 } from "@/lib/marketlab-replay";
@@ -33,7 +33,7 @@ function Backtests() {
     data: detail,
     error: detailError,
     loading: detailLoading,
-  } = useApi<{ basket: BasketSummary; events: ReplayEventView[] }>(detailUrl);
+  } = useApi<{ basket: BasketIdentity }>(detailUrl);
   const loadWindow = useCallback(
     async (fromMs: number) => {
       const response = await fetch(
@@ -41,6 +41,17 @@ function Backtests() {
       );
       const body = (await response.json()) as ReplayWindowResponse & { error?: string };
       if (!response.ok) throw new Error(body.error ?? "Replay window request failed.");
+      return body;
+    },
+    [basketNumber],
+  );
+  const loadReveal = useCallback(
+    async (afterEventId: number, cursorMs: number) => {
+      const response = await fetch(
+        `/api/marketlab-replay/baskets/${basketNumber}/reveal?after=${afterEventId}&cursor=${cursorMs}`,
+      );
+      const body = (await response.json()) as ReplayRevealResponse & { error?: string };
+      if (!response.ok) throw new Error(body.error ?? "Replay reveal request failed.");
       return body;
     },
     [basketNumber],
@@ -179,7 +190,24 @@ function Backtests() {
                 </CardContent>
               </Card>
             )}
-            {data.candles.valid && (
+            {data.candles.valid && !data.compatibility.valid && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Replay and candle cache are incompatible</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p role="alert" className="text-sm text-destructive">
+                    {data.compatibility.error ??
+                      "The replay package and the candle cache do not declare the same source identity."}
+                  </p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    A replay is only rendered for the matching authoritative source; nothing is
+                    substituted or normalized.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+            {data.candles.valid && data.compatibility.valid && (
               <Card>
                 <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
                   <CardTitle>Select a SingleAnchor basket</CardTitle>
@@ -203,7 +231,7 @@ function Backtests() {
                 {basketNumber !== null && (
                   <CardContent>
                     {detailLoading && (
-                      <p className="text-sm text-muted-foreground">Loading basket events…</p>
+                      <p className="text-sm text-muted-foreground">Loading basket…</p>
                     )}
                     {detailError && (
                       <p role="alert" className="text-sm text-destructive">
@@ -214,8 +242,8 @@ function Backtests() {
                       <MarketlabReplay
                         key={detail.basket.number}
                         basket={detail.basket}
-                        events={detail.events}
                         loadWindow={loadWindow}
+                        loadReveal={loadReveal}
                       />
                     )}
                   </CardContent>

@@ -17,8 +17,8 @@
     {
       "check": "Play advances the cursor; Pause stops it",
       "pass": true,
-      "cursorBefore": "2020-03-16 15:49:00Z ",
-      "cursorAfter": "2020-03-16 15:59:00Z "
+      "cursorBefore": "2020-03-16 15:54:00Z ",
+      "cursorAfter": "2020-03-16 16:04:00Z "
     },
     {
       "check": "Restart rewinds without future events",
@@ -37,7 +37,7 @@
         "total": 117
       },
       "chartState": {
-        "loaded": "360",
+        "loaded": "359",
         "revealed": "359",
         "noCandles": false,
         "chartReady": true
@@ -56,12 +56,15 @@
   "package": {
     "packageSha256": "5dcd8bfaffe76c9d2c8eec002073f62fe18b5d0d40b0602dbad0e59f6846097a",
     "candlesContentSha256": "ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
+    "compatibility": {
+      "valid": true,
+      "error": null
+    },
     "basket276": {
       "entries": 36,
       "forced": 30,
       "stopOuts": 4,
-      "status": "closed",
-      "exitReason": "Escape"
+      "exits": 1
     }
   },
   "failedRequests": [

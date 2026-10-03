@@ -48,8 +48,8 @@ export const REPLAY_RECAP_TYPE: ReplayEventType = "entry_rejection_summary";
 
 export const REPLAY_CONTEXT_PAD_MS = 30 * 60_000;
 export const REPLAY_CHUNK_BARS = 12_000;
-/** A safety bound: a single chunk must not exceed this many telemetry rows. */
-export const REPLAY_CHUNK_ACCOUNT_ROWS = 60_000;
+/** The maximum number of events a single cursor reveal may return. */
+export const REPLAY_REVEAL_BATCH = 1_000;
 
 export class ReplayPackageError extends Error {
   constructor(message: string) {
@@ -90,6 +90,12 @@ export interface ReplayManifest {
     failureCondition?: string | null;
   };
   counters?: Record<string, unknown>;
+  delivered?: {
+    quoteCount?: number;
+    semanticDigest?: string;
+    firstCanonicalUtc?: string | null;
+    lastCanonicalUtc?: string | null;
+  };
   eventCounts: Record<string, number>;
   telemetryCounts?: { event: number; periodic: number };
   files: ReplayManifestFile[];
@@ -127,6 +133,8 @@ export interface BasketSummary {
   lastLiveTimeMs: number;
   windowStartMs: number;
   windowEndMs: number;
+  /** The authoritative run end for the basket still open there; null once closed. */
+  runEndMs: number | null;
   entries: number;
   forcedLiquidations: number;
   stopOutEpisodes: number;
@@ -135,6 +143,39 @@ export interface BasketSummary {
   liveRejections: number;
   tradeNumbers: number[];
 }
+
+/**
+ * The pre-cursor selector identity of a basket. No outcome, counts, trade
+ * numbers or events: those are only revealed through the bounded cursor
+ * endpoints.
+ */
+export interface BasketIdentity {
+  number: number;
+  anchorTime: string;
+  anchorTimeMs: number;
+  anchor: string | null;
+  step: string | null;
+  upper: string | null;
+  lower: string | null;
+  lowerTarget: string | null;
+  upperTarget: string | null;
+  windowStartMs: number;
+  windowEndMs: number;
+}
+
+export const toBasketIdentity = (basket: BasketSummary): BasketIdentity => ({
+  number: basket.number,
+  anchorTime: basket.anchorTime,
+  anchorTimeMs: basket.anchorTimeMs,
+  anchor: basket.anchor,
+  step: basket.step,
+  upper: basket.upper,
+  lower: basket.lower,
+  lowerTarget: basket.lowerTarget,
+  upperTarget: basket.upperTarget,
+  windowStartMs: basket.windowStartMs,
+  windowEndMs: basket.windowEndMs,
+});
 
 /** One exact exported account observation from `telemetry-*.jsonl`. */
 export interface AccountRow {
@@ -199,18 +240,32 @@ export interface ReplayStatus {
     firstMonth: string | null;
     lastMonth: string | null;
   };
-  baskets: BasketSummary[];
+  baskets: BasketIdentity[];
+  compatibility: {
+    valid: boolean;
+    error: string | null;
+  };
 }
 
 export interface ReplayWindowResponse {
   fromMs: number;
   toMs: number;
   bars: CompactBar[];
-  account: AccountRow[];
   nextFromMs: number | null;
   windowStartMs: number;
   windowEndMs: number;
+  /** The exact exported row in force at `fromMs` (carry-in), or null. */
+  account: AccountRow | null;
   candleCache: { contract: string; manifestSha256: string; contentSha256: string };
+}
+
+export interface ReplayRevealResponse {
+  /** Live basket events with id greater than `after` and time at or before the cursor. */
+  events: ReplayEventView[];
+  /** The exact exported account row in force at the cursor, or null. */
+  account: AccountRow | null;
+  hasMore: boolean;
+  lastEventId: number;
 }
 
 export interface IndexedBaskets {
@@ -283,12 +338,21 @@ export function indexBaskets(events: ReplayEventView[]): IndexedBaskets {
   const eventsByBasket = new Map<number, ReplayEventView[]>();
   const timeOnly: ReplayEventView[] = [];
   let active: BasketSummary | null = null;
+  const runEnded = events.find((view) => view.type === "run_ended");
+  if (!runEnded || runEnded.timeMs === null) {
+    throw new ReplayPackageError("The replay package has no authoritative run end.");
+  }
+  const runEndMs = runEnded.timeMs;
+  let maxLiveTimeMs = Number.NEGATIVE_INFINITY;
 
   for (const view of events) {
     if (view.type === "run_started" || view.type === "run_ended") continue;
     // Run-end recaps are outside the live clock and are run-level; they are not
     // part of a basket's replay timeline (run-level surfaces are Phase H).
     if (view.type === REPLAY_RECAP_TYPE) continue;
+    if (view.live && view.timeMs !== null) {
+      maxLiveTimeMs = Math.max(maxLiveTimeMs, view.timeMs);
+    }
 
     if (view.type === "basket_anchored") {
       const number = requireBasketNumber(view);
@@ -320,6 +384,7 @@ export function indexBaskets(events: ReplayEventView[]): IndexedBaskets {
         lastLiveTimeMs: view.timeMs,
         windowStartMs: view.timeMs - REPLAY_CONTEXT_PAD_MS,
         windowEndMs: view.timeMs + REPLAY_CONTEXT_PAD_MS,
+        runEndMs: null,
         entries: 0,
         forcedLiquidations: 0,
         stopOutEpisodes: 0,
@@ -418,7 +483,19 @@ export function indexBaskets(events: ReplayEventView[]): IndexedBaskets {
   }
 
   for (const summary of baskets) {
-    summary.windowEndMs = summary.lastLiveTimeMs + REPLAY_CONTEXT_PAD_MS;
+    if (summary.status === "open") {
+      // The final basket stays unresolved through the authoritative run end.
+      summary.windowEndMs = runEndMs;
+      summary.runEndMs = runEndMs;
+    } else {
+      summary.windowEndMs = summary.lastLiveTimeMs + REPLAY_CONTEXT_PAD_MS;
+      summary.runEndMs = null;
+    }
+  }
+  if (maxLiveTimeMs > runEndMs) {
+    throw new ReplayPackageError(
+      "A live event occurs after the authoritative run end; the package is inconsistent.",
+    );
   }
   for (const list of eventsByBasket.values()) {
     list.sort((a, b) => a.id - b.id);

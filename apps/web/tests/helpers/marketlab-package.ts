@@ -14,6 +14,10 @@ import { CANDLE_CACHE_CONTRACT, REPLAY_PACKAGE_CONTRACT } from "../../src/lib/ma
 export const sha256 = (value: string | Buffer): string =>
   createHash("sha256").update(value).digest("hex");
 
+/** A deterministic synthetic source identity shared by both fixture manifests. */
+export const SYNTHETIC_SOURCE_DIGEST = `sha256:${sha256("synthetic-marketlab-source")}`;
+export const SYNTHETIC_SOURCE_ROWS = 1300;
+
 export const SYNTHETIC_START = "2024-01-01T00:00:00.000Z";
 export const SYNTHETIC_ANCHOR_TIME = "2024-01-01T00:30:00.000Z";
 export const SYNTHETIC_END = "2024-01-01T00:42:00.000Z";
@@ -366,6 +370,11 @@ export function syntheticTelemetry(events: Record<string, unknown>[]): Record<st
       String(a.time).localeCompare(String(b.time)) ||
       Number(a.quoteSequence) - Number(b.quoteSequence),
   );
+  // The producer numbers telemetry quotes chronologically; renumber after the
+  // fixture interleaves periodic samples with the event snapshots.
+  rows.forEach((row, index) => {
+    row.quoteSequence = index + 1;
+  });
   return rows;
 }
 
@@ -420,6 +429,12 @@ export function writeReplayPackage(
     telemetryIntervalSeconds: 300,
     outcome: { completed: true, failureKind: null, failureCondition: null },
     counters: { quoteTicksProcessed: 1300 },
+    delivered: {
+      quoteCount: SYNTHETIC_SOURCE_ROWS,
+      semanticDigest: SYNTHETIC_SOURCE_DIGEST,
+      firstCanonicalUtc: SYNTHETIC_START,
+      lastCanonicalUtc: SYNTHETIC_END,
+    },
     eventCounts,
     telemetryCounts: {
       event: telemetry.filter((row) => row.kind === "event").length,
@@ -509,6 +524,12 @@ export function writeCandleMonths(
     time_basis: "UTC",
     empty_minutes: "absent",
     content_sha256: contentSha256,
+    inputs: {
+      composition: {
+        ordered_source_semantic_digest: SYNTHETIC_SOURCE_DIGEST,
+        accepted_row_count: SYNTHETIC_SOURCE_ROWS,
+      },
+    },
     files,
   };
   writeFileSync(join(root, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");

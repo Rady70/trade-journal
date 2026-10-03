@@ -12,8 +12,12 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { accountAtCursor, barCloseMs } from "../src/lib/marketlab-replay";
-import { basketWindow, loadPackage, replayStatus } from "../src/server/marketlab-replay";
+import {
+  basketReveal,
+  basketWindow,
+  loadPackage,
+  replayStatus,
+} from "../src/server/marketlab-replay";
 
 const packageRoot = process.env.MARKETLAB_REPLAY_AUTHORITATIVE_PACKAGE?.trim();
 const candleRoot = process.env.MARKETLAB_REPLAY_AUTHORITATIVE_CANDLE_CACHE?.trim();
@@ -141,13 +145,14 @@ describe.skipIf(!enabled)("authoritative finalized Phase E package", () => {
     expect(exit.liquidatedRealizedProfit).toBe("-25051.42100");
   });
 
-  it("returns only derived candles inside the window and exact exported account rows", () => {
+  it("returns only derived candles inside the window and exact exported account state", () => {
     const status = replayStatus();
     const basket = status.baskets.find((candidate) => candidate.number === 276)!;
     const window = basketWindow(276, basket.windowStartMs);
     for (const bar of window.bars) {
       expect(bar[0]).toBeGreaterThanOrEqual(window.fromMs);
-      expect(bar[0]).toBeLessThanOrEqual(window.windowEndMs);
+      // One consistent boundary: every loaded candle closes inside the window.
+      expect(bar[0] + 60_000).toBeLessThanOrEqual(window.windowEndMs);
     }
     // Cross-check the derived cache against the raw monthly CSV bytes.
     const csv = readFileSync(join(candleRoot!, "xauusd-m1-2020-03.csv"), "utf8")
@@ -175,7 +180,8 @@ describe.skipIf(!enabled)("authoritative finalized Phase E package", () => {
       const expected = rawCandle.get(bar[0]);
       if (expected) expect(bar).toEqual(expected);
     }
-    // Every returned account row must exist byte-for-byte in the raw telemetry.
+    // The carry row and the cursor account value must exist byte-for-byte in
+    // the raw telemetry, and the cursor value must be the row in force there.
     const telemetry = readFileSync(join(packageRoot!, "telemetry-2020.jsonl"), "utf8")
       .split("\n")
       .filter((line) => line.length > 0)
@@ -183,7 +189,10 @@ describe.skipIf(!enabled)("authoritative finalized Phase E package", () => {
     const rawRows = new Map(
       telemetry.map((row) => [`${row.kind}|${row.eventId}|${row.time}`, row]),
     );
-    for (const row of window.account) {
+    const cursor = window.bars[10]![0] + 60_000;
+    const revealed = basketReveal(276, 0, cursor);
+    expect(revealed.account).not.toBeNull();
+    for (const row of [window.account!, revealed.account!]) {
       const raw = rawRows.get(`${row.kind}|${row.eventId}|${row.time}`);
       expect(raw).toBeDefined();
       expect(raw!.balance).toBe(row.balance);
@@ -191,8 +200,30 @@ describe.skipIf(!enabled)("authoritative finalized Phase E package", () => {
       expect(raw!.marginLevelPercent).toBe(row.marginLevelPercent);
       expect(raw!.quoteSequence).toBe(row.quoteSequence);
     }
-    const cursor = window.bars[10]![0] + 60_000;
-    const expectedAtCursor = window.account.filter((row) => row.timeMs <= cursor).at(-1);
-    expect(accountAtCursor(window.account, cursor)).toEqual(expectedAtCursor ?? null);
+    for (const event of revealed.events) {
+      expect(event.timeMs).not.toBeNull();
+      expect(event.timeMs!).toBeLessThanOrEqual(cursor);
+    }
+  });
+
+  it("keeps the final open basket replayable through the authoritative run end", () => {
+    const status = replayStatus();
+    const identity = status.baskets.find((candidate) => candidate.number === 280)!;
+    const summary = loadPackage().byNumber.get(280)!;
+    const runEnd = Date.parse("2026-06-30T23:59:59.678Z");
+    expect(summary.status).toBe("open");
+    expect(summary.runEndMs).toBe(runEnd);
+    expect(summary.windowEndMs).toBe(runEnd);
+    expect(identity.windowEndMs).toBe(runEnd);
+    expect(summary.lastLiveTimeMs).toBe(Date.parse("2021-03-02T03:18:08.907Z"));
+    const revealed = basketReveal(280, 0, runEnd);
+    expect(revealed.events.some((event) => event.type === "strategy_exit")).toBe(false);
+    expect(revealed.events.some((event) => event.type === "basket_liquidated")).toBe(false);
+    expect(revealed.events.length).toBeGreaterThan(0);
+    // The identity carries no outcome or counts.
+    expect(identity).not.toHaveProperty("status");
+    expect(identity).not.toHaveProperty("entries");
+    expect(loadPackage().baskets.length).toBe(280);
+    expect(loadPackage().telemetry.length).toBe(1_452 + 98_866);
   });
 });

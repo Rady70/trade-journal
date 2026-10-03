@@ -10,8 +10,10 @@ puppeteer-core harness that drives the installed Microsoft Edge against a local
   finalized package provenance (package SHA-256
   `5dcd8bfaffe76c9d2c8eec002073f62fe18b5d0d40b0602dbad0e59f6846097a`, candle
   content SHA-256
-  `ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d`) and lists
-  280 baskets.
+  `ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d`), reports
+  the replay/candle source compatibility, lists 280 baskets by number and
+  anchor time only, and verifies that the basket index and detail responses
+  carry no pre-cursor outcome or counts.
 - `transcript-valid.json` / `02b-entry-revealed.png`: basket #276 selected;
   progressive reveal (entry visible, no forced liquidation before the cursor,
   `replay in progress`, no future totals).

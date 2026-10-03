@@ -5,9 +5,11 @@ import { createRoot, type Root } from "react-dom/client";
 import { TooltipProvider } from "../src/components/ui/tooltip";
 import { PrivacyProvider } from "../src/components/privacy";
 import type {
-  BasketSummary,
+  AccountRow,
+  BasketIdentity,
   CompactBar,
   ReplayEventView,
+  ReplayRevealResponse,
   ReplayWindowResponse,
 } from "../src/lib/marketlab-replay";
 
@@ -39,29 +41,18 @@ const minuteMs = (minute: number, second = 0) =>
   Date.parse("2024-01-01T00:00:00.000Z") + minute * MINUTE + second * 1000;
 const iso = (ms: number) => new Date(ms).toISOString();
 
-const basket: BasketSummary = {
+const basket: BasketIdentity = {
   number: 1,
-  status: "liquidated",
-  exitReason: "BrokerLiquidation",
   anchorTime: iso(minuteMs(2)),
   anchorTimeMs: minuteMs(2),
-  anchorQuoteSequence: 10,
   anchor: "100.0",
   step: "1",
   upper: "101.0",
   lower: "99.0",
   lowerTarget: "90.0",
   upperTarget: "110.0",
-  lastLiveTimeMs: minuteMs(6),
   windowStartMs: WINDOW_START,
   windowEndMs: WINDOW_END,
-  entries: 1,
-  forcedLiquidations: 1,
-  stopOutEpisodes: 1,
-  marginCallEntries: 0,
-  hardBreakevenActivations: 1,
-  liveRejections: 0,
-  tradeNumbers: [1],
 };
 
 const view = (
@@ -95,7 +86,7 @@ const events: ReplayEventView[] = [
     marginLevelPercent: "17.0",
     openPositions: 1,
   }),
-  view(6, "forced_liquidation", `${iso(minuteMs(5)).slice(0, 17)}30.000Z`, {
+  view(6, "forced_liquidation", "2024-01-01T00:05:30.000Z", {
     basket: 1,
     ordinal: 1,
     tradeNumber: 1,
@@ -116,7 +107,7 @@ const accountRow = (
   balance: string,
   eventId: number | null,
   marginCallActive = false,
-): ReplayWindowResponse["account"][number] => ({
+): AccountRow => ({
   kind: eventId === null ? "periodic" : "event",
   eventId,
   time,
@@ -136,6 +127,14 @@ const accountRow = (
   absoluteNetLots: "0.10",
 });
 
+const accounts: AccountRow[] = [
+  accountRow(iso(minuteMs(1)), "1000.00000", 1),
+  { ...accountRow(iso(minuteMs(2, 30)), "995.00000", null), floatingObservable: false },
+  accountRow(iso(minuteMs(3, 30)), "990.00000", null),
+  accountRow(iso(minuteMs(5, 30)), "880.00000", 6, true),
+  accountRow(iso(minuteMs(6)), "880.00000", 7),
+];
+
 const bar = (minute: number): CompactBar => [
   minuteMs(minute),
   100 + minute,
@@ -145,36 +144,49 @@ const bar = (minute: number): CompactBar => [
   10,
 ];
 
+const carryRow = (cursorMs: number): AccountRow | null => {
+  const eligible = accounts.filter((row) => row.timeMs <= cursorMs);
+  return eligible.length > 0 ? eligible[eligible.length - 1]! : null;
+};
+
 const chunkOne: ReplayWindowResponse = {
   fromMs: WINDOW_START,
   toMs: minuteMs(4),
   bars: [bar(0), bar(1), bar(2), bar(3)],
-  account: [
-    accountRow(iso(minuteMs(1)), "1000.00000", 1),
-    { ...accountRow(iso(minuteMs(2, 30)), "995.00000", null), floatingObservable: false },
-    accountRow(iso(minuteMs(3, 30)), "990.00000", null),
-  ],
   nextFromMs: minuteMs(4),
   windowStartMs: WINDOW_START,
   windowEndMs: WINDOW_END,
+  account: carryRow(WINDOW_START),
   candleCache: { contract: "c", manifestSha256: "m", contentSha256: "x" },
 };
-const chunkTwo: ReplayWindowResponse = {
-  fromMs: minuteMs(4),
+const mergedChunk: ReplayWindowResponse = {
+  fromMs: WINDOW_START,
   toMs: minuteMs(8),
-  bars: [bar(4), bar(5), bar(6), bar(7)],
-  account: [
-    accountRow(iso(minuteMs(3, 30)), "990.00000", null),
-    accountRow(iso(minuteMs(5, 30)), "880.00000", 6, true),
-    accountRow(iso(minuteMs(6)), "880.00000", 7),
-  ],
+  bars: [bar(0), bar(1), bar(2), bar(3), bar(4), bar(5), bar(6), bar(7)],
   nextFromMs: null,
   windowStartMs: WINDOW_START,
   windowEndMs: WINDOW_END,
+  account: carryRow(WINDOW_START),
   candleCache: { contract: "c", manifestSha256: "m", contentSha256: "x" },
 };
 
-const loadWindow = vi.fn(async (fromMs: number) => (fromMs >= minuteMs(4) ? chunkTwo : chunkOne));
+const reveal = (eventList: ReplayEventView[]) =>
+  vi.fn(async (afterEventId: number, cursorMs: number): Promise<ReplayRevealResponse> => {
+    const batch = eventList.filter(
+      (event) => event.id > afterEventId && event.timeMs !== null && event.timeMs <= cursorMs,
+    );
+    return {
+      events: batch,
+      account: carryRow(cursorMs),
+      hasMore: false,
+      lastEventId: batch.length > 0 ? batch[batch.length - 1]!.id : afterEventId,
+    };
+  });
+
+const loadWindow = vi.fn(async (fromMs: number) =>
+  fromMs >= minuteMs(4) ? mergedChunk : chunkOne,
+);
+const loadReveal = reveal(events);
 
 let container: HTMLDivElement;
 let root: Root;
@@ -186,6 +198,7 @@ beforeEach(() => {
   vela.ready.mockResolvedValue(undefined);
   vela.addNativeIndicator.mockReturnValue({ remove: vi.fn() });
   loadWindow.mockClear();
+  loadReveal.mockClear();
   container = document.createElement("div");
   document.body.append(container);
   root = createRoot(container);
@@ -196,7 +209,13 @@ afterEach(async () => {
   window.localStorage.clear();
 });
 
-const renderReplay = async () =>
+const renderReplay = async (
+  replayBasket: BasketIdentity = basket,
+  overrides: {
+    window?: typeof loadWindow;
+    reveal?: typeof loadReveal;
+  } = {},
+) =>
   act(async () =>
     root.render(
       createElement(
@@ -205,7 +224,11 @@ const renderReplay = async () =>
         createElement(
           PrivacyProvider,
           null,
-          createElement(MarketlabReplay, { basket, events, loadWindow }),
+          createElement(MarketlabReplay, {
+            basket: replayBasket,
+            loadWindow: overrides.window ?? loadWindow,
+            loadReveal: overrides.reveal ?? loadReveal,
+          }),
         ),
       ),
     ),
@@ -217,6 +240,7 @@ const feed = () => container.textContent ?? "";
 it("reveals authoritative events only up to the cursor and syncs the exported account state", async () => {
   await renderReplay();
   expect(loadWindow).toHaveBeenCalledWith(WINDOW_START);
+  expect(loadReveal).toHaveBeenCalledWith(0, minuteMs(1));
   expect(feed()).not.toContain("#1 Buy");
   expect(feed()).not.toContain("Forced close");
   expect(feed()).toContain("1000.00000");
@@ -232,7 +256,7 @@ it("reveals authoritative events only up to the cursor and syncs the exported ac
   expect(feed()).not.toContain("Stop Out MarginLevel");
 
   await act(async () => button("Next candle").click());
-  expect(loadWindow).toHaveBeenCalledWith(minuteMs(4));
+  expect(loadWindow).toHaveBeenCalledWith(WINDOW_START);
   expect(feed()).toContain("Stop Out MarginLevel");
   expect(feed()).not.toContain("Forced close");
 
@@ -244,11 +268,9 @@ it("reveals authoritative events only up to the cursor and syncs the exported ac
 
 it("restarts to the first candle without revealing future events", async () => {
   await renderReplay();
-  await act(async () => button("Next candle").click());
-  await act(async () => button("Next candle").click());
-  await act(async () => button("Next candle").click());
-  await act(async () => button("Next candle").click());
-  await act(async () => button("Next candle").click());
+  for (let index = 0; index < 5; index += 1) {
+    await act(async () => button("Next candle").click());
+  }
   expect(feed()).toContain("Forced close");
   await act(async () => button("Restart replay").click());
   expect(feed()).not.toContain("Forced close");
@@ -256,48 +278,13 @@ it("restarts to the first candle without revealing future events", async () => {
   expect(feed()).toContain("1000.00000");
 });
 
-it("keeps candle context when scrubbing to the end of the window", async () => {
-  await renderReplay();
-  const input = container.querySelector<HTMLInputElement>('[aria-label="Replay position"]')!;
-  await act(async () => {
-    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!;
-    setter.call(input, "1000");
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-  });
-  expect(loadWindow).toHaveBeenLastCalledWith(Math.max(WINDOW_START, WINDOW_END - 6 * 60 * 60_000));
-  expect(feed()).toContain("Forced close 1: #1 Buy 0.10 @ 98.2");
-  expect(feed()).not.toContain("No derived candles available at the cursor.");
-});
-
 it("keeps revealed history when stepping across a chunk boundary with context", async () => {
-  const merged: ReplayWindowResponse = {
-    fromMs: WINDOW_START,
-    toMs: minuteMs(8),
-    bars: [bar(0), bar(1), bar(2), bar(3), bar(4), bar(5), bar(6), bar(7)],
-    account: [accountRow(iso(minuteMs(1)), "1000.00000", 1)],
-    nextFromMs: null,
-    windowStartMs: WINDOW_START,
-    windowEndMs: WINDOW_END,
-    candleCache: { contract: "c", manifestSha256: "m", contentSha256: "x" },
-  };
   let calls = 0;
   const contextLoader = vi.fn(async (_fromMs: number) => {
     calls += 1;
-    return calls === 1 ? chunkOne : merged;
+    return calls === 1 ? chunkOne : mergedChunk;
   });
-  await act(async () =>
-    root.render(
-      createElement(
-        TooltipProvider,
-        null,
-        createElement(
-          PrivacyProvider,
-          null,
-          createElement(MarketlabReplay, { basket, events, loadWindow: contextLoader }),
-        ),
-      ),
-    ),
-  );
+  await renderReplay(basket, { window: contextLoader });
   for (let index = 0; index < 3; index += 1) {
     await act(async () => button("Next candle").click());
   }
@@ -309,49 +296,13 @@ it("keeps revealed history when stepping across a chunk boundary with context", 
   expect(lastData.data.length).toBeGreaterThanOrEqual(5);
 });
 
-it("does not fall back to the terminal outcome when the candle cache ends before the close", async () => {
-  const short: ReplayWindowResponse = {
-    fromMs: WINDOW_START,
-    toMs: minuteMs(3),
-    bars: [bar(0), bar(1), bar(2)],
-    account: [accountRow(iso(minuteMs(1)), "1000.00000", 1)],
-    nextFromMs: null,
-    windowStartMs: WINDOW_START,
-    windowEndMs: WINDOW_END,
-    candleCache: { contract: "c", manifestSha256: "m", contentSha256: "x" },
-  };
-  await act(async () =>
-    root.render(
-      createElement(
-        TooltipProvider,
-        null,
-        createElement(
-          PrivacyProvider,
-          null,
-          createElement(MarketlabReplay, {
-            basket,
-            events,
-            loadWindow: async () => short,
-          }),
-        ),
-      ),
-    ),
-  );
-  for (let index = 0; index < 3; index += 1) {
-    await act(async () => button("Next candle").click());
-  }
-  expect(feed()).toContain("replay in progress");
-  expect(feed()).not.toContain("liquidated (BrokerLiquidation)");
-  expect(feed()).not.toContain("Forced close");
-});
-
 it("does not reveal the basket outcome or future totals before the cursor", async () => {
   await renderReplay();
   expect(feed()).toContain("replay in progress");
   expect(feed()).not.toContain("liquidated (BrokerLiquidation)");
   expect(feed()).toContain("authoritative events revealed");
   expect(feed()).not.toMatch(/\/\s*\d+\s*significant/);
-  for (let index = 0; index < 6; index += 1) {
+  for (let index = 0; index < 5; index += 1) {
     await act(async () => button("Next candle").click());
   }
   expect(feed()).toContain("liquidated (BrokerLiquidation)");
@@ -363,6 +314,18 @@ it("shows exact exported margin levels and marks a non-observable floating P/L",
   await act(async () => button("Next candle").click());
   expect(feed()).toContain("not observable at this sample");
   expect(feed()).toContain("500.000000000000000000000000%");
+});
+
+it("labels an unresolved final basket open at run end only at the run end", async () => {
+  const openBasket: BasketIdentity = { ...basket, windowEndMs: minuteMs(6) };
+  const openEvents = events.slice(0, 4);
+  await renderReplay(openBasket, { reveal: reveal(openEvents) });
+  await act(async () => button("Next candle").click());
+  await act(async () => button("Next candle").click());
+  expect(feed()).toContain("replay in progress");
+  expect(feed()).not.toContain("open at run end");
+  await act(async () => button("Reveal the full basket window").click());
+  expect(feed()).toContain("open at run end");
 });
 
 it("destroys the Vela chart and unregisters the indicator on unmount", async () => {
@@ -377,7 +340,7 @@ it("destroys the Vela chart and unregisters the indicator on unmount", async () 
         createElement(
           PrivacyProvider,
           null,
-          createElement(MarketlabReplay, { basket, events, loadWindow }),
+          createElement(MarketlabReplay, { basket, loadWindow, loadReveal }),
         ),
       ),
     ),
@@ -435,4 +398,23 @@ it("builds chart annotations only from revealed events", () => {
   expect((atLiquidation.labels ?? []).some((label) => label.text?.includes("STOP OUT"))).toBe(true);
   expect((atLiquidation.labels ?? []).some((label) => label.text?.includes("LIQ 1"))).toBe(true);
   expect((atLiquidation.priceLines ?? []).some((line) => line.id === "marketlab-upper")).toBe(true);
+});
+
+it("renders an undefined margin level as not defined instead of a percentage", () => {
+  const stopOut = view(5, "stop_out_triggered", iso(minuteMs(5)), {
+    basket: 1,
+    reason: "NegativeEquity",
+    marginLevelPercent: null,
+    openPositions: 1,
+  });
+  const paint = buildReplayPaint({
+    bars: [bar(4), bar(5)],
+    events: [stopOut],
+    basket,
+    cursorMs: minuteMs(6),
+    paintKey: "e",
+  });
+  const stopOutLabel = (paint.labels ?? []).find((label) => label.text?.includes("STOP OUT"));
+  expect(stopOutLabel?.text).toContain("not defined");
+  expect(stopOutLabel?.text).not.toContain("—%");
 });
