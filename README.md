@@ -208,6 +208,18 @@ On a closed trade, choose the source, exact symbol, and resolution, then select 
 
 See the [market data guide](docs/market-data.md) for provider configuration, CSV schema, replay behavior, and calculation limits.
 
+## MarketLab Backtests (fork addition)
+
+This fork adds a dedicated **MarketLab Backtests** surface that replays the
+authoritative LEAN SingleAnchor Phase E package directly: historical M1 candles
+(derived visualization data) with progressive reveal, execution and risk-event
+annotations, replay controls and an account panel synchronized to the cursor
+from exact exported values. Set `MARKETLAB_REPLAY_PACKAGE` and
+`MARKETLAB_CANDLE_CACHE` and open `/backtests`. See
+[docs/marketlab-phase-f.md](docs/marketlab-phase-f.md) for provenance,
+boundaries, run instructions, validation and limitations, and
+[MARKETLAB_FORK.md](MARKETLAB_FORK.md) for the fork record.
+
 ## Prop firm tracking
 
 Track evaluation, verification, funded, instant-funded, and live accounts across your own firms. Keep resets and phase changes as linked records, with expenses, refunds, supporting attachments, and an audit history.

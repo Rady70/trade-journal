@@ -1,0 +1,67 @@
+{
+  "mode": "valid",
+  "app": "http://127.0.0.1:4321",
+  "steps": [
+    {
+      "check": "backtests surface loaded with package provenance",
+      "pass": true
+    },
+    {
+      "check": "selected basket #276 from the authoritative basket list",
+      "pass": true
+    },
+    {
+      "check": "progressive reveal: entry visible, forced liquidation still hidden",
+      "pass": true
+    },
+    {
+      "check": "Play advances the cursor; Pause stops it",
+      "pass": true,
+      "cursorBefore": "2020-03-16 15:49:00Z ",
+      "cursorAfter": "2020-03-16 15:59:00Z "
+    },
+    {
+      "check": "Restart rewinds without future events",
+      "pass": true
+    },
+    {
+      "check": "scrub reveals all authoritative events exactly once and in order; candle chart and exported balance at the cursor",
+      "pass": true,
+      "exportedBalance": "25550.58500",
+      "counts": {
+        "entries": 36,
+        "forced": 30,
+        "stopOuts": 4,
+        "exits": 1,
+        "ascending": true,
+        "total": 117
+      },
+      "chartState": {
+        "loaded": "360",
+        "revealed": "359",
+        "noCandles": false,
+        "chartReady": true
+      }
+    },
+    {
+      "check": "no page errors",
+      "pass": true,
+      "pageErrors": []
+    }
+  ],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "pageErrors": [],
+  "package": {
+    "packageSha256": "5dcd8bfaffe76c9d2c8eec002073f62fe18b5d0d40b0602dbad0e59f6846097a",
+    "candlesContentSha256": "ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
+    "basket276": {
+      "entries": 36,
+      "forced": 30,
+      "stopOuts": 4,
+      "status": "closed",
+      "exitReason": "Escape"
+    }
+  }
+}

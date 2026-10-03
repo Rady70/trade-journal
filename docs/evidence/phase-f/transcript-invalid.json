@@ -1,0 +1,14 @@
+{
+  "mode": "invalid",
+  "app": "http://127.0.0.1:4321",
+  "steps": [
+    {
+      "check": "invalid package rejected with a clear reason",
+      "pass": true
+    }
+  ],
+  "consoleErrors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ],
+  "pageErrors": []
+}
