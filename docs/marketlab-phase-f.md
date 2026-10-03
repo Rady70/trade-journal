@@ -225,7 +225,7 @@ $env:MARKETLAB_CANDLE_CACHE   = '<derived M1 candle cache>'
 $env:MARKETLAB_REPLAY_EXPECTED_PACKAGE_SHA256 = 'd145a49b...9ccb4'
 $env:MARKETLAB_EXPECTED_CANDLE_CONTENT_SHA256 = 'ab1b0c7f...65d9d'
 
-corepack pnpm --filter web dev -- -p 4321
+corepack pnpm --filter web exec next dev -p 4321
 # open http://127.0.0.1:4321/backtests
 ```
 
