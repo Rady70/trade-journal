@@ -1,8 +1,11 @@
 # MarketLab Backtests — Phase F implementation record
 
-Status: **implemented, corrected for the independent re-review, and ready for
-re-review (2026-10-03). Phase G–I have not started. This is not a Phase G
-acceptance claim.**
+Status: **implemented, corrected across independent reviews, and finalized
+(2026-10-03): merged from the approved head
+`bf9e726240bcfc47105fcdfc6e9966597f3e8703` through
+[Rady70/trade-journal#1](https://github.com/Rady70/trade-journal/pull/1) as
+merge commit `bfa8349318116108aadc69ef7e7716384b161b03`, the fork's `main`.
+Phase G–I have not started. This is not a Phase G acceptance claim.**
 
 > **Signed net exposure — resolved as an export-only Phase E addition.** The
 > governing requirement is gross/net exposure as exported LEAN values, and this
@@ -47,7 +50,7 @@ The governing boundary is unchanged:
 | Selected base revision       | `6e0bb0e94c863c39347a7be3283d6061fddc257f` (upstream `main`, 2026-09-30)                    |
 | MarketLab fork               | `https://github.com/Rady70/trade-journal`                                                   |
 | Implementation branch        | `marketlab/phase-f-single-anchor-replay`                                                    |
-| Review PR                    | [Rady70/trade-journal#1](https://github.com/Rady70/trade-journal/pull/1) (open; not merged) |
+| Review PR                    | [Rady70/trade-journal#1](https://github.com/Rady70/trade-journal/pull/1) (merged 2026-10-03; approved head `bf9e7262…`, merge commit `bfa83493…`) |
 
 The base is the current upstream `main`, one commit after the planning snapshot.
 That commit (`Fix account currencies and hedged CSV imports (#32)`) improves
@@ -394,8 +397,10 @@ ran the development server. No upstream configuration was weakened or changed.
   loads the next bounded chunk with 6 hours of context, so only that chunk is
   in browser memory.
 - Privacy mode masks account monetary values and their exact-value tooltips.
-- This is a fork addition on `Rady70/trade-journal`; it has not been merged and
-  does not claim Phase G acceptance.
+- This is a fork addition on `Rady70/trade-journal`, merged through
+  [PR #1](https://github.com/Rady70/trade-journal/pull/1) (approved head
+  `bf9e7262…`, merge commit `bfa83493…`); it does not claim Phase G
+  acceptance.
 
 ## 6. What remains for Phase G
 
