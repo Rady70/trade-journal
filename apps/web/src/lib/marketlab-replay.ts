@@ -124,7 +124,6 @@ export interface BasketSummary {
   lower: string | null;
   lowerTarget: string | null;
   upperTarget: string | null;
-  firstEventTimeMs: number;
   lastLiveTimeMs: number;
   windowStartMs: number;
   windowEndMs: number;
@@ -183,6 +182,8 @@ export interface ReplayStatus {
     telemetryCounts: { event: number; periodic: number } | null;
     packageSha256: string;
     manifestSha256: string;
+    /** True when MARKETLAB_REPLAY_EXPECTED_PACKAGE_SHA256 anchored the load. */
+    identityEnforced: boolean;
     files: ReplayManifestFile[];
   } | null;
   candles: {
@@ -192,6 +193,8 @@ export interface ReplayStatus {
     contract: string | null;
     manifestSha256: string | null;
     contentSha256: string | null;
+    /** True when MARKETLAB_EXPECTED_CANDLE_CONTENT_SHA256 anchored the load. */
+    identityEnforced: boolean;
     fileCount: number;
     firstMonth: string | null;
     lastMonth: string | null;
@@ -283,6 +286,9 @@ export function indexBaskets(events: ReplayEventView[]): IndexedBaskets {
 
   for (const view of events) {
     if (view.type === "run_started" || view.type === "run_ended") continue;
+    // Run-end recaps are outside the live clock and are run-level; they are not
+    // part of a basket's replay timeline (run-level surfaces are Phase H).
+    if (view.type === REPLAY_RECAP_TYPE) continue;
 
     if (view.type === "basket_anchored") {
       const number = requireBasketNumber(view);
@@ -311,7 +317,6 @@ export function indexBaskets(events: ReplayEventView[]): IndexedBaskets {
         lower: readString(view.payload, "lower"),
         lowerTarget: readString(view.payload, "lowerTarget"),
         upperTarget: readString(view.payload, "upperTarget"),
-        firstEventTimeMs: view.timeMs,
         lastLiveTimeMs: view.timeMs,
         windowStartMs: view.timeMs - REPLAY_CONTEXT_PAD_MS,
         windowEndMs: view.timeMs + REPLAY_CONTEXT_PAD_MS,
@@ -349,7 +354,6 @@ export function indexBaskets(events: ReplayEventView[]): IndexedBaskets {
         } is active.`,
       );
     }
-    // Recaps may reference an already-closed basket; they are appended at run end.
     eventsByBasket.get(number)!.push(view);
     if (view.live && view.timeMs !== null) {
       summary.lastLiveTimeMs = Math.max(summary.lastLiveTimeMs, view.timeMs);
@@ -377,12 +381,12 @@ export function indexBaskets(events: ReplayEventView[]): IndexedBaskets {
         break;
       case "strategy_exit":
         summary.status = "closed";
-        summary.exitReason = readString(view.payload, "reason") ?? "StrategyExit";
+        summary.exitReason = readString(view.payload, "reason");
         active = null;
         break;
       case "basket_liquidated":
         summary.status = "liquidated";
-        summary.exitReason = readString(view.payload, "reason") ?? "BrokerLiquidation";
+        summary.exitReason = readString(view.payload, "reason");
         active = null;
         break;
       default:
@@ -391,21 +395,23 @@ export function indexBaskets(events: ReplayEventView[]): IndexedBaskets {
   }
 
   // Time-scoped run events (e.g. Margin Call transitions carry no basket field).
-  // They are attached to the basket whose authoritative live span contains them.
+  // They are attached to the basket whose authoritative live span contains them;
+  // an unattributable live event is a package defect, not something to drop.
   for (const view of timeOnly) {
     if (view.timeMs === null) continue;
     let target: BasketSummary | null = null;
     for (const summary of baskets) {
       if (view.timeMs < summary.anchorTimeMs) continue;
-      const end =
-        summary.status === "open"
-          ? Number.POSITIVE_INFINITY
-          : Math.max(summary.lastLiveTimeMs, summary.windowEndMs - REPLAY_CONTEXT_PAD_MS);
+      const end = summary.status === "open" ? Number.POSITIVE_INFINITY : summary.lastLiveTimeMs;
       if (view.timeMs <= end && (!target || summary.anchorTimeMs > target.anchorTimeMs)) {
         target = summary;
       }
     }
-    if (!target) continue;
+    if (!target) {
+      throw new ReplayPackageError(
+        `Live event ${view.id} (${view.type}) falls outside every basket's live span.`,
+      );
+    }
     eventsByBasket.get(target.number)!.push(view);
     if (view.timeMs > target.lastLiveTimeMs) target.lastLiveTimeMs = view.timeMs;
     if (view.type === "margin_call_entered") target.marginCallEntries += 1;

@@ -16,12 +16,6 @@ import type {
 
 const formatUtc = (ms: number): string => new Date(ms).toISOString().replace(".000Z", "Z");
 
-const basketStatus = (basket: BasketSummary): string => {
-  if (basket.status === "open") return "open";
-  if (basket.status === "liquidated") return "liquidated";
-  return basket.exitReason?.toLowerCase() ?? "closed";
-};
-
 export default function BacktestsPage() {
   return (
     <Suspense fallback={<Loading />}>
@@ -55,9 +49,7 @@ function Backtests() {
     () =>
       (data?.baskets ?? []).map((basket) => ({
         number: basket.number,
-        label: `#${basket.number} · ${basketStatus(basket)} · anchor ${formatUtc(basket.anchorTimeMs)} · ${
-          basket.entries
-        } entries`,
+        label: `#${basket.number} · anchor ${formatUtc(basket.anchorTimeMs)}`,
       })),
     [data?.baskets],
   );
@@ -140,6 +132,10 @@ function Backtests() {
                   <Field label="Package SHA-256" value={data.package.packageSha256} mono />
                   <Field label="Manifest SHA-256" value={data.package.manifestSha256} mono />
                   <Field
+                    label="Expected package identity"
+                    value={data.package.identityEnforced ? "anchored" : "not set"}
+                  />
+                  <Field
                     label="M1 candle cache"
                     value={
                       data.candles.valid
@@ -151,6 +147,10 @@ function Backtests() {
                     label="Candle content SHA-256"
                     value={data.candles.contentSha256 ?? "—"}
                     mono
+                  />
+                  <Field
+                    label="Expected candle identity"
+                    value={data.candles.identityEnforced ? "anchored" : "not set"}
                   />
                 </dl>
                 <p className="text-xs text-muted-foreground">

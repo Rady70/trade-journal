@@ -74,10 +74,10 @@ const eventTitle = (view: ReplayEventView): string => {
 };
 
 const statusLabel = (basket: BasketSummary): string => {
-  if (basket.status === "open") return "Open at run end";
+  if (basket.status === "open") return "open at run end";
   if (basket.status === "liquidated")
-    return `Liquidated (${basket.exitReason ?? "BrokerLiquidation"})`;
-  return `Closed (${basket.exitReason ?? "strategy exit"})`;
+    return `liquidated (${basket.exitReason ?? "BrokerLiquidation"})`;
+  return `closed (${basket.exitReason ?? "strategy exit"})`;
 };
 
 export function MarketlabReplay({ basket, events, loadWindow }: MarketlabReplayProps) {
@@ -124,40 +124,51 @@ export function MarketlabReplay({ basket, events, loadWindow }: MarketlabReplayP
   }, [reset]);
 
   const advance = useCallback(async () => {
-    const {
-      bars: currentBars,
-      nextFromMs: currentNext,
-      cursorMs: currentCursor,
-    } = stateRef.current;
-    if (currentBars.length === 0) return;
-    const next = currentBars.find((bar) => barCloseMs(bar) > (currentCursor ?? -Infinity));
+    const startCursor = stateRef.current.cursorMs;
+    if (stateRef.current.bars.length === 0) return;
+    const next = stateRef.current.bars.find((bar) => barCloseMs(bar) > (startCursor ?? -Infinity));
     if (next) {
       setCursorMs(barCloseMs(next));
       return;
     }
-    if (currentNext === null) {
+    let from = stateRef.current.nextFromMs;
+    if (from === null) {
       setPlaying(false);
       return;
     }
-    const request = ++requestRef.current;
-    setLoading(true);
-    setError("");
-    try {
-      const chunk = await loadWindow(currentNext);
+    // Load with bounded context before the boundary so revealed history stays
+    // on the chart; a repeat without context only if that chunk did not cross it.
+    for (let attempt = 0; attempt < 3 && from !== null; attempt += 1) {
+      const request = ++requestRef.current;
+      setLoading(true);
+      setError("");
+      const requestFrom =
+        attempt === 0 ? Math.max(basket.windowStartMs, from - REPLAY_SCRUB_CONTEXT_MS) : from;
+      let chunk: ReplayWindowResponse;
+      try {
+        chunk = await loadWindow(requestFrom);
+      } catch (cause) {
+        if (requestRef.current !== request) return;
+        setError(cause instanceof Error ? cause.message : "Replay window request failed.");
+        setPlaying(false);
+        if (requestRef.current === request) setLoading(false);
+        return;
+      }
       if (requestRef.current !== request) return;
       setBars(chunk.bars);
       setAccount(chunk.account);
       setNextFromMs(chunk.nextFromMs);
-      if (chunk.bars.length > 0) setCursorMs(barCloseMs(chunk.bars[0]!));
-      else setPlaying(false);
-    } catch (cause) {
-      if (requestRef.current !== request) return;
-      setError(cause instanceof Error ? cause.message : "Replay window request failed.");
-      setPlaying(false);
-    } finally {
-      if (requestRef.current === request) setLoading(false);
+      const candidate = chunk.bars.find((bar) => barCloseMs(bar) > (startCursor ?? -Infinity));
+      if (candidate) {
+        setCursorMs(barCloseMs(candidate));
+        setLoading(false);
+        return;
+      }
+      from = chunk.nextFromMs;
     }
-  }, [loadWindow]);
+    setLoading(false);
+    setPlaying(false);
+  }, [basket.windowStartMs, loadWindow]);
 
   const retreat = useCallback(async () => {
     const { bars: currentBars, cursorMs: currentCursor } = stateRef.current;
@@ -228,7 +239,7 @@ export function MarketlabReplay({ basket, events, loadWindow }: MarketlabReplayP
         setBars(chunk.bars);
         setAccount(chunk.account);
         setNextFromMs(chunk.nextFromMs);
-        setCursorMs(target);
+        setCursorMs(chunk.bars.length > 0 ? Math.max(target, barCloseMs(chunk.bars[0]!)) : target);
       } catch (cause) {
         if (requestRef.current !== request) return;
         setError(cause instanceof Error ? cause.message : "Replay window request failed.");
@@ -241,6 +252,13 @@ export function MarketlabReplay({ basket, events, loadWindow }: MarketlabReplayP
 
   const visibleEvents = useMemo(() => revealEvents(events, cursorMs), [events, cursorMs]);
   const accountRow = useMemo(() => accountAtCursor(account, cursorMs), [account, cursorMs]);
+  const closeEvent = useMemo(
+    () =>
+      visibleEvents.find(
+        (event) => event.type === "strategy_exit" || event.type === "basket_liquidated",
+      ) ?? null,
+    [visibleEvents],
+  );
   const revealedBars = useMemo(
     () => bars.filter((bar) => barCloseMs(bar) <= (cursorMs ?? Number.NEGATIVE_INFINITY)),
     [bars, cursorMs],
@@ -250,6 +268,14 @@ export function MarketlabReplay({ basket, events, loadWindow }: MarketlabReplayP
     nextFromMs === null &&
     cursorMs !== null &&
     cursorMs >= barCloseMs(bars[bars.length - 1]!);
+  const outcome = closeEvent
+    ? basket.status === "liquidated"
+      ? `liquidated (${String(closeEvent.payload.reason ?? "")})`
+      : `closed (${String(closeEvent.payload.reason ?? "")})`
+    : complete
+      ? statusLabel(basket)
+      : "replay in progress";
+  const anchorRevealed = cursorMs !== null && cursorMs >= basket.anchorTimeMs;
   const progress =
     basket.windowEndMs > basket.windowStartMs
       ? Math.min(
@@ -272,13 +298,15 @@ export function MarketlabReplay({ basket, events, loadWindow }: MarketlabReplayP
       <Card className="journal-replay-enter">
         <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
           <CardTitle>
-            Basket #{basket.number} · {statusLabel(basket)}
+            Basket #{basket.number} · {outcome}
           </CardTitle>
-          <p className="text-xs text-muted-foreground">
-            Anchor {basket.anchor ?? "—"} ({formatUtc(basket.anchorTimeMs)}) · upper{" "}
-            {basket.upper ?? "—"} · lower {basket.lower ?? "—"} · hard-BE{" "}
-            {basket.lowerTarget ?? "—"} / {basket.upperTarget ?? "—"}
-          </p>
+          {anchorRevealed && (
+            <p className="text-xs text-muted-foreground">
+              Anchor {basket.anchor ?? "—"} ({formatUtc(basket.anchorTimeMs)}) · upper{" "}
+              {basket.upper ?? "—"} · lower {basket.lower ?? "—"} · hard-BE{" "}
+              {basket.lowerTarget ?? "—"} / {basket.upperTarget ?? "—"}
+            </p>
+          )}
         </CardHeader>
         <CardContent className="space-y-3">
           {error && (
@@ -387,12 +415,9 @@ export function MarketlabReplay({ basket, events, loadWindow }: MarketlabReplayP
           />
           <p className="text-xs text-muted-foreground">
             Cursor through {formatUtc(cursorMs)} · {revealedBars.length.toLocaleString()} candles
-            revealed · {visibleEvents.filter((event) => event.live).length.toLocaleString()} /{" "}
-            {basket.entries +
-              basket.forcedLiquidations +
-              basket.stopOutEpisodes +
-              basket.marginCallEntries}{" "}
-            significant events · candles are derived visualization data, revealed at bar close.
+            revealed · {visibleEvents.filter((event) => event.live).length.toLocaleString()}{" "}
+            authoritative events revealed · candles are derived visualization data, revealed at bar
+            close.
           </p>
         </CardContent>
       </Card>
@@ -410,8 +435,12 @@ export function MarketlabReplay({ basket, events, loadWindow }: MarketlabReplayP
                   <AccountValue label="Equity" value={accountRow.equity} privacy={privacy} />
                   <AccountValue
                     label="Floating P/L"
-                    value={accountRow.floatingProfit}
-                    privacy={privacy}
+                    value={
+                      accountRow.floatingObservable
+                        ? accountRow.floatingProfit
+                        : "not observable at this sample"
+                    }
+                    privacy={accountRow.floatingObservable && privacy}
                   />
                   <AccountValue
                     label="Realized P/L"
@@ -433,9 +462,8 @@ export function MarketlabReplay({ basket, events, loadWindow }: MarketlabReplayP
                     value={
                       accountRow.marginLevelPercent === null
                         ? "not defined"
-                        : `${roundDisplay(accountRow.marginLevelPercent)}%`
+                        : `${accountRow.marginLevelPercent}%`
                     }
-                    title={accountRow.marginLevelPercent ?? undefined}
                     privacy={privacy}
                   />
                   <AccountValue label="Open positions" value={String(accountRow.openPositions)} />
@@ -514,14 +542,12 @@ function AccountValue({
   return (
     <>
       <dt className="text-muted-foreground">{label}</dt>
-      <dd className="text-right font-medium tabular-nums" title={title}>
+      <dd
+        className="break-all text-right font-medium tabular-nums"
+        title={privacy ? undefined : title}
+      >
         {privacy ? "••••" : value}
       </dd>
     </>
   );
 }
-
-const roundDisplay = (value: string): string => {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed.toFixed(2) : value;
-};

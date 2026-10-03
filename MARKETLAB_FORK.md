@@ -10,15 +10,15 @@ below.
 
 ## Provenance
 
-| | |
-|---|---|
-| Upstream | `https://github.com/LuxAlgo/trade-journal` |
-| License | MIT © LuxAlgo Global, LLC (`LICENSE`); marks covered by `TRADEMARKS.md` |
-| MarketLab fork | `https://github.com/Rady70/trade-journal` |
-| Historical planning snapshot | `949bca1993ee284e1facf2e26cfd1fa820b8f5cf` |
-| **Selected base revision** | `6e0bb0e94c863c39347a7be3283d6061fddc257f` (upstream `main`) |
-| Base selection reason | current upstream `main` at fork time; one commit after the planning snapshot, carrying the upstream hedged-import/currency fixes (`#32`) that improve preserved-position semantics; MIT unchanged; no later upstream commit existed when this base was selected |
-| Fork point | `6e0bb0e94c863c39347a7be3283d6061fddc257f` |
+|                              |                                                                                                                                                                                                                                                                 |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Upstream                     | `https://github.com/LuxAlgo/trade-journal`                                                                                                                                                                                                                      |
+| License                      | MIT © LuxAlgo Global, LLC (`LICENSE`); marks covered by `TRADEMARKS.md`                                                                                                                                                                                         |
+| MarketLab fork               | `https://github.com/Rady70/trade-journal`                                                                                                                                                                                                                       |
+| Historical planning snapshot | `949bca1993ee284e1facf2e26cfd1fa820b8f5cf`                                                                                                                                                                                                                      |
+| **Selected base revision**   | `6e0bb0e94c863c39347a7be3283d6061fddc257f` (upstream `main`)                                                                                                                                                                                                    |
+| Base selection reason        | current upstream `main` at fork time; one commit after the planning snapshot, carrying the upstream hedged-import/currency fixes (`#32`) that improve preserved-position semantics; MIT unchanged; no later upstream commit existed when this base was selected |
+| Fork point                   | `6e0bb0e94c863c39347a7be3283d6061fddc257f`                                                                                                                                                                                                                      |
 
 The upstream LICENSE, TRADEMARKS, README attribution, and package licenses are
 preserved. MarketLab does not relicense the fork and does not remove the

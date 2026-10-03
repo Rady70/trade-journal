@@ -23,7 +23,17 @@ const at = (minute: number, second = 0): string =>
 
 export function syntheticEvents(): Record<string, unknown>[] {
   return [
-    { type: "run_started", time: SYNTHETIC_START },
+    {
+      type: "run_started",
+      time: SYNTHETIC_START,
+      modelRevision: "marketlab-single-anchor-broker-liquidation-v1",
+      stopOutModel: "BrokerLiquidation",
+      symbol: "XAUUSD",
+      market: "dukascopy",
+      startDate: "2024-01-01",
+      endDate: "2024-01-01",
+      quoteTimeZone: "UTC",
+    },
     {
       type: "basket_anchored",
       basket: 1,
@@ -270,7 +280,12 @@ export function syntheticEvents(): Record<string, unknown>[] {
       lastAsk: "100.9",
       message: "Trade 5 Buy of 0.10 lots was not placed.",
     },
-    { type: "run_ended", time: SYNTHETIC_END, completed: true },
+    {
+      type: "run_ended",
+      time: SYNTHETIC_END,
+      completed: true,
+      quoteTicksProcessed: 1300,
+    },
   ].map((event, index) => ({ ...event, id: index + 1 }));
 }
 
@@ -448,25 +463,43 @@ export function writeReplayEvents(
   return updated;
 }
 
-export function writeSyntheticCandleCache(root: string): void {
+export function writeCandleMonths(
+  root: string,
+  months: Array<{ month: string; startIso: string; rows: number }>,
+): void {
   mkdirSync(root, { recursive: true });
-  const rows: string[] = [CANDLE_HEADER];
-  const endMinute = 75;
-  for (let minute = 0; minute <= endMinute; minute += 1) {
-    const hour = 0 + Math.floor(minute / 60);
-    const minuteOfHour = minute % 60;
-    const time = `2024-01-01T${String(hour).padStart(2, "0")}:${String(minuteOfHour).padStart(2, "0")}:00.000Z`;
-    const open = 100 + minute * 0.1;
-    const high = open + 0.5;
-    const low = open - 0.5;
-    const close = open + 0.2;
-    rows.push(
-      `${time},${open.toFixed(2)},${high.toFixed(2)},${low.toFixed(2)},${close.toFixed(2)},10`,
-    );
+  const files: Array<Record<string, unknown>> = [];
+  let index = 0;
+  for (const spec of months) {
+    const rows: string[] = [CANDLE_HEADER];
+    let timeMs = Date.parse(spec.startIso);
+    for (let row = 0; row < spec.rows; row += 1) {
+      const open = 100 + index * 0.1;
+      const high = open + 0.5;
+      const low = open - 0.5;
+      const close = open + 0.2;
+      rows.push(
+        `${new Date(timeMs).toISOString()},${open.toFixed(2)},${high.toFixed(2)},${low.toFixed(2)},${close.toFixed(2)},10`,
+      );
+      timeMs += 60_000;
+      index += 1;
+    }
+    const text = `${rows.join("\n")}\n`;
+    const [year, month] = spec.month.split("-");
+    const name = `xauusd-m1-${year}-${month}.csv`;
+    writeFileSync(join(root, name), text, "utf8");
+    files.push({
+      name,
+      rows: spec.rows,
+      bytes: Buffer.byteLength(text),
+      sha256: sha256(text),
+      first_candle_utc: new Date(Date.parse(spec.startIso)).toISOString(),
+      last_candle_utc: new Date(Date.parse(spec.startIso) + (spec.rows - 1) * 60_000).toISOString(),
+    });
   }
-  const text = `${rows.join("\n")}\n`;
-  const name = "xauusd-m1-2024-01.csv";
-  writeFileSync(join(root, name), text, "utf8");
+  const contentSha256 = sha256(
+    files.map((file) => `${file.name}\0${file.sha256}\0${file.bytes}\n`).join(""),
+  );
   const manifest = {
     contract: CANDLE_CACHE_CONTRACT,
     symbol: "XAUUSD",
@@ -475,19 +508,14 @@ export function writeSyntheticCandleCache(root: string): void {
     price_basis: "mid_of_best_bid_ask",
     time_basis: "UTC",
     empty_minutes: "absent",
-    content_sha256: sha256(text),
-    files: [
-      {
-        name,
-        rows: rows.length - 1,
-        bytes: Buffer.byteLength(text),
-        sha256: sha256(text),
-        first_candle_utc: "2024-01-01T00:00:00.000Z",
-        last_candle_utc: "2024-01-01T01:15:00.000Z",
-      },
-    ],
+    content_sha256: contentSha256,
+    files,
   };
   writeFileSync(join(root, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+}
+
+export function writeSyntheticCandleCache(root: string): void {
+  writeCandleMonths(root, [{ month: "2024-01", startIso: "2024-01-01T00:00:00.000Z", rows: 76 }]);
 }
 
 export const CANDLE_HEADER = "time,open,high,low,close,ticks";

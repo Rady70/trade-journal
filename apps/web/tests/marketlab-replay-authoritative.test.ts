@@ -83,7 +83,12 @@ describe.skipIf(!enabled)("authoritative finalized Phase E package", () => {
       for (const view of list) basketEventIds.push(view.id);
     }
     const runLevel = loaded.events
-      .filter((view) => view.type === "run_started" || view.type === "run_ended")
+      .filter(
+        (view) =>
+          view.type === "run_started" ||
+          view.type === "run_ended" ||
+          view.type === "entry_rejection_summary",
+      )
       .map((view) => view.id);
     const union = [...basketEventIds, ...runLevel].sort((a, b) => a - b);
     expect(union).toEqual(rawIds);

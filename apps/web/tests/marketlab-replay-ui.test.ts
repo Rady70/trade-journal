@@ -52,7 +52,6 @@ const basket: BasketSummary = {
   lower: "99.0",
   lowerTarget: "90.0",
   upperTarget: "110.0",
-  firstEventTimeMs: minuteMs(2),
   lastLiveTimeMs: minuteMs(6),
   windowStartMs: WINDOW_START,
   windowEndMs: WINDOW_END,
@@ -152,6 +151,7 @@ const chunkOne: ReplayWindowResponse = {
   bars: [bar(0), bar(1), bar(2), bar(3)],
   account: [
     accountRow(iso(minuteMs(1)), "1000.00000", 1),
+    { ...accountRow(iso(minuteMs(2, 30)), "995.00000", null), floatingObservable: false },
     accountRow(iso(minuteMs(3, 30)), "990.00000", null),
   ],
   nextFromMs: minuteMs(4),
@@ -264,9 +264,55 @@ it("keeps candle context when scrubbing to the end of the window", async () => {
     setter.call(input, "1000");
     input.dispatchEvent(new Event("input", { bubbles: true }));
   });
-  expect(loadWindow).toHaveBeenLastCalledWith(WINDOW_START);
+  expect(loadWindow).toHaveBeenLastCalledWith(Math.max(WINDOW_START, WINDOW_END - 6 * 60 * 60_000));
   expect(feed()).toContain("Forced close 1: #1 Buy 0.10 @ 98.2");
   expect(feed()).not.toContain("No derived candles available at the cursor.");
+});
+
+it("does not reveal the basket outcome or future totals before the cursor", async () => {
+  await renderReplay();
+  expect(feed()).toContain("replay in progress");
+  expect(feed()).not.toContain("liquidated (BrokerLiquidation)");
+  expect(feed()).toContain("authoritative events revealed");
+  expect(feed()).not.toMatch(/\/\s*\d+\s*significant/);
+  for (let index = 0; index < 6; index += 1) {
+    await act(async () => button("Next candle").click());
+  }
+  expect(feed()).toContain("liquidated (BrokerLiquidation)");
+});
+
+it("shows exact exported margin levels and marks a non-observable floating P/L", async () => {
+  await renderReplay();
+  await act(async () => button("Next candle").click());
+  await act(async () => button("Next candle").click());
+  expect(feed()).toContain("not observable at this sample");
+  expect(feed()).toContain("500.000000000000000000000000%");
+});
+
+it("destroys the Vela chart and unregisters the indicator on unmount", async () => {
+  const local = document.createElement("div");
+  document.body.append(local);
+  const localRoot = createRoot(local);
+  await act(async () =>
+    localRoot.render(
+      createElement(
+        TooltipProvider,
+        null,
+        createElement(
+          PrivacyProvider,
+          null,
+          createElement(MarketlabReplay, { basket, events, loadWindow }),
+        ),
+      ),
+    ),
+  );
+  expect(vela.addNativeIndicator).toHaveBeenCalled();
+  expect(vela.setMarket).toHaveBeenCalled();
+  const lastData = vela.setMarket.mock.calls.at(-1)?.[0] as { data: unknown[] };
+  expect(lastData.data.length).toBeGreaterThan(0);
+  await act(async () => localRoot.unmount());
+  expect(vela.destroy).toHaveBeenCalled();
+  local.remove();
 });
 
 it("builds chart annotations only from revealed events", () => {

@@ -13,6 +13,7 @@ import {
 import {
   basketDetail,
   basketWindow,
+  loadPackage,
   replayStatus,
   ReplayPackageError,
 } from "../src/server/marketlab-replay";
@@ -20,6 +21,7 @@ import {
   sha256,
   syntheticEvents,
   syntheticTelemetry,
+  writeCandleMonths,
   writeManifest,
   writeReplayEvents,
   writeReplayPackage,
@@ -111,24 +113,28 @@ describe("authoritative event semantics", () => {
     expect(anchor.payload.upperTarget).toBe("110.0");
   });
 
-  it("reveals no event before its authoritative time and hides the run-end recap", () => {
+  it("reveals no event before its authoritative time and keeps run-end recaps out of the basket clock", () => {
     fixture();
     const events = basketDetail(2).events;
-    const recap = events.find((event) => event.type === "entry_rejection_summary")!;
-    expect(recap.live).toBe(false);
+    expect(events.some((event) => event.type === "entry_rejection_summary")).toBe(false);
     expect(revealEvents(events, ISO("2024-01-01T00:38:00.000Z")).length).toBe(1);
     expect(
       revealEvents(events, ISO("2024-01-01T00:39:00.000Z")).map((event) => event.type),
     ).toEqual(["basket_anchored", "entry_executed"]);
-    const beforeRecap = revealEvents(events, ISO("2024-01-01T00:39:29.999Z"));
-    expect(beforeRecap.some((event) => event.type === "entry_rejection_summary")).toBe(false);
-    const atRecap = revealEvents(events, ISO("2024-01-01T00:39:30.000Z"));
-    expect(atRecap.some((event) => event.type === "entry_rejection_summary")).toBe(true);
     expect(
       revealEvents(events, ISO("2024-01-01T00:39:30.000Z")).some(
         (event) => event.timeMs !== null && event.timeMs > ISO("2024-01-01T00:39:30.000Z"),
       ),
     ).toBe(false);
+    const allEvents = loadPackage().events;
+    const recap = allEvents.find((event) => event.type === "entry_rejection_summary")!;
+    expect(recap.live).toBe(false);
+    expect(
+      revealEvents(allEvents, ISO("2024-01-01T00:39:29.999Z")).some((event) => !event.live),
+    ).toBe(false);
+    expect(
+      revealEvents(allEvents, ISO("2024-01-01T00:39:30.000Z")).some((event) => !event.live),
+    ).toBe(true);
   });
 
   it("returns the exact exported account row in force at the cursor, never an interpolation", () => {
@@ -294,10 +300,22 @@ describe("fail-closed package validation", () => {
     expect(replayStatus().error).toContain("Recap");
   });
 
-  it("rejects invalid JSON and malformed telemetry", () => {
+  it("rejects invalid JSON even when the manifest matches the broken bytes", () => {
     const ctx = fixture();
-    writeFileSync(join(ctx.packageRoot, "events.jsonl"), "{not json}\n", "utf8");
+    const text = "{not json}\n";
+    writeFileSync(join(ctx.packageRoot, "events.jsonl"), text, "utf8");
+    const files = (ctx.manifest.files as Array<Record<string, unknown>>).map((file) =>
+      file.name === "events.jsonl"
+        ? { ...file, sha256: sha256(text), bytes: Buffer.byteLength(text), lines: 1 }
+        : file,
+    );
+    const updated: Record<string, unknown> = { ...ctx.manifest, files, eventCounts: {} };
+    updated.packageSha256 = sha256(
+      files.map((file) => `${file.name}\n${file.sha256}\n${file.bytes}\n`).join(""),
+    );
+    writeManifest(ctx.packageRoot, updated);
     expectRejected();
+    expect(replayStatus().error).toContain("invalid JSON");
   });
 
   it("rejects malformed telemetry values when a window is served", () => {
@@ -494,5 +512,254 @@ describe("typed event views", () => {
     expect(entry.timeMs).toBe(ISO("2024-01-01T00:39:00.000Z"));
     expect(entry.payload.time).toBe("2024-01-01T00:39:00.000Z");
     expect(Object.keys(entry.payload)).toContain("fillPrice");
+  });
+});
+
+describe("hardening: malformed but hash-consistent packages", () => {
+  const expectRejected = () => {
+    const status = replayStatus();
+    expect(status.configured).toBe(true);
+    expect(status.valid).toBe(false);
+    expect(status.error).toBeTruthy();
+    expect(status.baskets).toEqual([]);
+    expect(() => basketDetail(1)).toThrow(ReplayPackageError);
+  };
+  const renumber = (events: Record<string, unknown>[]): Record<string, unknown>[] =>
+    events.map((event, index) => ({ ...event, id: index + 1 }));
+  const without = (event: Record<string, unknown>, key: string) => {
+    const copy = { ...event };
+    delete copy[key];
+    return copy;
+  };
+
+  it("rejects a duplicate run_started", () => {
+    const ctx = fixture();
+    const events = syntheticEvents();
+    const inserted = renumber([
+      ...events.slice(0, 2),
+      { ...events[0]!, type: "run_started" },
+      ...events.slice(2),
+    ]);
+    writeReplayEvents(ctx.packageRoot, ctx.manifest, inserted);
+    expectRejected();
+    expect(replayStatus().error).toContain("exactly one run_started");
+  });
+
+  it("rejects an event-id gap", () => {
+    const ctx = fixture();
+    const events = syntheticEvents().map((event, index) =>
+      index === 3 ? { ...event, id: 99 } : { ...event, id: index + 1 },
+    );
+    writeReplayEvents(ctx.packageRoot, ctx.manifest, events);
+    expectRejected();
+    expect(replayStatus().error).toContain("1..N");
+  });
+
+  it("rejects a strategy exit without its reason instead of inventing one", () => {
+    const ctx = fixture();
+    const events = syntheticEvents().map((event) =>
+      event.type === "strategy_exit" ? without(event, "reason") : event,
+    );
+    writeReplayEvents(ctx.packageRoot, ctx.manifest, events);
+    expectRejected();
+    expect(replayStatus().error).toContain('"reason"');
+  });
+
+  it("rejects a basket-scoped event without a basket", () => {
+    const ctx = fixture();
+    const events = syntheticEvents().map((event) =>
+      event.type === "entry_executed" ? without(event, "basket") : event,
+    );
+    writeReplayEvents(ctx.packageRoot, ctx.manifest, events);
+    expectRejected();
+    expect(replayStatus().error).toContain("must carry a basket");
+  });
+
+  it("rejects a basket number on a run-level event", () => {
+    const ctx = fixture();
+    const events = syntheticEvents().map((event) =>
+      event.type === "margin_call_entered" ? { ...event, basket: 1 } : event,
+    );
+    writeReplayEvents(ctx.packageRoot, ctx.manifest, events);
+    expectRejected();
+    expect(replayStatus().error).toContain("must not carry a basket");
+  });
+
+  it("rejects a live event that no basket span contains", () => {
+    const ctx = fixture();
+    const events = syntheticEvents();
+    const anchor2 = events.findIndex(
+      (event) => event.type === "basket_anchored" && event.basket === 2,
+    );
+    const orphan = {
+      type: "margin_call_left",
+      quoteSequence: 150,
+      time: "2024-01-01T00:37:30.000Z",
+      bid: "98.6",
+      ask: "99.0",
+      equity: "900.0",
+      openPositions: 0,
+    };
+    const inserted = renumber([...events.slice(0, anchor2), orphan, ...events.slice(anchor2)]);
+    writeReplayEvents(ctx.packageRoot, ctx.manifest, inserted);
+    expectRejected();
+    expect(replayStatus().error).toContain("outside every basket");
+  });
+
+  it("rejects a telemetry snapshot that references a missing event", () => {
+    const ctx = fixture();
+    const telemetry = syntheticTelemetry(syntheticEvents());
+    const phantom = {
+      kind: "event",
+      eventId: 999,
+      time: "2024-01-01T00:33:30.000Z",
+      quoteSequence: 900,
+      balance: "1000.00000",
+      equity: "1000.00000",
+      floatingProfit: "0.00000",
+      floatingObservable: true,
+      realizedProfit: "0.00000",
+      usedMargin: "0.00000",
+      freeMargin: "1000.00000",
+      marginLevelPercent: null,
+      marginCallActive: false,
+      openPositions: 0,
+      grossLots: "0.00",
+      absoluteNetLots: "0.00",
+    };
+    writeReplayPackage(ctx.packageRoot, syntheticEvents(), [...telemetry, phantom], {});
+    expect(replayStatus().valid).toBe(true);
+    expect(() => basketWindow(1, 0)).toThrow(/does not bind/);
+  });
+
+  it("rejects a telemetry row whose time does not match its event", () => {
+    const ctx = fixture();
+    const telemetry = syntheticTelemetry(syntheticEvents()).map((row) =>
+      row.eventId === 3 ? { ...row, time: "2024-01-01T00:31:30.000Z" } : row,
+    );
+    writeReplayPackage(ctx.packageRoot, syntheticEvents(), telemetry, {});
+    expect(() => basketWindow(1, 0)).toThrow(/does not bind/);
+  });
+
+  it("rejects a telemetry row outside its shard year", () => {
+    const ctx = fixture();
+    const telemetry = syntheticTelemetry(syntheticEvents());
+    const stray = {
+      ...telemetry.find((row) => row.kind === "periodic")!,
+      time: "2023-12-31T23:59:00.000Z",
+    };
+    writeReplayPackage(ctx.packageRoot, syntheticEvents(), [...telemetry, stray], {});
+    expect(() => basketWindow(1, 0)).toThrow(/outside its shard year/);
+  });
+
+  it("rejects a package that does not match the expected identity anchor", () => {
+    fixture();
+    vi.stubEnv("MARKETLAB_REPLAY_EXPECTED_PACKAGE_SHA256", "0".repeat(64));
+    expectRejected();
+    expect(replayStatus().error).toContain("identity mismatch");
+  });
+
+  it("rejects a candle cache whose content fingerprint does not match", () => {
+    const ctx = fixture();
+    const manifestPath = join(ctx.candleRoot, "manifest.json");
+    const candleManifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+    candleManifest.content_sha256 = "0".repeat(64);
+    writeFileSync(manifestPath, JSON.stringify(candleManifest), "utf8");
+    const status = replayStatus();
+    expect(status.candles.valid).toBe(false);
+    expect(status.candles.error).toContain("content fingerprint mismatch");
+  });
+
+  it("serves the next chunk when the 12,000-bar cap lands exactly on a month end", () => {
+    const ctx = fixture();
+    const events = renumber([
+      {
+        type: "run_started",
+        time: "2024-01-01T00:00:00.000Z",
+        modelRevision: "marketlab-single-anchor-broker-liquidation-v1",
+        stopOutModel: "BrokerLiquidation",
+        symbol: "XAUUSD",
+        market: "dukascopy",
+        startDate: "2024-01-01",
+        endDate: "2024-02-01",
+        quoteTimeZone: "UTC",
+      },
+      {
+        type: "basket_anchored",
+        basket: 1,
+        quoteSequence: 1,
+        time: "2024-01-01T00:00:00.000Z",
+        bid: "99.8",
+        ask: "100.2",
+        anchor: "100.0",
+        step: "1",
+        upper: "101.0",
+        lower: "99.0",
+        lowerTarget: "90.0",
+        upperTarget: "110.0",
+      },
+      {
+        type: "entry_executed",
+        basket: 1,
+        tradeNumber: 1,
+        quoteSequence: 2,
+        time: "2024-01-01T00:01:00.000Z",
+        side: "Buy",
+        placedLot: "0.10",
+        fillPrice: "100.0",
+        regime: "Arithmetic",
+      },
+      {
+        type: "strategy_exit",
+        basket: 1,
+        reason: "Escape",
+        quoteSequence: 3,
+        time: "2024-02-01T00:10:00.000Z",
+        bid: "99.0",
+        ask: "99.2",
+        anchor: "100.0",
+        realizedProfit: "0.0",
+      },
+      {
+        type: "run_ended",
+        time: "2024-02-01T00:10:01.000Z",
+        completed: true,
+        quoteTicksProcessed: 3,
+      },
+    ]);
+    const base = {
+      balance: "1000.00000",
+      equity: "1000.00000",
+      floatingProfit: "0.00000",
+      floatingObservable: true,
+      realizedProfit: "0.00000",
+      usedMargin: "0.00000",
+      freeMargin: "1000.00000",
+      marginLevelPercent: null,
+      marginCallActive: false,
+      openPositions: 0,
+      grossLots: "0.00",
+      absoluteNetLots: "0.00",
+    };
+    const telemetry = events.map((event, index) => ({
+      kind: "event",
+      eventId: event.id,
+      time: event.time,
+      quoteSequence: index + 1,
+      ...base,
+    }));
+    writeReplayPackage(ctx.packageRoot, events, telemetry, {});
+    writeCandleMonths(ctx.candleRoot, [
+      { month: "2024-01", startIso: "2024-01-01T00:00:00.000Z", rows: 12_000 },
+      { month: "2024-02", startIso: "2024-02-01T00:00:00.000Z", rows: 41 },
+    ]);
+    const first = basketWindow(1, Date.parse("2024-01-01T00:00:00.000Z"));
+    expect(first.bars).toHaveLength(12_000);
+    expect(first.bars[first.bars.length - 1]![0]).toBe(Date.parse("2024-01-09T07:59:00.000Z"));
+    expect(first.nextFromMs).toBe(Date.parse("2024-02-01T00:00:00.000Z"));
+    const second = basketWindow(1, first.nextFromMs!);
+    expect(second.bars[0]![0]).toBe(Date.parse("2024-02-01T00:00:00.000Z"));
+    expect(second.bars[second.bars.length - 1]![0]).toBe(Date.parse("2024-02-01T00:40:00.000Z"));
+    expect(second.nextFromMs).toBeNull();
   });
 });

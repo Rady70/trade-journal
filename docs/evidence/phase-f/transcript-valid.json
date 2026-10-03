@@ -63,5 +63,8 @@
       "status": "closed",
       "exitReason": "Escape"
     }
-  }
+  },
+  "failedRequests": [
+    "404 http://127.0.0.1:4321/favicon.ico"
+  ]
 }

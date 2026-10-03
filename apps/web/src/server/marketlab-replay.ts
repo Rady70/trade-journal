@@ -81,6 +81,7 @@ export interface LoadedReplayPackage {
   baskets: BasketSummary[];
   eventsByBasket: Map<number, ReplayEventView[]>;
   byNumber: Map<number, BasketSummary>;
+  expectedPackageSha256: string | null;
 }
 
 type CacheEntry<T> = { key: string; value: T };
@@ -286,6 +287,200 @@ export function packageFingerprint(files: ReplayManifestFile[]): string {
   return sha256(rows);
 }
 
+/** Recomputes the documented candle-cache content fingerprint. */
+export function candleContentFingerprint(files: CandleManifestFile[]): string {
+  const rows = files.map((file) => `${file.name}\0${file.sha256}\0${file.bytes}\n`).join("");
+  return sha256(rows);
+}
+
+type ReplayFieldKind = "string" | "decimal" | "positiveInt" | "nonNegativeInt" | "boolean";
+
+/**
+ * The fields every authoritative event of each type must carry for the replay
+ * surface to present it truthfully. Derived from the Phase E producer; nullable
+ * producer fields are deliberately not required.
+ */
+const EVENT_FIELDS: Record<ReplayEventType, Record<string, ReplayFieldKind>> = {
+  run_started: {
+    modelRevision: "string",
+    stopOutModel: "string",
+    symbol: "string",
+    market: "string",
+    startDate: "string",
+    endDate: "string",
+    quoteTimeZone: "string",
+  },
+  basket_anchored: {
+    quoteSequence: "positiveInt",
+    bid: "decimal",
+    ask: "decimal",
+    anchor: "decimal",
+    step: "decimal",
+    upper: "decimal",
+    lower: "decimal",
+    lowerTarget: "decimal",
+    upperTarget: "decimal",
+  },
+  hard_breakeven_activated: {
+    tradeNumber: "positiveInt",
+    quoteSequence: "positiveInt",
+    lowerTarget: "decimal",
+    upperTarget: "decimal",
+  },
+  entry_executed: {
+    tradeNumber: "positiveInt",
+    quoteSequence: "positiveInt",
+    side: "string",
+    placedLot: "decimal",
+    fillPrice: "decimal",
+    regime: "string",
+  },
+  entry_rejected: {
+    tradeNumber: "positiveInt",
+    side: "string",
+    reason: "string",
+    quoteSequence: "positiveInt",
+    bid: "decimal",
+    ask: "decimal",
+    message: "string",
+  },
+  entry_rejection_summary: {
+    tradeNumber: "positiveInt",
+    side: "string",
+    reason: "string",
+    attempts: "positiveInt",
+    firstTime: "string",
+    lastTime: "string",
+  },
+  first_entry_skipped: {
+    quoteSequence: "positiveInt",
+    bid: "decimal",
+    ask: "decimal",
+    spread: "decimal",
+    attempts: "positiveInt",
+  },
+  trailing_activated: {
+    quoteSequence: "positiveInt",
+    bid: "decimal",
+    ask: "decimal",
+    profit: "decimal",
+    activationThreshold: "decimal",
+  },
+  strategy_exit: {
+    reason: "string",
+    quoteSequence: "positiveInt",
+    bid: "decimal",
+    ask: "decimal",
+    anchor: "decimal",
+    realizedProfit: "decimal",
+  },
+  basket_liquidated: {
+    reason: "string",
+    quoteSequence: "positiveInt",
+    bid: "decimal",
+    ask: "decimal",
+    anchor: "decimal",
+    realizedProfit: "decimal",
+  },
+  stop_out_triggered: {
+    reason: "string",
+    quoteSequence: "positiveInt",
+    bid: "decimal",
+    ask: "decimal",
+    equity: "decimal",
+    openPositions: "nonNegativeInt",
+  },
+  forced_liquidation: {
+    ordinal: "positiveInt",
+    tradeNumber: "positiveInt",
+    side: "string",
+    placedLot: "decimal",
+    entryPrice: "decimal",
+    reason: "string",
+    triggerQuoteSequence: "positiveInt",
+    closePrice: "decimal",
+    realizedProfit: "decimal",
+  },
+  basket_close_failed: {
+    reason: "string",
+    quoteSequence: "positiveInt",
+    message: "string",
+  },
+  hard_breakeven_violated: {
+    tradeNumber: "positiveInt",
+    side: "string",
+    quoteSequence: "positiveInt",
+    fillPrice: "decimal",
+  },
+  margin_call_entered: {
+    quoteSequence: "positiveInt",
+    bid: "decimal",
+    ask: "decimal",
+    equity: "decimal",
+    openPositions: "nonNegativeInt",
+  },
+  margin_call_left: {
+    quoteSequence: "positiveInt",
+    bid: "decimal",
+    ask: "decimal",
+    equity: "decimal",
+    openPositions: "nonNegativeInt",
+  },
+  run_ended: {
+    completed: "boolean",
+    quoteTicksProcessed: "nonNegativeInt",
+  },
+};
+
+const DECIMAL_PATTERN = /^[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/;
+
+/** Event types the Phase E producer always scopes to a basket. */
+const BASKET_SCOPED_TYPES = new Set<string>([
+  "basket_anchored",
+  "hard_breakeven_activated",
+  "entry_executed",
+  "entry_rejected",
+  "entry_rejection_summary",
+  "first_entry_skipped",
+  "trailing_activated",
+  "strategy_exit",
+  "basket_liquidated",
+  "stop_out_triggered",
+  "forced_liquidation",
+  "basket_close_failed",
+  "hard_breakeven_violated",
+]);
+
+const isDecimalText = (value: unknown): value is string =>
+  typeof value === "string" &&
+  value.length <= 128 &&
+  DECIMAL_PATTERN.test(value) &&
+  Number.isFinite(Number(value));
+
+function requireEventField(
+  id: number,
+  type: string,
+  key: string,
+  kind: ReplayFieldKind,
+  value: unknown,
+): void {
+  const valid =
+    kind === "string"
+      ? typeof value === "string" && value.length > 0 && value.length <= 4096
+      : kind === "decimal"
+        ? isDecimalText(value)
+        : kind === "positiveInt"
+          ? isPositiveInt(value)
+          : kind === "nonNegativeInt"
+            ? isNonNegativeInt(value)
+            : typeof value === "boolean";
+  if (!valid) {
+    throw new ReplayPackageError(
+      `Event ${id} (${type}) has an invalid "${key}" for the published contract.`,
+    );
+  }
+}
+
 function parseEvents(text: string, manifest: ReplayManifest): ReplayEventView[] {
   const lines = payloadLines(text);
   const eventsLines = manifest.files[0]?.lines;
@@ -296,7 +491,6 @@ function parseEvents(text: string, manifest: ReplayManifest): ReplayEventView[] 
   }
   const actualCounts: Record<string, number> = {};
   const events: ReplayEventView[] = [];
-  let lastId = -1;
   for (const line of lines) {
     let parsed: unknown;
     try {
@@ -315,10 +509,9 @@ function parseEvents(text: string, manifest: ReplayManifest): ReplayEventView[] 
         `events.jsonl contains an unsupported event type ${String(type)}.`,
       );
     }
-    if (!isPositiveInt(id) || id <= lastId) {
-      throw new ReplayPackageError("events.jsonl event ids are not strictly increasing.");
+    if (!isPositiveInt(id) || id !== events.length + 1) {
+      throw new ReplayPackageError("events.jsonl event ids must be 1..N in order.");
     }
-    lastId = id;
     actualCounts[type] = (actualCounts[type] ?? 0) + 1;
 
     const isRecap = type === REPLAY_RECAP_TYPE;
@@ -347,6 +540,16 @@ function parseEvents(text: string, manifest: ReplayManifest): ReplayEventView[] 
     if (parsed.basket !== undefined && parsed.basket !== null && !isPositiveInt(parsed.basket)) {
       throw new ReplayPackageError(`Event ${id} (${type}) has an invalid basket number.`);
     }
+    if (BASKET_SCOPED_TYPES.has(type) && !isPositiveInt(parsed.basket)) {
+      throw new ReplayPackageError(`Event ${id} (${type}) must carry a basket number.`);
+    }
+    if (!BASKET_SCOPED_TYPES.has(type) && parsed.basket !== undefined && parsed.basket !== null) {
+      throw new ReplayPackageError(`Event ${id} (${type}) must not carry a basket number.`);
+    }
+    const typeFields = EVENT_FIELDS[type as ReplayEventType];
+    for (const [key, kind] of Object.entries(typeFields)) {
+      requireEventField(id, type, key, kind, parsed[key]);
+    }
     events.push({
       id,
       type: type as ReplayEventType,
@@ -357,6 +560,11 @@ function parseEvents(text: string, manifest: ReplayManifest): ReplayEventView[] 
     });
   }
 
+  if (actualCounts.run_started !== 1 || actualCounts.run_ended !== 1) {
+    throw new ReplayPackageError(
+      "events.jsonl must contain exactly one run_started and one run_ended.",
+    );
+  }
   for (const [type, count] of Object.entries(actualCounts)) {
     if (manifest.eventCounts[type] !== count) {
       throw new ReplayPackageError(
@@ -392,8 +600,12 @@ export function loadPackage(): LoadedReplayPackage {
   if (packageRoot === null) {
     throw new ReplayPackageError("MARKETLAB_REPLAY_PACKAGE is not configured.");
   }
+  const expectedSha256 = readExpectedDigest(
+    process.env.MARKETLAB_REPLAY_EXPECTED_PACKAGE_SHA256,
+    "MARKETLAB_REPLAY_EXPECTED_PACKAGE_SHA256",
+  );
   const manifestPath = join(packageRoot, "manifest.json");
-  const key = `${packageRoot}|${fileKey(manifestPath)}`;
+  const key = `${packageRoot}|${fileKey(manifestPath)}|${expectedSha256 ?? ""}`;
   if (packageCache?.key === key) return packageCache.value;
 
   const manifestText = readFileSync(manifestPath, "utf8");
@@ -408,6 +620,11 @@ export function loadPackage(): LoadedReplayPackage {
   if (fingerprint !== manifest.packageSha256) {
     throw new ReplayPackageError(
       `Replay package fingerprint mismatch: computed ${fingerprint}, manifest records ${manifest.packageSha256}.`,
+    );
+  }
+  if (expectedSha256 !== null && manifest.packageSha256 !== expectedSha256) {
+    throw new ReplayPackageError(
+      `Replay package identity mismatch: expected ${expectedSha256}, loaded ${manifest.packageSha256}.`,
     );
   }
   // Verify every payload file before serving any row.
@@ -433,9 +650,20 @@ export function loadPackage(): LoadedReplayPackage {
     baskets,
     eventsByBasket,
     byNumber,
+    expectedPackageSha256: expectedSha256,
   };
   packageCache = { key, value: loaded };
   return loaded;
+}
+
+/** Reads an optional expected SHA-256 environment anchor (fail closed if malformed). */
+function readExpectedDigest(value: string | undefined, name: string): string | null {
+  const raw = value?.trim();
+  if (!raw) return null;
+  if (!SHA256_HEX.test(raw)) {
+    throw new ReplayPackageError(`${name} must be a lowercase SHA-256 hex digest when set.`);
+  }
+  return raw;
 }
 
 /** Loads and fully verifies the derived candle cache. Cached per manifest identity. */
@@ -444,13 +672,18 @@ export function loadCandleCache(): LoadedCandleCache {
   if (candleRoot === null) {
     throw new ReplayPackageError("MARKETLAB_CANDLE_CACHE is not configured.");
   }
+  const expectedContentSha256 = readExpectedDigest(
+    process.env.MARKETLAB_EXPECTED_CANDLE_CONTENT_SHA256,
+    "MARKETLAB_EXPECTED_CANDLE_CONTENT_SHA256",
+  );
   const manifestPath = join(candleRoot, "manifest.json");
-  const key = `${candleRoot}|${fileKey(manifestPath)}`;
+  const key = `${candleRoot}|${fileKey(manifestPath)}|${expectedContentSha256 ?? ""}`;
   if (candleCache?.key === key) return candleCache.value;
 
+  const manifestText = readFileSync(manifestPath, "utf8");
   let body: unknown;
   try {
-    body = JSON.parse(readFileSync(manifestPath, "utf8"));
+    body = JSON.parse(manifestText);
   } catch {
     throw new ReplayPackageError("Candle-cache manifest is not valid JSON.");
   }
@@ -499,11 +732,25 @@ export function loadCandleCache(): LoadedCandleCache {
     const match = CANDLE_MONTH_FILE.exec(file.name)!;
     byMonth.set(`${match[1]}-${match[2]}`, file);
   }
+  if (typeof body.content_sha256 !== "string" || !SHA256_HEX.test(body.content_sha256)) {
+    throw new ReplayPackageError("Candle-cache manifest has no content SHA-256.");
+  }
+  const contentFingerprint = candleContentFingerprint(files);
+  if (contentFingerprint !== body.content_sha256) {
+    throw new ReplayPackageError(
+      `Candle-cache content fingerprint mismatch: computed ${contentFingerprint}, manifest records ${body.content_sha256}.`,
+    );
+  }
+  if (expectedContentSha256 !== null && body.content_sha256 !== expectedContentSha256) {
+    throw new ReplayPackageError(
+      `Candle-cache identity mismatch: expected ${expectedContentSha256}, loaded ${body.content_sha256}.`,
+    );
+  }
   const manifest: CandleManifest = { ...(body as unknown as CandleManifest), files };
   const loaded: LoadedCandleCache = {
     root: candleRoot,
     manifest,
-    manifestSha256: sha256(readFileSync(manifestPath)),
+    manifestSha256: sha256(manifestText),
     byMonth,
   };
   candleCache = { key, value: loaded };
@@ -527,6 +774,12 @@ const nextMonthKey = (key: string): string => {
 };
 
 function parseCandleCsv(text: string, descriptor: CandleManifestFile): CompactBar[] {
+  const monthMatch = CANDLE_MONTH_FILE.exec(descriptor.name);
+  if (!monthMatch) {
+    throw new ReplayPackageError(`Candle file ${descriptor.name} has an invalid name.`);
+  }
+  const monthStartMs = Date.UTC(Number(monthMatch[1]), Number(monthMatch[2]) - 1, 1);
+  const monthEndMs = Date.UTC(Number(monthMatch[1]), Number(monthMatch[2]), 1);
   const lines = text.split("\n");
   if (lines.length > 0 && lines[lines.length - 1] === "") lines.pop();
   if (lines[0] !== CANDLE_HEADER) {
@@ -550,12 +803,17 @@ function parseCandleCsv(text: string, descriptor: CandleManifestFile): CompactBa
     if (timeMs === null || values.length !== 5 || values.some((value) => !Number.isFinite(value))) {
       throw new ReplayPackageError(`Candle file ${descriptor.name} row ${index + 2} is malformed.`);
     }
+    if (timeMs < monthStartMs || timeMs >= monthEndMs) {
+      throw new ReplayPackageError(
+        `Candle file ${descriptor.name} row ${index + 2} is outside its month.`,
+      );
+    }
     const open = values[0]!;
     const high = values[1]!;
     const low = values[2]!;
     const close = values[3]!;
     const ticks = values[4]!;
-    if (ticks < 0) {
+    if (!Number.isInteger(ticks) || ticks < 0) {
       throw new ReplayPackageError(`Candle file ${descriptor.name} row ${index + 2} is malformed.`);
     }
     if (low > Math.min(open, close) || high < Math.max(open, close) || low > high) {
@@ -598,9 +856,14 @@ function readCandleMonth(root: string, descriptor: CandleManifestFile): CompactB
   return bars;
 }
 
-function readTelemetryYear(root: string, file: ReplayManifestFile): AccountRow[] {
+function readTelemetryYear(
+  root: string,
+  file: ReplayManifestFile,
+  eventsById: Map<number, ReplayEventView>,
+  packageSha256: string,
+): AccountRow[] {
   const path = join(root, file.name);
-  const key = fileKey(path);
+  const key = `${fileKey(path)}|${packageSha256}`;
   const cached = telemetryFileCache.get(path);
   if (cached?.key === key) return cached.value;
   const { text } = readVerifiedPayload(root, file);
@@ -610,7 +873,12 @@ function readTelemetryYear(root: string, file: ReplayManifestFile): AccountRow[]
       `${file.name} has ${lines.length} lines; the manifest records ${file.lines}.`,
     );
   }
+  if (file.year === null) {
+    throw new ReplayPackageError(`${file.name} has no telemetry year.`);
+  }
+  const shardYear = file.year;
   const rows: AccountRow[] = [];
+  const snapshotEventIds = new Set<number>();
   for (const line of lines) {
     let parsed: unknown;
     try {
@@ -625,6 +893,9 @@ function readTelemetryYear(root: string, file: ReplayManifestFile): AccountRow[]
     if (timeMs === null) {
       throw new ReplayPackageError(`${file.name} contains a row without canonical UTC time.`);
     }
+    if (new Date(timeMs).getUTCFullYear() !== shardYear) {
+      throw new ReplayPackageError(`${file.name} contains a row outside its shard year.`);
+    }
     if (parsed.kind !== "event" && parsed.kind !== "periodic") {
       throw new ReplayPackageError(`${file.name} contains an unsupported telemetry kind.`);
     }
@@ -636,6 +907,18 @@ function readTelemetryYear(root: string, file: ReplayManifestFile): AccountRow[]
           : undefined;
     if (eventId === undefined) {
       throw new ReplayPackageError(`${file.name} contains an invalid telemetry eventId.`);
+    }
+    if (eventId !== null) {
+      const event = eventsById.get(eventId);
+      if (!event || !event.live || event.timeMs !== timeMs) {
+        throw new ReplayPackageError(
+          `${file.name} snapshot #${eventId} does not bind to a live event at its time.`,
+        );
+      }
+      if (snapshotEventIds.has(eventId)) {
+        throw new ReplayPackageError(`${file.name} repeats the snapshot for event #${eventId}.`);
+      }
+      snapshotEventIds.add(eventId);
     }
     if (!isNonNegativeInt(parsed.quoteSequence) || typeof parsed.floatingObservable !== "boolean") {
       throw new ReplayPackageError(`${file.name} contains an invalid telemetry row.`);
@@ -650,11 +933,11 @@ function readTelemetryYear(root: string, file: ReplayManifestFile): AccountRow[]
       "grossLots",
       "absoluteNetLots",
     ] as const) {
-      if (typeof parsed[field] !== "string" || parsed[field] === "") {
+      if (!isDecimalText(parsed[field])) {
         throw new ReplayPackageError(`${file.name} row is missing exact decimal "${field}".`);
       }
     }
-    if (parsed.marginLevelPercent !== null && typeof parsed.marginLevelPercent !== "string") {
+    if (parsed.marginLevelPercent !== null && !isDecimalText(parsed.marginLevelPercent)) {
       throw new ReplayPackageError(`${file.name} row has an invalid marginLevelPercent.`);
     }
     if (typeof parsed.marginCallActive !== "boolean" || !isNonNegativeInt(parsed.openPositions)) {
@@ -734,6 +1017,7 @@ export function replayStatus(): ReplayStatus {
         contract: cache.manifest.contract,
         manifestSha256: cache.manifestSha256,
         contentSha256: cache.manifest.content_sha256 ?? null,
+        identityEnforced: expectedCandleIdentityEnforced(),
         fileCount: cache.manifest.files.length,
         firstMonth: months[0] ?? null,
         lastMonth: months[months.length - 1] ?? null,
@@ -773,6 +1057,7 @@ export function replayStatus(): ReplayStatus {
         telemetryCounts: manifest.telemetryCounts ?? null,
         packageSha256: manifest.packageSha256,
         manifestSha256: loaded.manifestSha256,
+        identityEnforced: loaded.expectedPackageSha256 !== null,
         files: manifest.files,
       },
       candles: candleStatus,
@@ -799,11 +1084,15 @@ function emptyCandleStatus(configured: boolean, error: string | null): ReplaySta
     contract: null,
     manifestSha256: null,
     contentSha256: null,
+    identityEnforced: expectedCandleIdentityEnforced(),
     fileCount: 0,
     firstMonth: null,
     lastMonth: null,
   };
 }
+
+const expectedCandleIdentityEnforced = (): boolean =>
+  (process.env.MARKETLAB_EXPECTED_CANDLE_CONTENT_SHA256 ?? "").trim().length > 0;
 
 export function basketDetail(number: number): {
   basket: BasketSummary;
@@ -832,7 +1121,7 @@ export function basketWindow(number: number, requestedFromMs: number) {
   let nextFromMs: number | null = null;
   let month: string | null = monthKey(fromMs);
   const lastMonth = monthKey(summary.windowEndMs);
-  while (month !== null && bars.length < REPLAY_CHUNK_BARS) {
+  while (month !== null) {
     const descriptor = cache.byMonth.get(month);
     if (descriptor) {
       const monthBars = readCandleMonth(cache.root, descriptor);
@@ -846,8 +1135,9 @@ export function basketWindow(number: number, requestedFromMs: number) {
         bars.push(bar);
       }
     }
-    if (bars.length === REPLAY_CHUNK_BARS) break;
-    month = month === lastMonth ? null : nextMonthKey(month);
+    if (nextFromMs !== null) break;
+    if (month === lastMonth) break;
+    month = nextMonthKey(month);
   }
   const lastBar = bars.length > 0 ? bars[bars.length - 1] : undefined;
   const toMs = lastBar ? lastBar[0] + 60_000 : Math.min(fromMs + 60_000, summary.windowEndMs);
@@ -856,13 +1146,17 @@ export function basketWindow(number: number, requestedFromMs: number) {
   for (let probe = fromMs; probe <= toMs; probe = nextYearStart(probe)) {
     years.add(new Date(probe).getUTCFullYear());
   }
+  if (fromMs > 0) years.add(new Date(fromMs - 1).getUTCFullYear());
+  const eventsById = new Map(loaded.events.map((view) => [view.id, view]));
   const combined: AccountRow[] = [];
   for (const year of [...years].sort((a, b) => a - b)) {
     const descriptor = loaded.manifest.files.find(
       (file) => file.year === year && TELEMETRY_FILE.test(file.name),
     );
     if (!descriptor) continue;
-    combined.push(...readTelemetryYear(loaded.root, descriptor));
+    combined.push(
+      ...readTelemetryYear(loaded.root, descriptor, eventsById, loaded.manifest.packageSha256),
+    );
   }
   // Stable time sort preserves the package's occurrence order at equal times.
   combined.sort((a, b) => a.timeMs - b.timeMs);
