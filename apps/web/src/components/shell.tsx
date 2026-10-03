@@ -10,6 +10,7 @@ import {
   BookOpen,
   BookText,
   CalendarDays,
+  ChartCandlestick,
   Import,
   LayoutDashboard,
   ListOrdered,
@@ -38,6 +39,7 @@ const NAV = [
   { href: "/journal", label: "Daily journal", icon: NotebookPen },
   { href: "/trades", label: "Trades", icon: ListOrdered },
   { href: "/reports", label: "Reports", icon: BarChart3 },
+  { href: "/backtests", label: "Backtests", icon: ChartCandlestick },
   { href: "/prop-firms", label: "Prop firms", icon: Landmark },
   { href: "/notebook", label: "Notebook", icon: BookText },
   { href: "/playbooks", label: "Playbooks", icon: BookOpen },
@@ -157,7 +159,13 @@ export function Shell({ children }: { children: React.ReactNode }) {
       {NAV.map(({ href, label, icon }) => (
         <NavLink
           key={href}
-          href={href === "/prop-firms" ? href : filterQuery.size ? `${href}?${filterQuery}` : href}
+          href={
+            href === "/prop-firms" || href === "/backtests"
+              ? href
+              : filterQuery.size
+                ? `${href}?${filterQuery}`
+                : href
+          }
           label={label}
           icon={icon}
           collapsed={collapsed}
