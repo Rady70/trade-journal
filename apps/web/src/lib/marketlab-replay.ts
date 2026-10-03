@@ -146,19 +146,14 @@ export interface BasketSummary {
 
 /**
  * The pre-cursor selector identity of a basket. No outcome, counts, trade
- * numbers or events: those are only revealed through the bounded cursor
- * endpoints.
+ * numbers, boundary levels or events: the selector and the revealed
+ * `basket_anchored` event are the only sources, and the window extent is the
+ * authoritative replay extent of the selected basket.
  */
 export interface BasketIdentity {
   number: number;
   anchorTime: string;
   anchorTimeMs: number;
-  anchor: string | null;
-  step: string | null;
-  upper: string | null;
-  lower: string | null;
-  lowerTarget: string | null;
-  upperTarget: string | null;
   windowStartMs: number;
   windowEndMs: number;
 }
@@ -167,15 +162,38 @@ export const toBasketIdentity = (basket: BasketSummary): BasketIdentity => ({
   number: basket.number,
   anchorTime: basket.anchorTime,
   anchorTimeMs: basket.anchorTimeMs,
-  anchor: basket.anchor,
-  step: basket.step,
-  upper: basket.upper,
-  lower: basket.lower,
-  lowerTarget: basket.lowerTarget,
-  upperTarget: basket.upperTarget,
   windowStartMs: basket.windowStartMs,
   windowEndMs: basket.windowEndMs,
 });
+
+/** The exact boundary levels carried by a revealed `basket_anchored` event. */
+export interface BasketAnchorLevels {
+  anchor: string | null;
+  step: string | null;
+  upper: string | null;
+  lower: string | null;
+  lowerTarget: string | null;
+  upperTarget: string | null;
+}
+
+/**
+ * Reads the boundary levels from the revealed `basket_anchored` event. The
+ * values exist in the browser only once the authoritative anchor event has
+ * been revealed by the cursor; they are never preloaded with the selector.
+ */
+export function revealedAnchorLevels(events: ReplayEventView[]): BasketAnchorLevels | null {
+  const anchorEvent = events.find((view) => view.type === "basket_anchored");
+  if (!anchorEvent) return null;
+  const payload = anchorEvent.payload;
+  return {
+    anchor: readString(payload, "anchor"),
+    step: readString(payload, "step"),
+    upper: readString(payload, "upper"),
+    lower: readString(payload, "lower"),
+    lowerTarget: readString(payload, "lowerTarget"),
+    upperTarget: readString(payload, "upperTarget"),
+  };
+}
 
 /** One exact exported account observation from `telemetry-*.jsonl`. */
 export interface AccountRow {
@@ -195,6 +213,8 @@ export interface AccountRow {
   marginCallActive: boolean;
   openPositions: number;
   grossLots: string;
+  /** Exported signed net lots (positive net long, negative net short). */
+  netLots: string;
   absoluteNetLots: string;
 }
 
@@ -217,15 +237,10 @@ export interface ReplayStatus {
     endUtc: string;
     quoteTimeZone: string | null;
     telemetryIntervalSeconds: number | null;
-    outcome: ReplayManifest["outcome"] | null;
-    counters: Record<string, unknown> | null;
-    eventCounts: Record<string, number>;
-    telemetryCounts: { event: number; periodic: number } | null;
     packageSha256: string;
     manifestSha256: string;
-    /** True when MARKETLAB_REPLAY_EXPECTED_PACKAGE_SHA256 anchored the load. */
+    /** True when the required expected package identity anchored the load. */
     identityEnforced: boolean;
-    files: ReplayManifestFile[];
   } | null;
   candles: {
     configured: boolean;
@@ -234,7 +249,7 @@ export interface ReplayStatus {
     contract: string | null;
     manifestSha256: string | null;
     contentSha256: string | null;
-    /** True when MARKETLAB_EXPECTED_CANDLE_CONTENT_SHA256 anchored the load. */
+    /** True when the required expected candle identity anchored the load. */
     identityEnforced: boolean;
     fileCount: number;
     firstMonth: string | null;

@@ -45,12 +45,6 @@ const basket: BasketIdentity = {
   number: 1,
   anchorTime: iso(minuteMs(2)),
   anchorTimeMs: minuteMs(2),
-  anchor: "100.0",
-  step: "1",
-  upper: "101.0",
-  lower: "99.0",
-  lowerTarget: "90.0",
-  upperTarget: "110.0",
   windowStartMs: WINDOW_START,
   windowEndMs: WINDOW_END,
 };
@@ -70,7 +64,15 @@ const view = (
 });
 
 const events: ReplayEventView[] = [
-  view(2, "basket_anchored", iso(minuteMs(2)), { basket: 1, anchor: "100.0" }),
+  view(2, "basket_anchored", iso(minuteMs(2)), {
+    basket: 1,
+    anchor: "100.0",
+    step: "1",
+    upper: "101.0",
+    lower: "99.0",
+    lowerTarget: "90.0",
+    upperTarget: "110.0",
+  }),
   view(3, "entry_executed", iso(minuteMs(3)), {
     basket: 1,
     tradeNumber: 1,
@@ -124,6 +126,7 @@ const accountRow = (
   marginCallActive,
   openPositions: 1,
   grossLots: "0.10",
+  netLots: "-0.10",
   absoluteNetLots: "0.10",
 });
 
@@ -328,6 +331,62 @@ it("labels an unresolved final basket open at run end only at the run end", asyn
   expect(feed()).toContain("open at run end");
 });
 
+it("advances the final open basket to the authoritative run end without a final candle", async () => {
+  const runEndMs = minuteMs(6, 59);
+  const openBasket: BasketIdentity = { ...basket, windowEndMs: runEndMs };
+  const openEvents = events.slice(0, 4);
+  const terminalChunk: ReplayWindowResponse = {
+    fromMs: minuteMs(4),
+    toMs: minuteMs(6),
+    bars: [bar(4), bar(5)],
+    nextFromMs: null,
+    windowStartMs: WINDOW_START,
+    windowEndMs: runEndMs,
+    account: null,
+    candleCache: { contract: "c", manifestSha256: "m", contentSha256: "x" },
+  };
+  const loader = vi.fn(async (fromMs: number) =>
+    fromMs >= minuteMs(4) ? terminalChunk : chunkOne,
+  );
+  await renderReplay(openBasket, { window: loader, reveal: reveal(openEvents) });
+  for (let index = 0; index < 8; index += 1) {
+    await act(async () => button("Next candle").click());
+  }
+  expect(feed()).toContain("open at run end");
+  expect(button("Next candle").disabled).toBe(true);
+});
+
+it("shows the account as synchronizing until the reveal for the current cursor arrives", async () => {
+  let release: (() => void) | undefined;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const delayed = vi.fn(async (afterEventId: number, cursorMs: number) => {
+    if (cursorMs === minuteMs(2)) await gate;
+    const batch = events.filter(
+      (event) => event.id > afterEventId && event.timeMs !== null && event.timeMs <= cursorMs,
+    );
+    return {
+      events: batch,
+      account: carryRow(cursorMs),
+      hasMore: false,
+      lastEventId: batch.length > 0 ? batch[batch.length - 1]!.id : afterEventId,
+    };
+  });
+  await renderReplay(basket, { reveal: delayed });
+  expect(feed()).toContain("1000.00000");
+  await act(async () => button("Next candle").click());
+  // The cursor moved to minute 2 but its reveal is still in flight: the old
+  // account row must not be presented as the state at the new cursor.
+  expect(feed()).toContain("Synchronizing the exported account state at the cursor");
+  expect(feed()).not.toContain("1000.00000");
+  await act(async () => {
+    release?.();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+  expect(feed()).not.toContain("Synchronizing the exported account state at the cursor");
+});
+
 it("destroys the Vela chart and unregisters the indicator on unmount", async () => {
   const local = document.createElement("div");
   document.body.append(local);
@@ -379,7 +438,7 @@ it("builds chart annotations only from revealed events", () => {
   expect((atEntry.priceLines ?? []).some((line) => line.id === "marketlab-hard-lower")).toBe(false);
   const nearTarget = buildReplayPaint({
     bars: [[minuteMs(0), 90.5, 91, 90, 90.8, 1]],
-    events: [],
+    events: [events[0]!],
     basket,
     cursorMs: minuteMs(3),
     paintKey: "d",

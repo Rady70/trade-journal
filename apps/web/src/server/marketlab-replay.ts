@@ -84,6 +84,8 @@ interface LoadedCandleCache {
   manifest: CandleManifest;
   manifestSha256: string;
   byMonth: Map<string, CandleManifestFile>;
+  /** The required expected content identity that anchored the load. */
+  expectedContentSha256: string | null;
 }
 
 export interface LoadedReplayPackage {
@@ -181,7 +183,7 @@ function payloadLines(text: string): string[] {
 /** Reads and fully verifies one manifest-described payload file. */
 function readVerifiedPayload(
   root: string,
-  descriptor: ReplayManifestFile,
+  descriptor: { name: string; bytes: number; sha256: string },
 ): { path: string; text: string; buffer: Buffer } {
   const path = join(root, descriptor.name);
   if (!existsSync(path)) {
@@ -681,7 +683,7 @@ export function loadPackage(): LoadedReplayPackage {
   return loaded;
 }
 
-/** Reads an optional expected SHA-256 environment anchor (fail closed if malformed). */
+/** Reads an expected SHA-256 environment anchor (fail closed if malformed). */
 function readExpectedDigest(value: string | undefined, name: string): string | null {
   const raw = value?.trim();
   if (!raw) return null;
@@ -702,8 +704,6 @@ export function loadCandleCache(): LoadedCandleCache {
     "MARKETLAB_EXPECTED_CANDLE_CONTENT_SHA256",
   );
   const manifestPath = join(candleRoot, "manifest.json");
-  const key = `${candleRoot}|${fileKey(manifestPath)}|${expectedContentSha256 ?? ""}`;
-  if (candleCache?.key === key) return candleCache.value;
 
   const manifestText = readFileSync(manifestPath, "utf8");
   let body: unknown;
@@ -782,6 +782,17 @@ export function loadCandleCache(): LoadedCandleCache {
     previousMonth = key;
     byMonth.set(key, file);
   }
+  // No interior gap: every month between the first and the last descriptor must
+  // exist, so a plausible-looking but incomplete cache can never be accepted.
+  let expectedMonth: string | null = null;
+  for (const key of byMonth.keys()) {
+    if (expectedMonth !== null && key !== nextMonthKey(expectedMonth)) {
+      throw new ReplayPackageError(
+        `Candle-cache manifest is missing the month after ${expectedMonth}.`,
+      );
+    }
+    expectedMonth = key;
+  }
   if (typeof body.content_sha256 !== "string" || !SHA256_HEX.test(body.content_sha256)) {
     throw new ReplayPackageError("Candle-cache manifest has no content SHA-256.");
   }
@@ -796,12 +807,44 @@ export function loadCandleCache(): LoadedCandleCache {
       `Candle-cache identity mismatch: expected ${expectedContentSha256}, loaded ${body.content_sha256}.`,
     );
   }
+  const fileStates = files
+    .map((file) => {
+      try {
+        const info = statSync(join(candleRoot, file.name));
+        return `${file.name}:${info.size}:${info.mtimeMs}`;
+      } catch {
+        throw new ReplayPackageError(`Candle file ${file.name} is missing.`);
+      }
+    })
+    .join("|");
+  const key = `${candleRoot}|${fileKey(manifestPath)}|${expectedContentSha256 ?? ""}|${sha256(
+    fileStates,
+  )}`;
+  if (candleCache?.key === key) return candleCache.value;
+  // Full one-time payload verification at acceptance: every monthly CSV is read
+  // and SHA-checked before the cache can be valid, so a later missing or
+  // corrupted month cannot hide behind an early-basket replay. Per-month reads
+  // still re-verify the touched file.
+  for (const file of files) {
+    const { text, buffer } = readVerifiedPayload(candleRoot, file);
+    if (buffer.includes(13)) {
+      throw new ReplayPackageError(`Candle file ${file.name} is not LF-normalized.`);
+    }
+    const lines = text.split("\n");
+    if (lines.length > 0 && lines[lines.length - 1] === "") lines.pop();
+    if (lines[0] !== CANDLE_HEADER || lines.length - 1 !== file.rows) {
+      throw new ReplayPackageError(
+        `Candle file ${file.name} does not match its manifest row identity.`,
+      );
+    }
+  }
   const manifest: CandleManifest = { ...(body as unknown as CandleManifest), files };
   const loaded: LoadedCandleCache = {
     root: candleRoot,
     manifest,
     manifestSha256: sha256(manifestText),
     byMonth,
+    expectedContentSha256,
   };
   candleCache = { key, value: loaded };
   return loaded;
@@ -981,6 +1024,7 @@ function readTelemetryYear(
       "usedMargin",
       "freeMargin",
       "grossLots",
+      "netLots",
       "absoluteNetLots",
     ] as const) {
       if (!isDecimalText(parsed[field])) {
@@ -1010,6 +1054,7 @@ function readTelemetryYear(
       marginCallActive: parsed.marginCallActive,
       openPositions: parsed.openPositions,
       grossLots: parsed.grossLots as string,
+      netLots: parsed.netLots as string,
       absoluteNetLots: parsed.absoluteNetLots as string,
     });
   }
@@ -1034,6 +1079,36 @@ function basketSummary(number: number): BasketSummary {
 function verifyTelemetry(loaded: LoadedReplayPackage): AccountRow[] {
   const eventsById = new Map(loaded.events.map((view) => [view.id, view]));
   const liveIds = new Set(loaded.events.filter((view) => view.live).map((view) => view.id));
+  // `/reveal` pages live events by ascending id and assumes that id order is
+  // also authoritative time order, so the invariant is enforced here instead of
+  // being silently assumed. Event times and quote sequences must both be
+  // non-decreasing in id order.
+  let previousLiveTimeMs = Number.NEGATIVE_INFINITY;
+  let previousLiveQuoteSequence = -1;
+  for (const view of loaded.events) {
+    if (!view.live || view.timeMs === null) continue;
+    if (view.timeMs < previousLiveTimeMs) {
+      throw new ReplayPackageError(
+        `Live event ${view.id} (${view.type}) goes backwards in time; reveal pagination requires occurrence order.`,
+      );
+    }
+    previousLiveTimeMs = view.timeMs;
+    const payload = view.payload;
+    const quoteSequence =
+      typeof payload.quoteSequence === "number"
+        ? payload.quoteSequence
+        : typeof payload.triggerQuoteSequence === "number"
+          ? payload.triggerQuoteSequence
+          : null;
+    if (quoteSequence !== null) {
+      if (quoteSequence < previousLiveQuoteSequence) {
+        throw new ReplayPackageError(
+          `Live event ${view.id} (${view.type}) goes backwards in quote sequence.`,
+        );
+      }
+      previousLiveQuoteSequence = quoteSequence;
+    }
+  }
   const expected = loaded.manifest.telemetryCounts;
   if (!expected) throw new ReplayPackageError("Replay manifest has no telemetry counts.");
   const rows: AccountRow[] = [];
@@ -1171,14 +1246,9 @@ export function replayStatus(): ReplayStatus {
           typeof manifest.telemetryIntervalSeconds === "number"
             ? manifest.telemetryIntervalSeconds
             : null,
-        outcome: manifest.outcome ?? null,
-        counters: manifest.counters ?? null,
-        eventCounts: manifest.eventCounts,
-        telemetryCounts: manifest.telemetryCounts ?? null,
         packageSha256: manifest.packageSha256,
         manifestSha256: loaded.manifestSha256,
         identityEnforced: loaded.expectedPackageSha256 !== null,
-        files: manifest.files,
       },
       candles: candleStatus,
       baskets: loaded.baskets.map(toBasketIdentity),
@@ -1224,6 +1294,15 @@ export function basketDetail(number: number): { basket: BasketIdentity } {
 
 /** Cross-checks the replay package against the qualified candle cache. */
 function compatibilityError(loaded: LoadedReplayPackage, cache: LoadedCandleCache): string | null {
+  // This dedicated MarketLab path is fail-closed on identity: replay is only
+  // enabled for an explicitly anchored package and candle content identity, so
+  // a mutually self-consistent but unapproved pair can never be replayed.
+  if (loaded.expectedPackageSha256 === null) {
+    return "MARKETLAB_REPLAY_EXPECTED_PACKAGE_SHA256 is required; the replay surface only enables an explicitly anchored package identity.";
+  }
+  if (cache.expectedContentSha256 === null) {
+    return "MARKETLAB_EXPECTED_CANDLE_CONTENT_SHA256 is required; the replay surface only enables an explicitly anchored candle identity.";
+  }
   const manifest = loaded.manifest;
   const candle = cache.manifest;
   if (manifest.symbol !== candle.symbol) {
@@ -1330,6 +1409,9 @@ export function basketWindow(number: number, requestedFromMs: number) {
 export function basketReveal(number: number, afterEventId: number, cursorMs: number) {
   const loaded = loadPackage();
   basketSummary(number);
+  const cache = loadCandleCache();
+  const incompatibility = compatibilityError(loaded, cache);
+  if (incompatibility !== null) throw new ReplayPackageError(incompatibility);
   if (!Number.isSafeInteger(afterEventId) || afterEventId < 0) {
     throw new ReplayPackageError("The reveal cursor id is invalid.");
   }

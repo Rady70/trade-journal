@@ -23,7 +23,7 @@ const packageRoot = process.env.MARKETLAB_REPLAY_AUTHORITATIVE_PACKAGE?.trim();
 const candleRoot = process.env.MARKETLAB_REPLAY_AUTHORITATIVE_CANDLE_CACHE?.trim();
 const enabled = Boolean(packageRoot && candleRoot);
 
-const PHASE_E_PACKAGE_SHA256 = "5dcd8bfaffe76c9d2c8eec002073f62fe18b5d0d40b0602dbad0e59f6846097a";
+const PHASE_E_PACKAGE_SHA256 = "d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4";
 const PHASE_E_CANDLE_CONTENT_SHA256 =
   "ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d";
 
@@ -42,6 +42,8 @@ describe.skipIf(!enabled)("authoritative finalized Phase E package", () => {
   beforeAll(() => {
     vi.stubEnv("MARKETLAB_REPLAY_PACKAGE", packageRoot!);
     vi.stubEnv("MARKETLAB_CANDLE_CACHE", candleRoot!);
+    vi.stubEnv("MARKETLAB_REPLAY_EXPECTED_PACKAGE_SHA256", PHASE_E_PACKAGE_SHA256);
+    vi.stubEnv("MARKETLAB_EXPECTED_CANDLE_CONTENT_SHA256", PHASE_E_CANDLE_CONTENT_SHA256);
     const lines = readFileSync(join(packageRoot!, "events.jsonl"), "utf8")
       .split("\n")
       .filter((line) => line.length > 0);
@@ -100,15 +102,20 @@ describe.skipIf(!enabled)("authoritative finalized Phase E package", () => {
   });
 
   it("keeps the finalized counters and immutable identities", () => {
-    const status = replayStatus();
-    const counts = status.package!.eventCounts;
+    const loaded = loadPackage();
+    const counts = loaded.manifest.eventCounts;
     expect(counts.forced_liquidation).toBe(65);
     expect(counts.stop_out_triggered).toBe(5);
     expect(counts.basket_liquidated).toBe(1);
     expect(counts.entry_executed).toBe(555);
     expect(counts.strategy_exit).toBe(278);
     expect(counts.entry_rejected).toBe(2);
-    expect(status.package?.telemetryCounts).toEqual({ event: 1452, periodic: 98866 });
+    expect(loaded.manifest.telemetryCounts).toEqual({ event: 1452, periodic: 98866 });
+    // Client-reachable status carries no future totals at all.
+    const status = replayStatus();
+    expect(status.package).not.toHaveProperty("eventCounts");
+    expect(status.package).not.toHaveProperty("telemetryCounts");
+    expect(status.package).not.toHaveProperty("outcome");
   });
 
   it("reproduces basket #276 exactly from the authoritative events", () => {
@@ -199,6 +206,9 @@ describe.skipIf(!enabled)("authoritative finalized Phase E package", () => {
       expect(raw!.equity).toBe(row.equity);
       expect(raw!.marginLevelPercent).toBe(row.marginLevelPercent);
       expect(raw!.quoteSequence).toBe(row.quoteSequence);
+      // The signed net exposure is the exported value, byte for byte.
+      expect(raw!.netLots).toBe(row.netLots);
+      expect(typeof row.netLots).toBe("string");
     }
     for (const event of revealed.events) {
       expect(event.timeMs).not.toBeNull();
@@ -220,9 +230,12 @@ describe.skipIf(!enabled)("authoritative finalized Phase E package", () => {
     expect(revealed.events.some((event) => event.type === "strategy_exit")).toBe(false);
     expect(revealed.events.some((event) => event.type === "basket_liquidated")).toBe(false);
     expect(revealed.events.length).toBeGreaterThan(0);
-    // The identity carries no outcome or counts.
+    // The identity carries no outcome, counts or boundary levels.
     expect(identity).not.toHaveProperty("status");
     expect(identity).not.toHaveProperty("entries");
+    expect(identity).not.toHaveProperty("anchor");
+    expect(identity).not.toHaveProperty("upper");
+    expect(identity).not.toHaveProperty("lowerTarget");
     expect(loadPackage().baskets.length).toBe(280);
     expect(loadPackage().telemetry.length).toBe(1_452 + 98_866);
   });

@@ -44,11 +44,12 @@ const clickButtonByText = async (text) => {
   }, text);
   if (!clicked) throw new Error(`button "${text}" not found`);
 };
-const readBalance = () =>
-  page.evaluate(() => {
-    const dt = [...document.querySelectorAll("dt")].find((el) => el.textContent === "Balance");
+const readBalance = () => readAccountValue("Balance");
+const readAccountValue = (label) =>
+  page.evaluate((name) => {
+    const dt = [...document.querySelectorAll("dt")].find((el) => el.textContent === name);
     return dt?.nextElementSibling?.textContent ?? null;
-  });
+  }, label);
 const transcript = { mode, app: APP, steps: [], consoleErrors, pageErrors };
 
 try {
@@ -71,10 +72,23 @@ try {
 
     const status = await (await fetch(`${APP}/api/marketlab-replay`)).json();
     const basket = status.baskets.find((candidate) => candidate.number === 276);
-    if (Object.prototype.hasOwnProperty.call(basket, "entries"))
-      throw new Error("the basket index exposes pre-cursor counts");
-    if (Object.prototype.hasOwnProperty.call(basket, "status"))
-      throw new Error("the basket index exposes a pre-cursor outcome");
+    for (const forbidden of [
+      "entries",
+      "status",
+      "anchor",
+      "step",
+      "upper",
+      "lower",
+      "lowerTarget",
+      "upperTarget",
+    ]) {
+      if (Object.prototype.hasOwnProperty.call(basket, forbidden))
+        throw new Error(`the basket index exposes pre-cursor ${forbidden}`);
+    }
+    for (const forbidden of ["eventCounts", "telemetryCounts", "outcome", "counters", "files"]) {
+      if (status.package && Object.prototype.hasOwnProperty.call(status.package, forbidden))
+        throw new Error(`the status payload exposes future ${forbidden}`);
+    }
     const revealAll = await (
       await fetch(
         `${APP}/api/marketlab-replay/baskets/276/reveal?after=0&cursor=${basket.windowEndMs}`,
@@ -140,9 +154,27 @@ try {
     );
     if (revealedForced !== 0)
       throw new Error(`expected 0 revealed forced liquidations, saw ${revealedForced}`);
+    // The signed net exposure on screen must equal the exported row in force at
+    // the same cursor.
+    const panelNet = await readAccountValue("Net exposure (lots, signed)");
+    const netCursorText = (await bodyText()).match(/Cursor through ([\d-]+ [\d:]+Z)/)?.[1];
+    if (netCursorText) {
+      const netCursorMs = Date.parse(netCursorText.replace(" ", "T"));
+      const netReveal = await (
+        await fetch(
+          `${APP}/api/marketlab-replay/baskets/276/reveal?after=0&cursor=${netCursorMs}`,
+        )
+      ).json();
+      if (panelNet !== netReveal.account?.netLots) {
+        throw new Error(
+          `panel signed net ${panelNet} does not match exported ${netReveal.account?.netLots} at ${netCursorText}`,
+        );
+      }
+    }
     transcript.steps.push({
-      check: "progressive reveal: entry visible, forced liquidation still hidden",
+      check: "progressive reveal: entry visible, forced liquidation still hidden, signed net matches export",
       pass: true,
+      panelSignedNet: panelNet,
     });
     await page.screenshot({ path: `${outDir}\\02b-entry-revealed.png`, fullPage: true });
 
@@ -220,6 +252,7 @@ try {
     if (chartState.noCandles || !chartState.chartReady)
       throw new Error("the derived candle chart is not rendered at the scrubbed cursor");
     const balance = await readBalance();
+    const netExposure = await readAccountValue("Net exposure (lots, signed)");
 
     const endReveal = await (
       await fetch(
@@ -227,20 +260,88 @@ try {
       )
     ).json();
     const expectedBalance = endReveal.account?.balance;
+    const expectedNet = endReveal.account?.netLots;
     if (!balance || balance !== expectedBalance) {
       throw new Error(
         `account panel balance ${balance} does not match exported ${expectedBalance}`,
       );
     }
+    if (!netExposure || netExposure !== expectedNet) {
+      throw new Error(
+        `account panel signed net exposure ${netExposure} does not match exported ${expectedNet}`,
+      );
+    }
     transcript.steps.push({
       check:
-        "scrub reveals all authoritative events exactly once and in order; candle chart and exported balance at the cursor",
+        "scrub reveals all authoritative events exactly once and in order; candle chart and exported balance/signed net at the cursor",
       pass: true,
       exportedBalance: expectedBalance,
+      exportedNetExposure: expectedNet,
       counts,
       chartState,
     });
     await page.screenshot({ path: `${outDir}\\03-basket-276-end.png`, fullPage: true });
+
+    // Finding 3 (real UI): the final open basket must finish through Next/Play
+    // even though its last candle closes slightly before the authoritative run
+    // end. The cursor is placed ~90 simulated minutes before the run end and
+    // stepped; the explicit non-candle terminal step must reach run end.
+    await page.click('button[aria-label="SingleAnchor basket"]');
+    await page.waitForSelector('[role="option"]', { timeout: 30000 });
+    const selectedOpen = await page.evaluate(() => {
+      const option = [...document.querySelectorAll('[role="option"]')].find((candidate) =>
+        candidate.textContent?.includes("#280"),
+      );
+      if (!option) return false;
+      option.click();
+      return true;
+    });
+    if (!selectedOpen) throw new Error("basket #280 option not found");
+    await waitForText("Basket #280", 120000);
+    await waitForText("Exported LEAN value", 180000);
+    // Place the cursor about 1/1000 of the six-year window before the run end
+    // (a few days) and let Play at 64x run to the last candle and then through
+    // the explicit non-candle terminal step to the authoritative run end.
+    await page.evaluate(() => {
+      const input = document.querySelector('input[aria-label="Replay position"]');
+      const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set;
+      setter.call(input, "999");
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+    await waitForText("Exported LEAN value", 180000);
+    await sleep(400);
+    if ((await bodyText()).toLowerCase().includes("open at run end"))
+      throw new Error("the open outcome is shown before the cursor reaches the run end");
+    // The default replay speed is 4x; the remaining ~2 days of candles need
+    // 64x to finish inside the harness budget.
+    await page.click('button[aria-label="Replay speed"]');
+    await page.waitForSelector('[role="option"]', { timeout: 30000 });
+    const speedSelected = await page.evaluate(() => {
+      const option = [...document.querySelectorAll('[role="option"]')].find(
+        (candidate) => candidate.textContent?.trim() === "64×",
+      );
+      if (!option) return false;
+      option.click();
+      return true;
+    });
+    if (!speedSelected) throw new Error("64x replay speed option not found");
+    await clickButtonByText("Play");
+    await waitForText("open at run end", 300000);
+    const pause = await page.evaluate(() => {
+      const button = [...document.querySelectorAll("button")].find(
+        (candidate) => candidate.textContent?.trim() === "Pause",
+      );
+      if (!button) return false;
+      button.click();
+      return true;
+    });
+    void pause;
+    transcript.steps.push({
+      check: "the final open basket finishes at run end through terminal Play progression",
+      pass: true,
+    });
+    await page.screenshot({ path: `${outDir}\\05-basket-280-run-end.png`, fullPage: true });
+
     transcript.steps.push({ check: "no page errors", pass: pageErrors.length === 0, pageErrors });
   }
 } catch (error) {

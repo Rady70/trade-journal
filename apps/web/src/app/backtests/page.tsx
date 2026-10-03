@@ -132,14 +132,6 @@ function Backtests() {
                     label="Run window"
                     value={`${data.package.startUtc.slice(0, 10)} .. ${data.package.endUtc.slice(0, 10)}`}
                   />
-                  <Field
-                    label="Events / account snapshots / periodic samples"
-                    value={`${Object.values(data.package.eventCounts)
-                      .reduce((sum, count) => sum + count, 0)
-                      .toLocaleString()} / ${
-                      data.package.telemetryCounts?.event.toLocaleString() ?? "—"
-                    } / ${data.package.telemetryCounts?.periodic.toLocaleString() ?? "—"}`}
-                  />
                   <Field label="Package SHA-256" value={data.package.packageSha256} mono />
                   <Field label="Manifest SHA-256" value={data.package.manifestSha256} mono />
                   <Field

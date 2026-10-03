@@ -4,8 +4,9 @@ import { basketDetail, ReplayPackageError } from "@/server/marketlab-replay";
 type Context = { params: Promise<{ number: string }> };
 
 /**
- * One authoritative basket: identity, boundaries and the full ordered event
- * stream for that basket, passed through unchanged from the Phase E package.
+ * One basket's pre-cursor selector identity only: its number, anchor time and
+ * authoritative replay window extent. Boundary levels arrive only with the
+ * revealed `basket_anchored` event; no outcome, counts or events are returned.
  */
 export const GET = handler(async (_request: Request, { params }: Context) => {
   const { number } = await params;

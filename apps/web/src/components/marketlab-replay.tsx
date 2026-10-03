@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, Pause, Play, RotateCcw, SkipForward } from "
 import {
   barCloseMs,
   revealEvents,
+  revealedAnchorLevels,
   type AccountRow,
   type BasketIdentity,
   type CompactBar,
@@ -82,7 +83,10 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
   const [nextFromMs, setNextFromMs] = useState<number | null>(null);
   const [cursorMs, setCursorMs] = useState<number | null>(null);
   const [events, setEvents] = useState<ReplayEventView[]>([]);
-  const [accountRow, setAccountRow] = useState<AccountRow | null>(null);
+  const [accountState, setAccountState] = useState<{
+    cursorMs: number;
+    row: AccountRow | null;
+  } | null>(null);
   const [playing, setPlaying] = useState(false);
   const [speed, setSpeed] = useState("4");
   const [loading, setLoading] = useState(true);
@@ -117,7 +121,7 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
         merged.sort((a, b) => a.id - b.id);
         return merged;
       });
-      setAccountRow(account);
+      setAccountState({ cursorMs: cursor, row: account });
     },
     [loadReveal],
   );
@@ -154,13 +158,12 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
     setError("");
     setEvents([]);
     lastEventIdRef.current = 0;
-    setAccountRow(null);
+    setAccountState(null);
     try {
       const chunk = await loadWindow(basket.windowStartMs);
       if (requestRef.current !== request) return;
       setBars(chunk.bars);
       setNextFromMs(chunk.nextFromMs);
-      setAccountRow(chunk.account);
       const first = chunk.bars[0];
       const cursor = first ? barCloseMs(first) : chunk.windowStartMs;
       setCursorMs(cursor);
@@ -170,7 +173,7 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
       setBars([]);
       setNextFromMs(null);
       setCursorMs(null);
-      setAccountRow(null);
+      setAccountState(null);
       setError(cause instanceof Error ? cause.message : "Replay window request failed.");
     } finally {
       if (requestRef.current === request) setLoading(false);
@@ -194,6 +197,15 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
     let from = stateRef.current.nextFromMs;
     if (from === null) {
       setPlaying(false);
+      // The final authoritative step is not a candle: when no candle can close
+      // at or before the basket window end (for example the open basket at the
+      // run end), move the cursor to the authoritative window end so the replay
+      // can naturally finish instead of stopping short of it.
+      if ((startCursor ?? Number.NEGATIVE_INFINITY) < basket.windowEndMs) {
+        const cursor = basket.windowEndMs;
+        setCursorMs(cursor);
+        requestReveal(cursor);
+      }
       return;
     }
     // Load with bounded context before the boundary so revealed history stays
@@ -229,7 +241,7 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
     }
     setLoading(false);
     setPlaying(false);
-  }, [basket.windowStartMs, loadWindow, requestReveal]);
+  }, [basket.windowEndMs, basket.windowStartMs, loadWindow, requestReveal]);
 
   const retreat = useCallback(async () => {
     const { bars: currentBars, cursorMs: currentCursor } = stateRef.current;
@@ -318,6 +330,12 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
   );
 
   const visibleEvents = useMemo(() => revealEvents(events, cursorMs), [events, cursorMs]);
+  const accountRow =
+    accountState !== null && cursorMs !== null && accountState.cursorMs === cursorMs
+      ? accountState.row
+      : null;
+  const accountSyncing =
+    cursorMs !== null && (accountState === null || accountState.cursorMs !== cursorMs);
   const closeEvent = useMemo(
     () =>
       visibleEvents.find(
@@ -330,10 +348,7 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
     [bars, cursorMs],
   );
   const complete =
-    bars.length > 0 &&
-    nextFromMs === null &&
-    cursorMs !== null &&
-    cursorMs >= barCloseMs(bars[bars.length - 1]!);
+    bars.length > 0 && nextFromMs === null && cursorMs !== null && cursorMs >= basket.windowEndMs;
   const atRunEnd = cursorMs !== null && cursorMs >= basket.windowEndMs && closeEvent === null;
   const outcome = closeEvent
     ? closeEvent.type === "basket_liquidated"
@@ -342,7 +357,7 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
     : atRunEnd
       ? "open at run end"
       : "replay in progress";
-  const anchorRevealed = cursorMs !== null && cursorMs >= basket.anchorTimeMs;
+  const anchorLevels = useMemo(() => revealedAnchorLevels(visibleEvents), [visibleEvents]);
   const progress =
     basket.windowEndMs > basket.windowStartMs
       ? Math.min(
@@ -367,11 +382,11 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
           <CardTitle>
             Basket #{basket.number} · {outcome}
           </CardTitle>
-          {anchorRevealed && (
+          {anchorLevels && (
             <p className="text-xs text-muted-foreground">
-              Anchor {basket.anchor ?? "—"} ({formatUtc(basket.anchorTimeMs)}) · upper{" "}
-              {basket.upper ?? "—"} · lower {basket.lower ?? "—"} · hard-BE{" "}
-              {basket.lowerTarget ?? "—"} / {basket.upperTarget ?? "—"}
+              Anchor {anchorLevels.anchor ?? "—"} ({formatUtc(basket.anchorTimeMs)}) · upper{" "}
+              {anchorLevels.upper ?? "—"} · lower {anchorLevels.lower ?? "—"} · hard-BE{" "}
+              {anchorLevels.lowerTarget ?? "—"} / {anchorLevels.upperTarget ?? "—"}
             </p>
           )}
         </CardHeader>
@@ -495,7 +510,11 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
             <CardTitle>Account state at the replay cursor</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {accountRow ? (
+            {accountSyncing ? (
+              <p role="status" className="text-sm text-muted-foreground">
+                Synchronizing the exported account state at the cursor…
+              </p>
+            ) : accountRow ? (
               <>
                 <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
                   <AccountValue label="Balance" value={accountRow.balance} privacy={privacy} />
@@ -536,8 +555,9 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
                   <AccountValue label="Open positions" value={String(accountRow.openPositions)} />
                   <AccountValue label="Gross exposure (lots)" value={accountRow.grossLots} />
                   <AccountValue
-                    label="Net exposure (absolute lots, exported)"
-                    value={`${accountRow.absoluteNetLots} (signed value not exported)`}
+                    label="Net exposure (lots, signed)"
+                    value={accountRow.netLots}
+                    title="Positive is net long, negative is net short, exactly as exported by LEAN."
                   />
                 </dl>
                 <p className="text-xs text-muted-foreground">
@@ -550,8 +570,7 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
                 </p>
                 <p className="text-xs text-muted-foreground">
                   Values are displayed exactly as exported by LEAN; this screen does not recompute
-                  them. Phase E exports absolute net lots only, so a signed net exposure is not
-                  shown.
+                  them. Gross and signed net exposure are both the exported account values.
                 </p>
               </>
             ) : (

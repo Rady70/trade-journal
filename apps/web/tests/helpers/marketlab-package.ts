@@ -9,10 +9,28 @@
 import { createHash } from "node:crypto";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { vi } from "vitest";
 import { CANDLE_CACHE_CONTRACT, REPLAY_PACKAGE_CONTRACT } from "../../src/lib/marketlab-replay";
 
 export const sha256 = (value: string | Buffer): string =>
   createHash("sha256").update(value).digest("hex");
+
+/**
+ * The dedicated MarketLab path requires the expected identity anchors. Fixture
+ * rewrites re-anchor the environment to the package/candle content they wrote,
+ * so a mutation is reported by the loader's own contract checks instead of the
+ * identity gate (tests that want an identity mismatch stub the environment
+ * themselves after the last fixture write).
+ */
+const anchorPackageIdentity = (manifest: Record<string, unknown>): void => {
+  if (typeof manifest.packageSha256 === "string") {
+    vi.stubEnv("MARKETLAB_REPLAY_EXPECTED_PACKAGE_SHA256", manifest.packageSha256);
+  }
+};
+
+const anchorCandleIdentity = (contentSha256: string): void => {
+  vi.stubEnv("MARKETLAB_EXPECTED_CANDLE_CONTENT_SHA256", contentSha256);
+};
 
 /** A deterministic synthetic source identity shared by both fixture manifests. */
 export const SYNTHETIC_SOURCE_DIGEST = `sha256:${sha256("synthetic-marketlab-source")}`;
@@ -318,6 +336,7 @@ export function syntheticTelemetry(events: Record<string, unknown>[]): Record<st
       marginCallActive: false,
       openPositions: 0,
       grossLots: "0.00",
+      netLots: "0.00",
       absoluteNetLots: "0.00",
       ...values,
     });
@@ -338,6 +357,7 @@ export function syntheticTelemetry(events: Record<string, unknown>[]): Record<st
         marginCallActive: true,
         openPositions: 2,
         grossLots: "0.30",
+        netLots: "0.10",
         absoluteNetLots: "0.10",
       });
     } else if (type === "margin_call_entered") {
@@ -447,11 +467,13 @@ export function writeReplayPackage(
     ...overrides,
   };
   writeFileSync(join(root, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  anchorPackageIdentity(manifest);
   return manifest;
 }
 
 export function writeManifest(root: string, manifest: Record<string, unknown>): void {
   writeFileSync(join(root, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  anchorPackageIdentity(manifest);
 }
 
 export function writeReplayEvents(
@@ -533,6 +555,7 @@ export function writeCandleMonths(
     files,
   };
   writeFileSync(join(root, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  anchorCandleIdentity(contentSha256);
 }
 
 export function writeSyntheticCandleCache(root: string): void {

@@ -92,21 +92,21 @@ describe("authoritative event semantics", () => {
     expect(summary2.exitReason).toBe("Trailing");
     expect(summary2.liveRejections).toBe(1);
     expect(summary2.entries).toBe(1);
-    // The pre-cursor selector identity carries no outcome or counts.
+    // The pre-cursor selector identity carries only the selector and window.
     const identity = status.baskets.find((basket) => basket.number === 1)!;
     expect(Object.keys(identity).sort()).toEqual([
-      "anchor",
       "anchorTime",
       "anchorTimeMs",
-      "lower",
-      "lowerTarget",
       "number",
-      "step",
-      "upper",
-      "upperTarget",
       "windowEndMs",
       "windowStartMs",
     ]);
+    expect(JSON.stringify(status.package)).not.toContain("eventCounts");
+    expect(JSON.stringify(status.package)).not.toContain("telemetryCounts");
+    expect(status.package).not.toHaveProperty("files");
+    expect(status.package).not.toHaveProperty("outcome");
+    expect(status.package).not.toHaveProperty("counters");
+    expect(JSON.stringify(status)).not.toContain("1,454");
   });
 
   it("passes every event payload through unmodified and in package order", () => {
@@ -175,6 +175,7 @@ describe("authoritative event semantics", () => {
         marginCallActive: false,
         openPositions: 0,
         grossLots: "0.00",
+        netLots: "0.00",
         absoluteNetLots: "0.00",
       },
       {
@@ -194,6 +195,7 @@ describe("authoritative event semantics", () => {
         marginCallActive: true,
         openPositions: 2,
         grossLots: "0.30",
+        netLots: "0.10",
         absoluteNetLots: "0.10",
       },
     ];
@@ -391,11 +393,15 @@ describe("derived candle cache validation", () => {
     expect(() => basketWindow(1, 0)).toThrow(ReplayPackageError);
   });
 
-  it("rejects a tampered candle file when a window is served", () => {
+  it("rejects a tampered candle file before the cache can be valid", () => {
     const ctx = fixture();
     const csv = join(ctx.candleRoot, "xauusd-m1-2024-01.csv");
     writeFileSync(csv, readFileSync(csv, "utf8").replace("100.00", "100.01"), "utf8");
-    expect(replayStatus().candles.valid).toBe(true);
+    // Full acceptance validation reads and SHA-checks every month, so the
+    // tampered cache is rejected before any window is served.
+    const status = replayStatus();
+    expect(status.candles.valid).toBe(false);
+    expect(status.candles.error).toContain("SHA-256");
     expect(() => basketWindow(1, 0)).toThrow(/SHA-256/);
   });
 
@@ -523,6 +529,7 @@ describe("bounded replay windows", () => {
       marginCallActive: false,
       openPositions: 1,
       grossLots: "0.10",
+      netLots: "0.10",
       absoluteNetLots: "0.10",
     }));
     writeReplayPackage(ctx.packageRoot, events, rows, {});
@@ -560,7 +567,11 @@ describe("API route handlers", () => {
     expect(detail.status).toBe(200);
     const detailBody = await detail.json();
     expect(detailBody.basket.number).toBe(1);
-    expect(detailBody.basket.anchor).toBe("100.0");
+    expect(detailBody.basket.windowStartMs).toBeLessThan(detailBody.basket.windowEndMs);
+    // Boundary levels are only carried by the revealed basket_anchored event.
+    expect(detailBody.basket).not.toHaveProperty("anchor");
+    expect(detailBody.basket).not.toHaveProperty("upper");
+    expect(detailBody.basket).not.toHaveProperty("step");
     expect(detailBody).not.toHaveProperty("events");
 
     const missing = await GET_BASKET(new Request("http://test/api/marketlab-replay/baskets/999"), {
@@ -771,6 +782,7 @@ describe("hardening: malformed but hash-consistent packages", () => {
       marginCallActive: false,
       openPositions: 0,
       grossLots: "0.00",
+      netLots: "0.00",
       absoluteNetLots: "0.00",
     };
     writeReplayPackage(
@@ -832,6 +844,68 @@ describe("hardening: malformed but hash-consistent packages", () => {
     writeReplayPackage(ctx.packageRoot, syntheticEvents(), swapped, {});
     expectRejected();
     expect(replayStatus().error).toContain("not chronologically ordered");
+  });
+
+  it("rejects a live event stream whose id order breaks authoritative time order", () => {
+    const ctx = fixture();
+    const events = syntheticEvents();
+    const first = events.find(
+      (event) => event.type === "entry_executed" && event.tradeNumber === 1,
+    )!;
+    const second = events.find(
+      (event) => event.type === "entry_executed" && event.tradeNumber === 2,
+    )!;
+    const swapped = events.map((event) =>
+      event === first
+        ? { ...event, time: second.time }
+        : event === second
+          ? { ...event, time: first.time }
+          : event,
+    );
+    writeReplayEvents(ctx.packageRoot, ctx.manifest, swapped);
+    expectRejected();
+    expect(replayStatus().error).toContain("backwards in time");
+  });
+
+  it("requires the expected package and candle identity anchors", () => {
+    const ctx = fixture();
+    vi.stubEnv("MARKETLAB_REPLAY_EXPECTED_PACKAGE_SHA256", "");
+    let status = replayStatus();
+    expect(status.valid).toBe(true);
+    expect(status.compatibility.valid).toBe(false);
+    expect(status.compatibility.error).toContain("MARKETLAB_REPLAY_EXPECTED_PACKAGE_SHA256");
+    expect(() => basketWindow(1, 0)).toThrow(/MARKETLAB_REPLAY_EXPECTED_PACKAGE_SHA256/);
+    vi.stubEnv("MARKETLAB_REPLAY_EXPECTED_PACKAGE_SHA256", String(ctx.manifest.packageSha256));
+    vi.stubEnv("MARKETLAB_EXPECTED_CANDLE_CONTENT_SHA256", "");
+    status = replayStatus();
+    expect(status.compatibility.valid).toBe(false);
+    expect(status.compatibility.error).toContain("MARKETLAB_EXPECTED_CANDLE_CONTENT_SHA256");
+    expect(() => basketReveal(1, 0, ISO("2024-01-01T00:40:00.000Z"))).toThrow(
+      /MARKETLAB_EXPECTED_CANDLE_CONTENT_SHA256/,
+    );
+  });
+
+  it("rejects a candle cache with a missing interior month", () => {
+    const ctx = fixture();
+    writeCandleMonths(ctx.candleRoot, [
+      { month: "2024-01", startIso: "2024-01-01T00:00:00.000Z", rows: 76 },
+      { month: "2024-03", startIso: "2024-03-01T00:00:00.000Z", rows: 10 },
+    ]);
+    const status = replayStatus();
+    expect(status.candles.valid).toBe(false);
+    expect(status.candles.error).toContain("missing the month after 2024-01");
+  });
+
+  it("requires the exported signed net lots on every telemetry row", () => {
+    const ctx = fixture();
+    const telemetry = syntheticTelemetry(syntheticEvents()).map((row) => {
+      const copy = { ...row };
+      delete copy.netLots;
+      return copy;
+    });
+    writeReplayPackage(ctx.packageRoot, syntheticEvents(), telemetry, {});
+    expectRejected();
+    expect(replayStatus().error).toContain('exact decimal "netLots"');
   });
 
   it("rejects a duplicate telemetry snapshot", () => {
@@ -988,6 +1062,7 @@ describe("hardening: malformed but hash-consistent packages", () => {
       marginCallActive: false,
       openPositions: 0,
       grossLots: "0.00",
+      netLots: "0.00",
       absoluteNetLots: "0.00",
     };
     const telemetry = events.map((event, index) => ({

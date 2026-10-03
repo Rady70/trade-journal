@@ -32,8 +32,8 @@ The MarketLab adaptation is confined to new, reviewable paths:
   pure indexing/reveal/account-selection functions.
 - `apps/web/src/server/marketlab-replay.ts` — the fail-closed, read-only
   package and derived-candle-cache loader plus bounded window reader.
-- `apps/web/src/app/api/marketlab-replay/**` — package status, basket detail
-  and bounded replay-window routes.
+- `apps/web/src/app/api/marketlab-replay/**` — package status, basket selector
+  identity, bounded replay-window and cursor-bounded reveal routes.
 - `apps/web/src/app/backtests/**`, `apps/web/src/components/marketlab-replay*.tsx`
   — the **MarketLab Backtests** surface and Vela replay screen.
 - `apps/web/tests/marketlab-replay*.test.ts`, `apps/web/tests/helpers/…` —
@@ -44,7 +44,8 @@ The MarketLab adaptation is confined to new, reviewable paths:
 Upstream files edited by MarketLab (kept minimal so they merge easily):
 
 - `apps/web/src/components/shell.tsx` — one `Backtests` navigation entry.
-- `.env.example` — the two optional MarketLab replay environment variables.
+- `.env.example` — the four MarketLab replay environment variables (the two
+  paths plus the two required expected-identity anchors).
 - `README.md` — a short pointer to the MarketLab surface.
 
 Nothing else is modified. The upstream round-trip engine, importers, database
@@ -58,7 +59,8 @@ The MarketLab surface follows the program rule:
 > **LEAN determines what happened. LuxAlgo shows what happened.**
 
 - Authoritative: the finalized LEAN Phase E replay package (events, executions,
-  risk events, basket state, account snapshots/telemetry).
+  risk events, basket state, account snapshots/telemetry including the exported
+  gross and signed net lots).
 - Derived visualization data: the qualified Dukascopy M1 candle cache.
 - The surface never recalculates a SingleAnchor decision, a fill, a sizing
   result, an account value or a liquidation, and it never runs the journal's

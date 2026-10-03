@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { NativeIndicatorContext, NativeIndicatorOutput, Vela } from "@luxalgo/vela";
 import {
+  revealedAnchorLevels,
   toVelaBar,
   type BasketIdentity,
   type CompactBar,
@@ -68,12 +69,15 @@ export function buildReplayPaint(paint: ReplayPaint): NativeIndicatorOutput {
   const near = (price: number): boolean => price >= low - span * 3 && price <= high + span * 3;
 
   const anchorRevealed = cursorMs !== null && cursorMs >= basket.anchorTimeMs;
-  if (anchorRevealed) {
-    const anchor = readNumber(basket.anchor);
-    const upper = readNumber(basket.upper);
-    const lower = readNumber(basket.lower);
-    const lowerTarget = readNumber(basket.lowerTarget);
-    const upperTarget = readNumber(basket.upperTarget);
+  // The boundary levels exist in the browser only after the authoritative
+  // `basket_anchored` event has been revealed; they are never preloaded.
+  const levels = anchorRevealed ? revealedAnchorLevels(events) : null;
+  if (levels) {
+    const anchor = readNumber(levels.anchor);
+    const upper = readNumber(levels.upper);
+    const lower = readNumber(levels.lower);
+    const lowerTarget = readNumber(levels.lowerTarget);
+    const upperTarget = readNumber(levels.upperTarget);
     if (anchor !== null && near(anchor)) {
       priceLines.push({
         id: "marketlab-anchor",
@@ -82,7 +86,7 @@ export function buildReplayPaint(paint: ReplayPaint): NativeIndicatorOutput {
         color: COLORS.anchor,
         lineStyle: "solid",
         width: 1,
-        title: `Anchor ${basket.anchor}`,
+        title: `Anchor ${levels.anchor}`,
       });
     }
     if (upper !== null && near(upper)) {
@@ -93,7 +97,7 @@ export function buildReplayPaint(paint: ReplayPaint): NativeIndicatorOutput {
         color: COLORS.boundary,
         lineStyle: "dashed",
         width: 1,
-        title: `Upper entry boundary ${basket.upper}`,
+        title: `Upper entry boundary ${levels.upper}`,
       });
     }
     if (lower !== null && near(lower)) {
@@ -104,7 +108,7 @@ export function buildReplayPaint(paint: ReplayPaint): NativeIndicatorOutput {
         color: COLORS.boundary,
         lineStyle: "dashed",
         width: 1,
-        title: `Lower entry boundary ${basket.lower}`,
+        title: `Lower entry boundary ${levels.lower}`,
       });
     }
     if (lowerTarget !== null && near(lowerTarget)) {
@@ -115,7 +119,7 @@ export function buildReplayPaint(paint: ReplayPaint): NativeIndicatorOutput {
         color: COLORS.hardBoundary,
         lineStyle: "dotted",
         width: 1,
-        title: `Hard-BE lower target ${basket.lowerTarget}`,
+        title: `Hard-BE lower target ${levels.lowerTarget}`,
       });
     }
     if (upperTarget !== null && near(upperTarget)) {
@@ -126,7 +130,7 @@ export function buildReplayPaint(paint: ReplayPaint): NativeIndicatorOutput {
         color: COLORS.hardBoundary,
         lineStyle: "dotted",
         width: 1,
-        title: `Hard-BE upper target ${basket.upperTarget}`,
+        title: `Hard-BE upper target ${levels.upperTarget}`,
       });
     }
   }
