@@ -69,7 +69,7 @@ schema, broker sync or analytics is modified):
 | `apps/web/src/server/marketlab-replay.ts`                                | read-only package/candle-cache loader with full verification, compatibility binding, reveal reader |
 | `apps/web/src/app/api/marketlab-replay/route.ts`                         | package status + pre-cursor basket identity index                                                  |
 | `apps/web/src/app/api/marketlab-replay/baskets/[number]/route.ts`        | one basket: pre-cursor selector identity only                                                      |
-| `apps/web/src/app/api/marketlab-replay/baskets/[number]/window/route.ts` | bounded derived candles (close-bounded) + carry-in account row                                     |
+| `apps/web/src/app/api/marketlab-replay/baskets/[number]/window/route.ts` | bounded derived candles (close-bounded); carries no account state                                  |
 | `apps/web/src/app/api/marketlab-replay/baskets/[number]/reveal/route.ts` | cursor-bounded events + the exact exported account row at the cursor                               |
 | `apps/web/src/app/backtests/page.tsx`                                    | the MarketLab Backtests surface                                                                    |
 | `apps/web/src/components/marketlab-replay.tsx`                           | replay state machine, controls, account panel, event feed                                          |
