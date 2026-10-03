@@ -170,14 +170,17 @@ export function buildReplayPaint(paint: ReplayPaint): NativeIndicatorOutput {
     switch (view.type) {
       case "entry_executed": {
         const side = readText(payload.side, "?");
-        const buy = side.toLowerCase() === "buy";
+        const buy = side === "Buy";
+        const sell = side === "Sell";
         const price = readNumber(payload.fillPrice) ?? 0;
         label({
-          text: `#${readText(payload.tradeNumber)} ${buy ? "BUY" : "SELL"} ${readText(payload.placedLot)}`,
+          text: `#${readText(payload.tradeNumber)} ${
+            buy ? "BUY" : sell ? "SELL" : `UNKNOWN SIDE ${side}`
+          } ${readText(payload.placedLot)}`,
           y: price,
-          yloc: buy ? "belowbar" : "abovebar",
-          style: buy ? "triangleup" : "triangledown",
-          color: buy ? COLORS.buy : COLORS.sell,
+          yloc: buy ? "belowbar" : sell ? "abovebar" : "price",
+          style: buy ? "triangleup" : sell ? "triangledown" : "cross",
+          color: buy ? COLORS.buy : sell ? COLORS.sell : COLORS.exit,
           tooltip: `${view.time ?? ""} · ${side} · lot ${readText(payload.placedLot)} · fill ${readText(payload.fillPrice)} · ${readText(payload.regime)}`,
         });
         break;
@@ -197,21 +200,59 @@ export function buildReplayPaint(paint: ReplayPaint): NativeIndicatorOutput {
       }
       case "strategy_exit":
       case "basket_liquidated": {
-        const price =
-          readNumber(payload.buyClosePrice) ??
-          readNumber(payload.sellClosePrice) ??
-          readNumber(payload.closePrice) ??
-          0;
+        const kind = view.type === "basket_liquidated" ? "LIQUIDATED" : "EXIT";
         const reason = readText(payload.reason, readText(payload.exitReason, view.type));
-        label({
-          text: `${view.type === "basket_liquidated" ? "LIQUIDATED" : "EXIT"} ${reason} · ${readText(payload.realizedProfit)}`,
-          y: price,
-          yloc: "price",
-          style: "label_left",
-          color: COLORS.exit,
-          size: "normal",
-          tooltip: `${view.time ?? ""} · ${reason}`,
-        });
+        const realizedProfit = readText(payload.realizedProfit);
+        const buyLots = readNumber(payload.buyLots) ?? 0;
+        const sellLots = readNumber(payload.sellLots) ?? 0;
+        const buyClosePrice = readNumber(payload.buyClosePrice);
+        const sellClosePrice = readNumber(payload.sellClosePrice);
+        const tooltip = `${view.time ?? ""} · ${reason} · buy close ${readText(
+          payload.buyClosePrice,
+        )} · sell close ${readText(payload.sellClosePrice)} · realized ${realizedProfit}`;
+        // Each open side closes at its own executable price: a sell-only
+        // basket closes at the ask (sellClosePrice), not the buy price, and a
+        // mixed basket has both exact close prices.
+        const sides: Array<{ side: "BUY" | "SELL"; price: number }> = [];
+        if (buyLots > 0 && buyClosePrice !== null)
+          sides.push({ side: "BUY", price: buyClosePrice });
+        if (sellLots > 0 && sellClosePrice !== null)
+          sides.push({ side: "SELL", price: sellClosePrice });
+        if (sides.length === 0) {
+          const price = buyClosePrice ?? sellClosePrice ?? readNumber(payload.closePrice) ?? 0;
+          label({
+            text: `${kind} ${reason} · ${realizedProfit}`,
+            y: price,
+            yloc: "price",
+            style: "label_left",
+            color: COLORS.exit,
+            size: "normal",
+            tooltip,
+          });
+        } else if (sides.length === 1) {
+          const only = sides[0]!;
+          label({
+            text: `${kind} ${reason} · ${only.side} CLOSE ${only.price} · ${realizedProfit}`,
+            y: only.price,
+            yloc: "price",
+            style: "label_left",
+            color: COLORS.exit,
+            size: "normal",
+            tooltip,
+          });
+        } else {
+          for (const entry of sides) {
+            label({
+              text: `${kind} ${reason} · ${entry.side} CLOSE ${entry.price}`,
+              y: entry.price,
+              yloc: "price",
+              style: "label_left",
+              color: COLORS.exit,
+              size: "normal",
+              tooltip,
+            });
+          }
+        }
         break;
       }
       case "stop_out_triggered": {

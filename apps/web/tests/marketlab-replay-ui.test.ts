@@ -415,6 +415,56 @@ it("never shows open at run end while the terminal reveal of a closed basket is 
   expect(feed()).not.toContain("open at run end");
 });
 
+it("places each exit marker at the executable close price of its side", () => {
+  const exitLabels = (payload: Record<string, unknown>) =>
+    (
+      buildReplayPaint({
+        bars: [bar(5), bar(6)],
+        events: [
+          view(10, "strategy_exit", iso(minuteMs(6)), {
+            basket: 1,
+            reason: "Escape",
+            ...payload,
+          }),
+        ],
+        basket,
+        cursorMs: minuteMs(7),
+        paintKey: "exit",
+      }).labels ?? []
+    ).filter((label) => label.text?.includes("EXIT"));
+
+  const buyOnly = exitLabels({
+    buyLots: "0.10",
+    sellLots: "0.00",
+    buyClosePrice: "1279.515",
+    sellClosePrice: "1279.782",
+    realizedProfit: "1.0",
+  });
+  expect(buyOnly).toHaveLength(1);
+  expect(buyOnly[0]!.y).toBe(1279.515);
+
+  const sellOnly = exitLabels({
+    buyLots: "0.00",
+    sellLots: "0.10",
+    buyClosePrice: "1279.515",
+    sellClosePrice: "1279.782",
+    realizedProfit: "1.0",
+  });
+  expect(sellOnly).toHaveLength(1);
+  expect(sellOnly[0]!.y).toBe(1279.782);
+
+  const mixed = exitLabels({
+    buyLots: "1.28",
+    sellLots: "0.10",
+    buyClosePrice: "1721.098",
+    sellClosePrice: "1721.212",
+    realizedProfit: "2.0",
+  });
+  expect(mixed.map((label) => label.y).sort((a, b) => (a as number) - (b as number))).toEqual([
+    1721.098, 1721.212,
+  ]);
+});
+
 it("destroys the Vela chart and unregisters the indicator on unmount", async () => {
   const local = document.createElement("div");
   document.body.append(local);

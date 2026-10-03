@@ -103,7 +103,12 @@ The loader reads the finalized Phase E package and never reconstructs it:
   decimals only (an optional minus, digits and an optional fraction; `+1`,
   `.5`, `1.`, `1e3` and separators are rejected), the basket scope of every
   event type (basket-scoped types must carry a basket; run-level types must
-  not), the manifest per-type event counts against the actual stream, and the
+  not), the authoritative `Buy`/`Sell` side enum wherever the producer writes a
+  side, canonical UTC timestamps for the nested authoritative time fields
+  (`entryTime`, `liquidationTime`, `triggerTime`, rejection first/last times,
+  delivery and failure times), the producer's nullable-but-present decimals
+  (for example a NegativeEquity Stop Out with an undefined margin level), the
+  manifest per-type event counts against the actual stream, and the
   one-active-basket lifecycle (an event may not reference a basket outside its
   anchor, an anchor may not open while another basket is open, and a live
   time-only event must fall inside a basket's live span).
@@ -147,7 +152,10 @@ The loader reads the finalized Phase E package and never reconstructs it:
   only the selector identity (basket number, anchor time and the authoritative
   replay window extent); boundary levels (`anchor`, `step`, `upper`, `lower`,
   the hard-BE targets) exist in the browser only once the revealed
-  `basket_anchored` event arrives. The status payload carries no run outcome,
+  `basket_anchored` event arrives. Exit annotations use each open side's exact
+  executable close price (`buyClosePrice` for a buy-only basket,
+  `sellClosePrice` for a sell-only basket, and both markers for a mixed
+  basket), never the buy price for a sell close. The status payload carries no run outcome,
   counters, event totals, telemetry totals or payload file descriptors. The
   reveal endpoint returns only events and the account row at or before the
   requested cursor, and only within the selected basket's authoritative replay
@@ -260,9 +268,9 @@ All commands were run on Windows from the fork checkout.
 | Check                                 | Command                                                                                                                      | Result                                         |
 | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
 | Upstream suite (base revision)        | `corepack pnpm vitest run`                                                                                                   | 532/532 passed                                 |
-| Full suite with the finalized package | `corepack pnpm vitest run` with `MARKETLAB_REPLAY_AUTHORITATIVE_PACKAGE` / `MARKETLAB_REPLAY_AUTHORITATIVE_CANDLE_CACHE` set | **606/606 passed** (532 upstream + 74 Phase F) |
-| Phase F contract/loader tests         | `corepack pnpm vitest run apps/web/tests/marketlab-replay.test.ts`                                                           | 55/55 passed                                   |
-| Phase F UI tests (jsdom + Vela mock)  | `corepack pnpm vitest run apps/web/tests/marketlab-replay-ui.test.ts`                                                        | 12/12 passed                                   |
+| Full suite with the finalized package | `corepack pnpm vitest run` with `MARKETLAB_REPLAY_AUTHORITATIVE_PACKAGE` / `MARKETLAB_REPLAY_AUTHORITATIVE_CANDLE_CACHE` set | **610/610 passed** (532 upstream + 78 Phase F) |
+| Phase F contract/loader tests         | `corepack pnpm vitest run apps/web/tests/marketlab-replay.test.ts`                                                           | 58/58 passed                                   |
+| Phase F UI tests (jsdom + Vela mock)  | `corepack pnpm vitest run apps/web/tests/marketlab-replay-ui.test.ts`                                                        | 13/13 passed                                   |
 | Authoritative Phase E tests           | `corepack pnpm vitest run apps/web/tests/marketlab-replay-authoritative.test.ts` with the finalized package                  | 7/7 passed                                     |
 | Typecheck                             | `corepack pnpm --filter web typecheck`, plus `packages/core` and `packages/importers`                                        | passed                                         |
 | Formatting                            | `corepack pnpm exec prettier --check <changed files>`                                                                        | passed                                         |

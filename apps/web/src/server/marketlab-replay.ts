@@ -325,7 +325,11 @@ type ReplayFieldKind =
   | "nullableDecimal"
   | "positiveInt"
   | "nonNegativeInt"
-  | "boolean";
+  | "nullableNonNegativeInt"
+  | "boolean"
+  | "side"
+  | "utc"
+  | "nullableUtc";
 
 /**
  * The fields every authoritative event of each type carries in the Phase E
@@ -363,7 +367,7 @@ const EVENT_FIELDS: Record<ReplayEventType, Record<string, ReplayFieldKind>> = {
   entry_executed: {
     tradeNumber: "positiveInt",
     quoteSequence: "positiveInt",
-    side: "string",
+    side: "side",
     decisionBid: "decimal",
     decisionAsk: "decimal",
     placedLot: "decimal",
@@ -383,19 +387,19 @@ const EVENT_FIELDS: Record<ReplayEventType, Record<string, ReplayFieldKind>> = {
   },
   entry_rejected: {
     tradeNumber: "positiveInt",
-    side: "string",
+    side: "side",
     reason: "string",
     quoteSequence: "positiveInt",
     bid: "decimal",
     ask: "decimal",
-    rawRequestedLots: "decimal",
-    maximumVolume: "decimal",
+    rawRequestedLots: "nullableDecimal",
+    maximumVolume: "nullableDecimal",
     normalizedRequiredLots: "decimal",
-    accountUsedMargin: "decimal",
-    accountFreeMargin: "decimal",
+    accountUsedMargin: "nullableDecimal",
+    accountFreeMargin: "nullableDecimal",
     accountMarginLevelPercent: "nullableDecimal",
-    projectedUsedMargin: "decimal",
-    projectedFreeMargin: "decimal",
+    projectedUsedMargin: "nullableDecimal",
+    projectedFreeMargin: "nullableDecimal",
     message: "string",
     exactRequiredLots: "nullableDecimal",
     hardBreakevenTarget: "nullableDecimal",
@@ -409,21 +413,21 @@ const EVENT_FIELDS: Record<ReplayEventType, Record<string, ReplayFieldKind>> = {
   },
   entry_rejection_summary: {
     tradeNumber: "positiveInt",
-    side: "string",
+    side: "side",
     reason: "string",
     attempts: "positiveInt",
     firstQuoteSequence: "nonNegativeInt",
-    firstTime: "string",
+    firstTime: "utc",
     firstBid: "decimal",
     firstAsk: "decimal",
     lastQuoteSequence: "nonNegativeInt",
-    lastTime: "string",
+    lastTime: "utc",
     lastBid: "decimal",
     lastAsk: "decimal",
-    minNormalizedRequiredLots: "decimal",
-    maxNormalizedRequiredLots: "decimal",
-    minProjectedFreeMargin: "decimal",
-    maxProjectedFreeMargin: "decimal",
+    minNormalizedRequiredLots: "nullableDecimal",
+    maxNormalizedRequiredLots: "nullableDecimal",
+    minProjectedFreeMargin: "nullableDecimal",
+    maxProjectedFreeMargin: "nullableDecimal",
     parityAlgorithm: "string",
     parityHash: "string",
     message: "string",
@@ -499,22 +503,22 @@ const EVENT_FIELDS: Record<ReplayEventType, Record<string, ReplayFieldKind>> = {
     equity: "decimal",
     usedMargin: "decimal",
     freeMargin: "decimal",
-    marginLevelPercent: "decimal",
+    marginLevelPercent: "nullableDecimal",
     openPositions: "nonNegativeInt",
   },
   forced_liquidation: {
     ordinal: "positiveInt",
     tradeNumber: "positiveInt",
-    side: "string",
+    side: "side",
     placedLot: "decimal",
     entryPrice: "decimal",
-    entryTime: "string",
+    entryTime: "utc",
     regime: "string",
     rawRequestedLot: "nullableDecimal",
     exactRequiredLot: "nullableDecimal",
     normalizedRequiredLot: "decimal",
-    liquidationTime: "string",
-    triggerTime: "string",
+    liquidationTime: "utc",
+    triggerTime: "utc",
     triggerQuoteSequence: "positiveInt",
     triggerBid: "decimal",
     triggerAsk: "decimal",
@@ -526,14 +530,14 @@ const EVENT_FIELDS: Record<ReplayEventType, Record<string, ReplayFieldKind>> = {
     beforeFloatingProfit: "decimal",
     beforeEquity: "decimal",
     beforeUsedMargin: "decimal",
-    beforeFreeMargin: "decimal",
+    beforeFreeMargin: "nullableDecimal",
     beforeMarginLevelPercent: "nullableDecimal",
     beforeOpenPositions: "nonNegativeInt",
     afterBalance: "decimal",
     afterFloatingProfit: "decimal",
     afterEquity: "decimal",
     afterUsedMargin: "decimal",
-    afterFreeMargin: "decimal",
+    afterFreeMargin: "nullableDecimal",
     afterMarginLevelPercent: "nullableDecimal",
     afterOpenPositions: "nonNegativeInt",
   },
@@ -546,7 +550,7 @@ const EVENT_FIELDS: Record<ReplayEventType, Record<string, ReplayFieldKind>> = {
   },
   hard_breakeven_violated: {
     tradeNumber: "positiveInt",
-    side: "string",
+    side: "side",
     quoteSequence: "positiveInt",
     bid: "decimal",
     ask: "decimal",
@@ -591,15 +595,15 @@ const EVENT_FIELDS: Record<ReplayEventType, Record<string, ReplayFieldKind>> = {
     strategyEligibleQuotes: "nonNegativeInt",
     quoteOnlyQuotes: "nonNegativeInt",
     quoteTicksProcessed: "nonNegativeInt",
-    deliveryFirstUtc: "string",
-    deliveryLastUtc: "string",
-    deliveryQuoteCount: "nonNegativeInt",
-    deliverySemanticDigest: "string",
+    deliveryFirstUtc: "nullableUtc",
+    deliveryLastUtc: "nullableUtc",
+    deliveryQuoteCount: "nullableNonNegativeInt",
+    deliverySemanticDigest: "nullableString",
     engineRealizedProfit: "decimal",
     failureKind: "nullableString",
     failureCondition: "nullableString",
     failureMessage: "nullableString",
-    failureQuoteTime: "nullableString",
+    failureQuoteTime: "nullableUtc",
     failureBid: "nullableDecimal",
     failureAsk: "nullableDecimal",
   },
@@ -655,7 +659,15 @@ function requireEventField(
               ? isPositiveInt(value)
               : kind === "nonNegativeInt"
                 ? isNonNegativeInt(value)
-                : typeof value === "boolean";
+                : kind === "nullableNonNegativeInt"
+                  ? value === null || isNonNegativeInt(value)
+                  : kind === "side"
+                    ? value === "Buy" || value === "Sell"
+                    : kind === "utc"
+                      ? parseUtcMs(value) !== null
+                      : kind === "nullableUtc"
+                        ? value === null || parseUtcMs(value) !== null
+                        : typeof value === "boolean";
   if (!valid) {
     throw new ReplayPackageError(
       `Event ${id} (${type}) has an invalid "${key}" for the published contract.`,

@@ -869,6 +869,38 @@ describe("hardening: malformed but hash-consistent packages", () => {
     expect(replayStatus().error).toContain('"netLots"');
   });
 
+  it("rejects an unsupported authoritative side", () => {
+    const ctx = fixture();
+    const events = syntheticEvents().map((event) =>
+      event.type === "entry_executed" ? { ...event, side: "Long" } : event,
+    );
+    writeReplayEvents(ctx.packageRoot, ctx.manifest, events);
+    expectRejected();
+    expect(replayStatus().error).toContain('"side"');
+  });
+
+  it("rejects a non-canonical nested event timestamp", () => {
+    const ctx = fixture();
+    const events = syntheticEvents().map((event) =>
+      event.type === "forced_liquidation"
+        ? { ...event, triggerTime: "2024-01-01 00:35:00" }
+        : event,
+    );
+    writeReplayEvents(ctx.packageRoot, ctx.manifest, events);
+    expectRejected();
+    expect(replayStatus().error).toContain('"triggerTime"');
+  });
+
+  it("accepts a Stop Out event with an undefined margin level", () => {
+    const ctx = fixture();
+    const events = syntheticEvents().map((event) =>
+      event.type === "stop_out_triggered" ? { ...event, marginLevelPercent: null } : event,
+    );
+    writeReplayEvents(ctx.packageRoot, ctx.manifest, events);
+    expect(replayStatus().valid).toBe(true);
+    expect(loadPackage().byNumber.get(1)!.stopOutEpisodes).toBe(1);
+  });
+
   it("rejects a telemetry row outside its shard year", () => {
     const ctx = fixture();
     const telemetry = syntheticTelemetry(syntheticEvents());
