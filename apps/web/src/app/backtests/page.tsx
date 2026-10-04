@@ -1,11 +1,13 @@
 "use client";
 
-import { Suspense, useCallback, useMemo, useState } from "react";
+import { Suspense, useCallback, useState } from "react";
 import Loading from "@/app/loading";
 import { FilterBar } from "@/components/filter-bar";
 import { MarketlabReplay } from "@/components/marketlab-replay";
+import { MarketlabRun } from "@/components/marketlab-run";
+import { Button } from "@/components/ui/button";
+import type { ReplayTarget } from "@/lib/marketlab-run";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { OptionSelect } from "@/components/ui/option-select";
 import { useApi } from "@/lib/use-api";
 import type {
   BasketIdentity,
@@ -13,8 +15,6 @@ import type {
   ReplayStatus,
   ReplayWindowResponse,
 } from "@/lib/marketlab-replay";
-
-const formatUtc = (ms: number): string => new Date(ms).toISOString().replace(".000Z", "Z");
 
 export default function BacktestsPage() {
   return (
@@ -25,44 +25,49 @@ export default function BacktestsPage() {
 }
 
 function Backtests() {
-  const { data, error, loading } = useApi<ReplayStatus>("/api/marketlab-replay");
+  const { data, error, loading } = useApi<ReplayStatus>("/api/marketlab-replay?index=0");
   const [selected, setSelected] = useState("");
+  const [requestedBasket, setRequestedBasket] = useState("");
+  const [eventId, setEventId] = useState<number | null>(null);
+  const [showRun, setShowRun] = useState(true);
+  const open = (basket: number, event?: number) => {
+    setEventId(event ?? null);
+    setSelected(String(basket));
+    setRequestedBasket(String(basket));
+    setShowRun(false);
+  };
   const basketNumber = selected === "" ? null : Number(selected);
-  const detailUrl = basketNumber === null ? null : `/api/marketlab-replay/baskets/${basketNumber}`;
+  const sourceQuery = `source=${data?.package?.manifestSha256 ?? ""}`;
+  const detailUrl =
+    basketNumber === null
+      ? null
+      : `/api/marketlab-replay/baskets/${basketNumber}?${sourceQuery}${eventId === null ? "" : `&event=${eventId}`}`;
   const {
     data: detail,
     error: detailError,
     loading: detailLoading,
-  } = useApi<{ basket: BasketIdentity }>(detailUrl);
+  } = useApi<{ basket: BasketIdentity; target?: ReplayTarget }>(detailUrl);
   const loadWindow = useCallback(
     async (fromMs: number) => {
       const response = await fetch(
-        `/api/marketlab-replay/baskets/${basketNumber}/window?from=${fromMs}`,
+        `/api/marketlab-replay/baskets/${basketNumber}/window?from=${fromMs}&${sourceQuery}`,
       );
       const body = (await response.json()) as ReplayWindowResponse & { error?: string };
       if (!response.ok) throw new Error(body.error ?? "Replay window request failed.");
       return body;
     },
-    [basketNumber],
+    [basketNumber, sourceQuery],
   );
   const loadReveal = useCallback(
-    async (afterEventId: number, cursorMs: number, step = false) => {
+    async (afterEventId: number, cursorMs: number, step = false, occurrenceId?: number) => {
       const response = await fetch(
-        `/api/marketlab-replay/baskets/${basketNumber}/reveal?after=${afterEventId}&cursor=${cursorMs}${step ? "&step=1" : ""}`,
+        `/api/marketlab-replay/baskets/${basketNumber}/reveal?after=${afterEventId}&cursor=${cursorMs}&${sourceQuery}${step ? "&step=1" : ""}${occurrenceId === undefined ? "" : `&event=${occurrenceId}`}`,
       );
       const body = (await response.json()) as ReplayRevealResponse & { error?: string };
       if (!response.ok) throw new Error(body.error ?? "Replay reveal request failed.");
       return body;
     },
-    [basketNumber],
-  );
-  const basketOptions = useMemo(
-    () =>
-      (data?.baskets ?? []).map((basket) => ({
-        number: basket.number,
-        label: `#${basket.number} · anchor ${formatUtc(basket.anchorTimeMs)}`,
-      })),
-    [data?.baskets],
+    [basketNumber, sourceQuery],
   );
 
   return (
@@ -202,47 +207,73 @@ function Backtests() {
               </Card>
             )}
             {data.candles.valid && data.compatibility.valid && (
-              <Card>
-                <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3 p-3 pb-2">
-                  <CardTitle>Select a SingleAnchor basket</CardTitle>
-                  <div className="min-w-64">
-                    <OptionSelect
-                      aria-label="SingleAnchor basket"
-                      value={selected}
-                      onValueChange={setSelected}
-                    >
-                      <option value="" disabled>
-                        Choose a basket ({basketOptions.length} available)
-                      </option>
-                      {basketOptions.map((option) => (
-                        <option key={option.number} value={String(option.number)}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </OptionSelect>
-                  </div>
-                </CardHeader>
-                {basketNumber !== null && (
-                  <CardContent className="p-3 pt-2">
-                    {detailLoading && (
-                      <p className="text-sm text-muted-foreground">Loading basket…</p>
-                    )}
-                    {detailError && (
-                      <p role="alert" className="text-sm text-destructive">
-                        {detailError}
-                      </p>
-                    )}
-                    {detail && (
-                      <MarketlabReplay
-                        key={detail.basket.number}
-                        basket={detail.basket}
-                        loadWindow={loadWindow}
-                        loadReveal={loadReveal}
-                      />
-                    )}
-                  </CardContent>
+              <div className="space-y-3">
+                {showRun && (
+                  <Button variant="outline" onClick={() => setShowRun(false)}>
+                    Open basket replay
+                  </Button>
                 )}
-              </Card>
+                <MarketlabRun open={open} active={showRun} />
+                {!showRun && (
+                  <Card>
+                    <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3 p-3 pb-2">
+                      <CardTitle>Select a SingleAnchor basket</CardTitle>
+                      <Button size="sm" variant="outline" onClick={() => setShowRun(true)}>
+                        Return to run overview
+                      </Button>
+                      <form
+                        className="flex items-center gap-2"
+                        onSubmit={(event) => {
+                          event.preventDefault();
+                          const number = Number(requestedBasket);
+                          if (Number.isSafeInteger(number) && number > 0) open(number);
+                        }}
+                      >
+                        <label className="text-xs">
+                          Basket #{" "}
+                          <input
+                            aria-label="SingleAnchor basket number"
+                            type="number"
+                            min="1"
+                            step="1"
+                            required
+                            className="w-20 rounded border bg-background p-2"
+                            value={requestedBasket}
+                            onChange={(event) => setRequestedBasket(event.target.value)}
+                          />
+                        </label>
+                        <Button type="submit" size="sm" variant="outline">
+                          Open basket
+                        </Button>
+                      </form>
+                    </CardHeader>
+                    {basketNumber !== null && (
+                      <CardContent className="p-3 pt-2">
+                        {detailLoading && (
+                          <p className="text-sm text-muted-foreground">Loading basket…</p>
+                        )}
+                        {detailError && (
+                          <p role="alert" className="text-sm text-destructive">
+                            {detailError}
+                          </p>
+                        )}
+                        {detail &&
+                          detail.basket.number === basketNumber &&
+                          !detailLoading &&
+                          !detailError && (
+                            <MarketlabReplay
+                              key={`${detail.basket.number}:${eventId ?? "start"}`}
+                              basket={detail.basket}
+                              initialTarget={detail.target}
+                              loadWindow={loadWindow}
+                              loadReveal={loadReveal}
+                            />
+                          )}
+                      </CardContent>
+                    )}
+                  </Card>
+                )}
+              </div>
             )}
           </>
         )}

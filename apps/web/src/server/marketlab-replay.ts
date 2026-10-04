@@ -11,6 +11,7 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { basename, join, resolve } from "node:path";
+import type { ReplayTarget } from "@/lib/marketlab-run";
 import {
   accountAtCursor,
   CANDLE_CACHE_CONTRACT,
@@ -799,7 +800,15 @@ export function loadPackage(): LoadedReplayPackage {
     "MARKETLAB_REPLAY_EXPECTED_PACKAGE_SHA256",
   );
   const manifestPath = join(packageRoot, "manifest.json");
-  const key = `${packageRoot}|${fileKey(manifestPath)}|${expectedSha256 ?? ""}`;
+  // Invalidate acceptance when any payload changes, even if the manifest does
+  // not. Run navigation must never keep a stale index after an input mutation.
+  const payloadState =
+    packageCache?.value.root === packageRoot
+      ? packageCache.value.manifest.files
+          .map((file) => `${file.name}:${fileKey(join(packageRoot, file.name))}`)
+          .join("|")
+      : "";
+  const key = `${packageRoot}|${fileKey(manifestPath)}|${expectedSha256 ?? ""}|${payloadState}`;
   if (packageCache?.key === key) return packageCache.value;
 
   const manifestText = readFileSync(manifestPath, "utf8");
@@ -848,7 +857,13 @@ export function loadPackage(): LoadedReplayPackage {
     telemetry: [],
   };
   loaded.telemetry = verifyTelemetry(loaded);
-  packageCache = { key, value: loaded };
+  const acceptedState = manifest.files
+    .map((file) => `${file.name}:${fileKey(join(packageRoot, file.name))}`)
+    .join("|");
+  packageCache = {
+    key: `${packageRoot}|${fileKey(manifestPath)}|${expectedSha256 ?? ""}|${acceptedState}`,
+    value: loaded,
+  };
   return loaded;
 }
 
@@ -1097,7 +1112,7 @@ function readCandleMonth(root: string, descriptor: CandleManifestFile): CompactB
   if (!existsSync(path)) {
     throw new ReplayPackageError(`Candle file ${descriptor.name} is missing.`);
   }
-  const key = fileKey(path);
+  const key = `${fileKey(path)}|${descriptor.sha256}`;
   const cached = candleFileCache.get(path);
   if (cached?.key === key) return cached.value;
   const buffer = readFileSync(path);
@@ -1325,7 +1340,7 @@ function verifyTelemetry(loaded: LoadedReplayPackage): AccountRow[] {
 }
 
 /** Read-only status for the Backtests landing screen. Never throws for a bad package. */
-export function replayStatus(): ReplayStatus {
+export function replayStatus(includeBasketIdentities = true): ReplayStatus {
   const noCompatibility = { valid: false, error: null as string | null };
   let config: ReplayPackageConfig;
   try {
@@ -1420,7 +1435,7 @@ export function replayStatus(): ReplayStatus {
         identityEnforced: loaded.expectedPackageSha256 !== null,
       },
       candles: candleStatus,
-      baskets: loaded.baskets.map(toBasketIdentity),
+      baskets: includeBasketIdentities ? loaded.baskets.map(toBasketIdentity) : [],
       compatibility,
     };
   } catch (error) {
@@ -1456,9 +1471,48 @@ const expectedCandleIdentityEnforced = (): boolean =>
   (process.env.MARKETLAB_EXPECTED_CANDLE_CONTENT_SHA256 ?? "").trim().length > 0;
 
 /** The pre-cursor selector identity only; no events, outcome or counts. */
-export function basketDetail(number: number): { basket: BasketIdentity } {
+export function basketDetail(
+  number: number,
+  eventId?: number,
+): { basket: BasketIdentity; target?: ReplayTarget } {
   const summary = basketSummary(number);
-  return { basket: toBasketIdentity(summary) };
+  if (eventId === undefined) return { basket: toBasketIdentity(summary) };
+  const loaded = loadPackage();
+  requireReplayCompatibility(loaded, loadCandleCache());
+  const event = navigationEvent(loaded, number, eventId);
+  return { basket: toBasketIdentity(summary), target: { id: event.id, timeMs: event.timeMs! } };
+}
+
+function navigationEvent(loaded: LoadedReplayPackage, number: number, id: number): ReplayEventView {
+  const event =
+    loaded.eventsByBasket.get(number)?.find((e) => e.id === id) ??
+    loaded.events.find(
+      (e) =>
+        e.id === id &&
+        ((e.type === "run_ended" && number === loaded.baskets.at(-1)?.number) ||
+          (e.type === "run_started" && number === loaded.baskets[0]?.number)),
+    );
+  if (!event || !event.live || event.timeMs === null) {
+    throw new ReplayPackageError(
+      "The requested occurrence does not belong to this basket context.",
+    );
+  }
+  return event;
+}
+
+export function requireReplayCompatibility(
+  loaded: LoadedReplayPackage,
+  cache: LoadedCandleCache,
+): void {
+  const error = compatibilityError(loaded, cache);
+  if (error) throw new ReplayPackageError(error);
+}
+
+/** Optional binding for browser requests made from an accepted run overview. */
+export function requireNavigationSource(expected: string | null): void {
+  if (expected !== null && expected !== loadPackage().manifestSha256) {
+    throw new ReplayPackageError("Run navigation source identity changed; reload the run.");
+  }
 }
 
 /** Cross-checks the replay package against the qualified candle cache. */
@@ -1594,7 +1648,13 @@ function basketAccountAtCursor(
  * row in force at that cursor. No future event or value crosses the boundary,
  * and the cursor must lie inside the basket's authoritative replay window.
  */
-export function basketReveal(number: number, afterEventId: number, cursorMs: number, step = false) {
+export function basketReveal(
+  number: number,
+  afterEventId: number,
+  cursorMs: number,
+  step = false,
+  occurrenceId?: number,
+) {
   const loaded = loadPackage();
   const summary = basketSummary(number);
   const cache = loadCandleCache();
@@ -1606,15 +1666,31 @@ export function basketReveal(number: number, afterEventId: number, cursorMs: num
   if (!Number.isFinite(cursorMs)) {
     throw new ReplayPackageError("The reveal cursor time is invalid.");
   }
-  if (cursorMs < summary.windowStartMs || cursorMs > summary.windowEndMs) {
+  const target = occurrenceId === undefined ? null : navigationEvent(loaded, number, occurrenceId);
+  if (target && (target.timeMs !== cursorMs || step || afterEventId > target.id)) {
+    throw new ReplayPackageError("The occurrence cursor is inconsistent.");
+  }
+  // run_started is outside the first basket's pre-anchor window. It opens that
+  // context before the anchor, with the exact boundary snapshot and no basket state.
+  if (
+    (cursorMs < summary.windowStartMs && target?.type !== "run_started") ||
+    cursorMs > summary.windowEndMs
+  ) {
     throw new ReplayPackageError(
       `The reveal cursor is outside the basket ${number} replay window.`,
     );
   }
-  const events = loaded.eventsByBasket.get(number) ?? [];
+  const events =
+    target?.type === "run_started" || target?.type === "run_ended"
+      ? [...(loaded.eventsByBasket.get(number) ?? []), target].sort((a, b) => a.id - b.id)
+      : (loaded.eventsByBasket.get(number) ?? []);
   const eligible = events.filter(
     (view) =>
-      view.live && view.timeMs !== null && view.id > afterEventId && view.timeMs <= cursorMs,
+      view.live &&
+      view.timeMs !== null &&
+      view.id > afterEventId &&
+      view.timeMs <= cursorMs &&
+      (target === null || view.id <= target.id),
   );
   if (step) {
     // An M1 close can contain many distinct engine occurrences, including
@@ -1639,9 +1715,12 @@ export function basketReveal(number: number, afterEventId: number, cursorMs: num
   const lastEventId = batch.length > 0 ? batch[batch.length - 1]!.id : afterEventId;
   return {
     events: batch,
-    account: basketAccountAtCursor(loaded, summary, cursorMs),
+    account: target
+      ? loaded.telemetry.find((r) => r.eventId === target.id)!
+      : basketAccountAtCursor(loaded, summary, cursorMs),
     hasMore,
     lastEventId,
+    ...(target ? { reachedCursorMs: cursorMs, reachedEventId: target.id } : {}),
   };
 }
 

@@ -584,7 +584,7 @@ describe("API route handlers", () => {
   it("serves package status, basket identity, a window and a cursor reveal", async () => {
     fixture();
     const { GET } = await import("../src/app/api/marketlab-replay/route");
-    const index = await GET();
+    const index = await GET(new Request("http://test/api/marketlab-replay"));
     expect(index.status).toBe(200);
     const indexBody = await index.json();
     expect(indexBody.valid).toBe(true);
@@ -594,6 +594,11 @@ describe("API route handlers", () => {
     expect(indexBody.baskets[0]).not.toHaveProperty("tradeNumbers");
     expect(indexBody.package.packageSha256).toMatch(/^[0-9a-f]{64}$/);
     expect(indexBody.compatibility.valid).toBe(true);
+    const bounded = await GET(new Request("http://test/api/marketlab-replay?index=0"));
+    expect(bounded.status).toBe(200);
+    const boundedBody = await bounded.json();
+    expect(boundedBody.baskets).toEqual([]);
+    expect(boundedBody.package).toEqual(indexBody.package);
 
     const { GET: GET_BASKET } =
       await import("../src/app/api/marketlab-replay/baskets/[number]/route");
@@ -673,7 +678,7 @@ describe("API route handlers", () => {
     const ctx = fixture();
     writeFileSync(join(ctx.packageRoot, "events.jsonl"), "{broken}\n", "utf8");
     const { GET } = await import("../src/app/api/marketlab-replay/route");
-    const index = await GET();
+    const index = await GET(new Request("http://test/api/marketlab-replay?index=0"));
     expect(index.status).toBe(200);
     const body = await index.json();
     expect(body.configured).toBe(true);
