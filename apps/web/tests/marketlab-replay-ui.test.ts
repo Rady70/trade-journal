@@ -205,6 +205,7 @@ beforeEach(() => {
   root = createRoot(container);
 });
 afterEach(async () => {
+  vi.useRealTimers();
   await act(async () => root.unmount());
   container.remove();
   window.localStorage.clear();
@@ -331,9 +332,21 @@ it("Play/Next expose each same-time liquidation with its own account, without la
     },
   );
   await renderReplay(basket, { reveal: stepReveal });
+  vi.useFakeTimers();
+  await act(async () =>
+    [...container.querySelectorAll("button")]
+      .find((button) => button.textContent?.trim() === "Play")!
+      .click(),
+  );
   for (let i = 0; i < 20 && !feed().includes("Forced close 1:"); i++) {
-    await act(async () => button("Next candle").click());
+    await act(async () => vi.advanceTimersByTimeAsync(250));
   }
+  await act(async () =>
+    [...container.querySelectorAll("button")]
+      .find((button) => button.textContent?.trim() === "Pause")!
+      .click(),
+  );
+  vi.useRealTimers();
   expect(feed()).toContain("600.00000");
   expect(feed()).toContain("occurrence #6");
   expect(feed()).not.toContain("Forced close 2:");

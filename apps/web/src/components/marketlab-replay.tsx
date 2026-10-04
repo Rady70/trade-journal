@@ -223,75 +223,85 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
     [loadReveal],
   );
 
-  const advanceOne = useCallback(async () => {
-    const startCursor = stateRef.current.cursorMs;
-    if (stateRef.current.bars.length === 0) return;
-    const next = stateRef.current.bars.find((bar) => barCloseMs(bar) > (startCursor ?? -Infinity));
-    if (next) {
-      const cursor = barCloseMs(next);
-      await stepTo(cursor);
-      return;
-    }
-    let from = stateRef.current.nextFromMs;
-    if (from === null) {
-      // The final authoritative step is not a candle: when no candle can close
-      // at or before the basket window end (for example the open basket at the
-      // run end), move the cursor to the authoritative window end so the replay
-      // can naturally finish instead of stopping short of it.
-      if ((startCursor ?? Number.NEGATIVE_INFINITY) < basket.windowEndMs) {
-        const cursor = basket.windowEndMs;
+  const advanceOne = useCallback(
+    async (candleStep = 1) => {
+      const startCursor = stateRef.current.cursorMs;
+      if (stateRef.current.bars.length === 0) return;
+      const candidates = stateRef.current.bars.filter(
+        (bar) => barCloseMs(bar) > (startCursor ?? -Infinity),
+      );
+      const next = candidates[Math.min(candleStep, candidates.length) - 1];
+      if (next) {
+        const cursor = barCloseMs(next);
         await stepTo(cursor);
-      } else {
-        setPlaying(false);
+        return;
       }
-      return;
-    }
-    // Load with bounded context before the boundary so revealed history stays
-    // on the chart; a repeat without context only if that chunk did not cross it.
-    for (let attempt = 0; attempt < 3 && from !== null; attempt += 1) {
-      const request = ++requestRef.current;
-      setLoading(true);
-      setError("");
-      const requestFrom =
-        attempt === 0 ? Math.max(basket.windowStartMs, from - REPLAY_SCRUB_CONTEXT_MS) : from;
-      let chunk: ReplayWindowResponse;
-      try {
-        chunk = await loadWindow(requestFrom);
-      } catch (cause) {
+      let from = stateRef.current.nextFromMs;
+      if (from === null) {
+        // The final authoritative step is not a candle: when no candle can close
+        // at or before the basket window end (for example the open basket at the
+        // run end), move the cursor to the authoritative window end so the replay
+        // can naturally finish instead of stopping short of it.
+        if ((startCursor ?? Number.NEGATIVE_INFINITY) < basket.windowEndMs) {
+          const cursor = basket.windowEndMs;
+          await stepTo(cursor);
+        } else {
+          setPlaying(false);
+        }
+        return;
+      }
+      // Load with bounded context before the boundary so revealed history stays
+      // on the chart; a repeat without context only if that chunk did not cross it.
+      for (let attempt = 0; attempt < 3 && from !== null; attempt += 1) {
+        const request = ++requestRef.current;
+        setLoading(true);
+        setError("");
+        const requestFrom =
+          attempt === 0 ? Math.max(basket.windowStartMs, from - REPLAY_SCRUB_CONTEXT_MS) : from;
+        let chunk: ReplayWindowResponse;
+        try {
+          chunk = await loadWindow(requestFrom);
+        } catch (cause) {
+          if (requestRef.current !== request) return;
+          setError(cause instanceof Error ? cause.message : "Replay window request failed.");
+          setPlaying(false);
+          if (requestRef.current === request) setLoading(false);
+          return;
+        }
         if (requestRef.current !== request) return;
-        setError(cause instanceof Error ? cause.message : "Replay window request failed.");
-        setPlaying(false);
-        if (requestRef.current === request) setLoading(false);
-        return;
+        setBars(chunk.bars);
+        setNextFromMs(chunk.nextFromMs);
+        const candidates = chunk.bars.filter((bar) => barCloseMs(bar) > (startCursor ?? -Infinity));
+        const candidate = candidates[Math.min(candleStep, candidates.length) - 1];
+        if (candidate) {
+          const cursor = barCloseMs(candidate);
+          await stepTo(cursor);
+          setLoading(false);
+          return;
+        }
+        from = chunk.nextFromMs;
       }
-      if (requestRef.current !== request) return;
-      setBars(chunk.bars);
-      setNextFromMs(chunk.nextFromMs);
-      const candidate = chunk.bars.find((bar) => barCloseMs(bar) > (startCursor ?? -Infinity));
-      if (candidate) {
-        const cursor = barCloseMs(candidate);
-        await stepTo(cursor);
-        setLoading(false);
-        return;
-      }
-      from = chunk.nextFromMs;
-    }
-    setLoading(false);
-    setPlaying(false);
-  }, [basket.windowEndMs, basket.windowStartMs, loadWindow, stepTo]);
-
-  const advance = useCallback(async () => {
-    if (advanceBusyRef.current || revealBusyRef.current) return;
-    advanceBusyRef.current = true;
-    try {
-      await advanceOne();
-    } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Replay step failed.");
+      setLoading(false);
       setPlaying(false);
-    } finally {
-      advanceBusyRef.current = false;
-    }
-  }, [advanceOne]);
+    },
+    [basket.windowEndMs, basket.windowStartMs, loadWindow, stepTo],
+  );
+
+  const advance = useCallback(
+    async (candleStep = 1) => {
+      if (advanceBusyRef.current || revealBusyRef.current) return;
+      advanceBusyRef.current = true;
+      try {
+        await advanceOne(candleStep);
+      } catch (cause) {
+        setError(cause instanceof Error ? cause.message : "Replay step failed.");
+        setPlaying(false);
+      } finally {
+        advanceBusyRef.current = false;
+      }
+    },
+    [advanceOne],
+  );
 
   const retreat = useCallback(async () => {
     revealRef.current += 1;
@@ -336,9 +346,14 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
 
   useEffect(() => {
     if (!playing) return;
-    const interval = Math.max(8, 1000 / Number(speed));
+    // High candle rates do not need a network round trip per M1 bar. At most
+    // four visual advances per second reveal a small candle batch; the server
+    // still stops at the FIRST authoritative occurrence and its exact snapshot.
+    // Next remains a single-candle action, independent of playback speed.
+    const interval = Math.max(250, 1000 / Number(speed));
+    const candleStep = Math.max(1, Number(speed) / 4);
     const timer = window.setInterval(() => {
-      if (!document.hidden) void advance();
+      if (!document.hidden) void advance(candleStep);
     }, interval);
     return () => window.clearInterval(timer);
   }, [playing, speed, advance]);
