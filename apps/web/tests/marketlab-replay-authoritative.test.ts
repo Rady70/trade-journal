@@ -152,6 +152,44 @@ describe.skipIf(!enabled)("authoritative finalized Phase E package", () => {
     expect(exit.liquidatedRealizedProfit).toBe("-25051.42100");
   });
 
+  it("steps every Basket #276 occurrence with its exact raw event snapshot, including all same-time liquidations", () => {
+    const raw = [...rawById.values()];
+    const anchor = raw.find((event) => event.basket === 276 && event.type === "basket_anchored")!;
+    const exit = raw.find((event) => event.basket === 276 && event.type === "strategy_exit")!;
+    const expected = raw.filter(
+      (event) =>
+        event.time! >= anchor.time! &&
+        event.time! <= exit.time! &&
+        (event.basket === 276 || event.type.startsWith("margin_call_")),
+    );
+    const rows = readFileSync(join(packageRoot!, "telemetry-2020.jsonl"), "utf8")
+      .trim()
+      .split("\n")
+      .map((line) => JSON.parse(line) as Record<string, unknown>);
+    const snapshots = new Map(
+      rows.filter((row) => row.kind === "event").map((row) => [row.eventId, row]),
+    );
+    const end = replayStatus().baskets.find((basket) => basket.number === 276)!.windowEndMs;
+    let after = 0;
+    for (const event of expected) {
+      const response = basketReveal(276, after, end, true);
+      expect(response.events).toHaveLength(1);
+      expect(response.events[0]!.payload).toEqual(event);
+      expect(response.reachedCursorMs).toBe(Date.parse(event.time!));
+      expect(response.reachedEventId).toBe(event.id);
+      const { timeMs, ...account } = response.account!;
+      expect(timeMs).toBe(Date.parse(event.time!));
+      expect(account).toEqual(snapshots.get(event.id));
+      after = event.id;
+    }
+    expect(expected).toHaveLength(117);
+    const done = basketReveal(276, after, end, true);
+    expect(done.events).toEqual([]);
+    expect(done.reachedCursorMs).toBe(end);
+    expect(done.reachedEventId).toBeNull();
+    expect(done.account!.eventId).toBe(exit.id);
+  });
+
   it("returns only derived candles inside the window and exact exported account state", () => {
     const status = replayStatus();
     const basket = status.baskets.find((candidate) => candidate.number === 276)!;

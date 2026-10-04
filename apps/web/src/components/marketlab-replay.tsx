@@ -27,7 +27,11 @@ export interface MarketlabReplayProps {
   /** Loads one bounded window of derived candles plus the carry-in account row. */
   loadWindow: (fromMs: number) => Promise<ReplayWindowResponse>;
   /** Returns only events and account state at or before the cursor. */
-  loadReveal: (afterEventId: number, cursorMs: number) => Promise<ReplayRevealResponse>;
+  loadReveal: (
+    afterEventId: number,
+    cursorMs: number,
+    step?: boolean,
+  ) => Promise<ReplayRevealResponse>;
 }
 
 const formatUtc = (ms: number | null): string =>
@@ -82,9 +86,11 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
   const [bars, setBars] = useState<CompactBar[]>([]);
   const [nextFromMs, setNextFromMs] = useState<number | null>(null);
   const [cursorMs, setCursorMs] = useState<number | null>(null);
+  const [cursorEventId, setCursorEventId] = useState<number | null>(null);
   const [events, setEvents] = useState<ReplayEventView[]>([]);
   const [accountState, setAccountState] = useState<{
     cursorMs: number;
+    eventId: number | null;
     row: AccountRow | null;
   } | null>(null);
   const [playing, setPlaying] = useState(false);
@@ -96,8 +102,9 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
   const lastEventIdRef = useRef(0);
   const pendingRevealRef = useRef<number | null>(null);
   const revealBusyRef = useRef(false);
-  const stateRef = useRef({ bars, nextFromMs, cursorMs });
-  stateRef.current = { bars, nextFromMs, cursorMs };
+  const advanceBusyRef = useRef(false);
+  const stateRef = useRef({ bars, nextFromMs, cursorMs, cursorEventId, events });
+  stateRef.current = { bars, nextFromMs, cursorMs, cursorEventId, events };
 
   /** Fetches every event at or before the cursor, in bounded batches. */
   const revealOnce = useCallback(
@@ -121,7 +128,7 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
         merged.sort((a, b) => a.id - b.id);
         return merged;
       });
-      setAccountState({ cursorMs: cursor, row: account });
+      setAccountState({ cursorMs: cursor, eventId: null, row: account });
     },
     [loadReveal],
   );
@@ -159,6 +166,7 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
     setEvents([]);
     lastEventIdRef.current = 0;
     setAccountState(null);
+    setCursorEventId(null);
     try {
       const chunk = await loadWindow(basket.windowStartMs);
       if (requestRef.current !== request) return;
@@ -184,27 +192,57 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
     void reset();
   }, [reset]);
 
-  const advance = useCallback(async () => {
+  const stepTo = useCallback(
+    async (target: number) => {
+      const token = ++revealRef.current;
+      const state = stateRef.current;
+      const after =
+        state.cursorEventId ??
+        state.events
+          .filter(
+            (event) =>
+              event.live && event.timeMs !== null && event.timeMs <= (state.cursorMs ?? -Infinity),
+          )
+          .at(-1)?.id ??
+        0;
+      const response = await loadReveal(after, target, true);
+      if (revealRef.current !== token) return;
+      const cursor = response.reachedCursorMs ?? target;
+      const eventId = response.reachedEventId ?? null;
+      lastEventIdRef.current = Math.max(lastEventIdRef.current, response.lastEventId);
+      setEvents((previous) => {
+        const known = new Set(previous.map((event) => event.id));
+        return [...previous, ...response.events.filter((event) => !known.has(event.id))].sort(
+          (a, b) => a.id - b.id,
+        );
+      });
+      setCursorMs(cursor);
+      setCursorEventId(eventId);
+      setAccountState({ cursorMs: cursor, eventId, row: response.account });
+    },
+    [loadReveal],
+  );
+
+  const advanceOne = useCallback(async () => {
     const startCursor = stateRef.current.cursorMs;
     if (stateRef.current.bars.length === 0) return;
     const next = stateRef.current.bars.find((bar) => barCloseMs(bar) > (startCursor ?? -Infinity));
     if (next) {
       const cursor = barCloseMs(next);
-      setCursorMs(cursor);
-      requestReveal(cursor);
+      await stepTo(cursor);
       return;
     }
     let from = stateRef.current.nextFromMs;
     if (from === null) {
-      setPlaying(false);
       // The final authoritative step is not a candle: when no candle can close
       // at or before the basket window end (for example the open basket at the
       // run end), move the cursor to the authoritative window end so the replay
       // can naturally finish instead of stopping short of it.
       if ((startCursor ?? Number.NEGATIVE_INFINITY) < basket.windowEndMs) {
         const cursor = basket.windowEndMs;
-        setCursorMs(cursor);
-        requestReveal(cursor);
+        await stepTo(cursor);
+      } else {
+        setPlaying(false);
       }
       return;
     }
@@ -232,8 +270,7 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
       const candidate = chunk.bars.find((bar) => barCloseMs(bar) > (startCursor ?? -Infinity));
       if (candidate) {
         const cursor = barCloseMs(candidate);
-        setCursorMs(cursor);
-        requestReveal(cursor);
+        await stepTo(cursor);
         setLoading(false);
         return;
       }
@@ -241,9 +278,24 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
     }
     setLoading(false);
     setPlaying(false);
-  }, [basket.windowEndMs, basket.windowStartMs, loadWindow, requestReveal]);
+  }, [basket.windowEndMs, basket.windowStartMs, loadWindow, stepTo]);
+
+  const advance = useCallback(async () => {
+    if (advanceBusyRef.current || revealBusyRef.current) return;
+    advanceBusyRef.current = true;
+    try {
+      await advanceOne();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Replay step failed.");
+      setPlaying(false);
+    } finally {
+      advanceBusyRef.current = false;
+    }
+  }, [advanceOne]);
 
   const retreat = useCallback(async () => {
+    revealRef.current += 1;
+    setCursorEventId(null);
     const { bars: currentBars, cursorMs: currentCursor } = stateRef.current;
     if (currentBars.length === 0 || currentCursor === null) return;
     const revealed = currentBars.filter((bar) => barCloseMs(bar) <= currentCursor);
@@ -293,6 +345,8 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
 
   const scrub = useCallback(
     async (fraction: number) => {
+      revealRef.current += 1;
+      setCursorEventId(null);
       setPlaying(false);
       const span = basket.windowEndMs - basket.windowStartMs;
       const target = basket.windowStartMs + Math.round(fraction * span);
@@ -329,15 +383,26 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
     [basket.windowEndMs, basket.windowStartMs, loadWindow, requestReveal],
   );
 
-  const visibleEvents = useMemo(() => revealEvents(events, cursorMs), [events, cursorMs]);
+  const visibleEvents = useMemo(
+    () =>
+      revealEvents(events, cursorMs).filter(
+        (event) => cursorEventId === null || event.id <= cursorEventId,
+      ),
+    [events, cursorMs, cursorEventId],
+  );
   const accountRow =
-    accountState !== null && cursorMs !== null && accountState.cursorMs === cursorMs
+    accountState !== null &&
+    cursorMs !== null &&
+    accountState.cursorMs === cursorMs &&
+    accountState.eventId === cursorEventId
       ? accountState.row
       : null;
   const revealSynchronized =
-    accountState !== null && cursorMs !== null && accountState.cursorMs === cursorMs;
-  const accountSyncing =
-    cursorMs !== null && (accountState === null || accountState.cursorMs !== cursorMs);
+    accountState !== null &&
+    cursorMs !== null &&
+    accountState.cursorMs === cursorMs &&
+    accountState.eventId === cursorEventId;
+  const accountSyncing = cursorMs !== null && !revealSynchronized;
   const closeEvent = useMemo(
     () =>
       visibleEvents.find(
@@ -401,6 +466,32 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
           )}
         </CardHeader>
         <CardContent className="space-y-3">
+          {closeEvent && (
+            <div className="rounded-lg border p-3 text-sm" aria-label="Authoritative basket close">
+              <p className="font-semibold">
+                Basket #{basket.number} closed · {show(closeEvent.payload.reason)} ·{" "}
+                {formatUtc(closeEvent.timeMs)}
+              </p>
+              {closeEvent.type === "strategy_exit" && (
+                <p>
+                  {Number(closeEvent.payload.buyLots) > 0 &&
+                    `BUY close ${show(closeEvent.payload.buyClosePrice)} (${show(closeEvent.payload.buyLots)} lots)`}
+                  {Number(closeEvent.payload.buyLots) > 0 &&
+                    Number(closeEvent.payload.sellLots) > 0 &&
+                    " · "}
+                  {Number(closeEvent.payload.sellLots) > 0 &&
+                    `SELL close ${show(closeEvent.payload.sellClosePrice)} (${show(closeEvent.payload.sellLots)} lots)`}
+                </p>
+              )}
+              <p>
+                Lifetime basket result {show(closeEvent.payload.realizedProfit)} · prior
+                broker-liquidation realized P/L {show(closeEvent.payload.liquidatedRealizedProfit)}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Exact exported LEAN execution; candle OHLC is derived visualization data.
+              </p>
+            </div>
+          )}
           {error && (
             <p
               role="alert"
@@ -506,10 +597,13 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
             onChange={(event) => void scrub(Number(event.target.value) / 1000)}
           />
           <p className="text-xs text-muted-foreground">
-            Cursor through {formatUtc(cursorMs)} · {revealedBars.length.toLocaleString()} candles
-            revealed · {visibleEvents.filter((event) => event.live).length.toLocaleString()}{" "}
-            authoritative events revealed · candles are derived visualization data, revealed at bar
-            close.
+            Cursor through {formatUtc(cursorMs)}
+            {cursorEventId !== null ? ` · occurrence #${cursorEventId}` : ""} ·{" "}
+            {revealedBars.length.toLocaleString()} candles revealed ·{" "}
+            {visibleEvents.filter((event) => event.live).length.toLocaleString()} authoritative
+            events revealed · candles are derived visualization data, revealed at bar close. Play
+            and Next pause at each exported occurrence before the next candle close; same-time
+            events retain their LEAN order.
           </p>
         </CardContent>
       </Card>

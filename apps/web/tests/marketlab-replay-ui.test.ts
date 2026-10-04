@@ -279,6 +279,89 @@ it("restarts to the first candle without revealing future events", async () => {
   expect(feed()).toContain("1000.00000");
 });
 
+it("Play/Next expose each same-time liquidation with its own account, without later occurrences leaking on backward replay", async () => {
+  const sameTime = minuteMs(5, 30);
+  const list = [
+    ...events.slice(0, 4),
+    view(6, "forced_liquidation", iso(sameTime), {
+      basket: 1,
+      ordinal: 1,
+      tradeNumber: 1,
+      side: "Buy",
+      placedLot: "0.10",
+      closePrice: "98.2",
+      realizedProfit: "-100.0",
+    }),
+    view(7, "forced_liquidation", iso(sameTime), {
+      basket: 1,
+      ordinal: 2,
+      tradeNumber: 2,
+      side: "Sell",
+      placedLot: "0.20",
+      closePrice: "98.3",
+      realizedProfit: "-200.0",
+    }),
+    view(8, "strategy_exit", iso(minuteMs(7)), {
+      basket: 1,
+      reason: "Escape",
+      realizedProfit: "1.00000",
+      liquidatedRealizedProfit: "-300.00000",
+      buyLots: "1.20",
+      sellLots: "0.10",
+      buyClosePrice: "101.200",
+      sellClosePrice: "101.300",
+    }),
+  ];
+  const stepReveal = vi.fn(
+    async (after: number, cursor: number, step?: boolean): Promise<ReplayRevealResponse> => {
+      const eligible = list.filter((event) => event.id > after && event.timeMs! <= cursor);
+      const selected = step ? eligible.slice(0, 1) : eligible;
+      const event = step ? selected[0] : undefined;
+      return {
+        events: selected,
+        account: event
+          ? accountRow(event.time!, `${event.id}00.00000`, event.id)
+          : carryRow(cursor),
+        hasMore: false,
+        lastEventId: selected.at(-1)?.id ?? after,
+        ...(step
+          ? { reachedCursorMs: event?.timeMs ?? cursor, reachedEventId: event?.id ?? null }
+          : {}),
+      };
+    },
+  );
+  await renderReplay(basket, { reveal: stepReveal });
+  for (let i = 0; i < 20 && !feed().includes("Forced close 1:"); i++) {
+    await act(async () => button("Next candle").click());
+  }
+  expect(feed()).toContain("600.00000");
+  expect(feed()).toContain("occurrence #6");
+  expect(feed()).not.toContain("Forced close 2:");
+  expect(feed()).not.toContain("Strategy exit");
+  expect(container.querySelector('[aria-label="Authoritative basket close"]')).toBeNull();
+  await act(async () => button("Next candle").click());
+  expect(feed()).toContain("Forced close 2:");
+  expect(feed()).toContain("700.00000");
+  expect(feed()).toContain("occurrence #7");
+  // Returning to the prior candle hides both liquidations, even though cached.
+  await act(async () => button("Previous candle").click());
+  expect(feed()).not.toContain("Forced close");
+  for (let i = 0; i < 4 && !feed().includes("Forced close 1:"); i++) {
+    await act(async () => button("Next candle").click());
+  }
+  expect(feed()).toContain("600.00000");
+  expect(feed()).not.toContain("Forced close 2:");
+  await act(async () => button("Reveal the full basket window").click());
+  const close = container.querySelector('[aria-label="Authoritative basket close"]')!;
+  expect(close.textContent).toContain("Basket #1 closed · Escape · 2024-01-01 00:07:00Z");
+  expect(close.textContent).toContain("BUY close 101.200 (1.20 lots)");
+  expect(close.textContent).toContain("SELL close 101.300 (0.10 lots)");
+  expect(close.textContent).toContain("Lifetime basket result 1.00000");
+  await act(async () => button("Restart replay").click());
+  expect(feed()).not.toContain("Forced close");
+  expect(container.querySelector('[aria-label="Authoritative basket close"]')).toBeNull();
+});
+
 it("keeps revealed history when stepping across a chunk boundary with context", async () => {
   let calls = 0;
   const contextLoader = vi.fn(async (_fromMs: number) => {
@@ -372,7 +455,13 @@ it("shows the account as synchronizing until the reveal for the current cursor a
   });
   await renderReplay(basket, { reveal: delayed });
   expect(feed()).toContain("1000.00000");
-  await act(async () => button("Next candle").click());
+  // Scrubbing moves the time cursor immediately; forward occurrence stepping
+  // instead holds the old cursor until the event and its snapshot arrive atomically.
+  await act(async () => {
+    const input = container.querySelector<HTMLInputElement>('input[aria-label="Replay position"]')!;
+    Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")!.set!.call(input, "100");
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  });
   // The cursor moved to minute 2 but its reveal is still in flight: the old
   // account row must not be presented as the state at the new cursor.
   expect(feed()).toContain("Synchronizing the exported account state at the cursor");

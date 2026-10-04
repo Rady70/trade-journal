@@ -46,9 +46,9 @@ function Backtests() {
     [basketNumber],
   );
   const loadReveal = useCallback(
-    async (afterEventId: number, cursorMs: number) => {
+    async (afterEventId: number, cursorMs: number, step = false) => {
       const response = await fetch(
-        `/api/marketlab-replay/baskets/${basketNumber}/reveal?after=${afterEventId}&cursor=${cursorMs}`,
+        `/api/marketlab-replay/baskets/${basketNumber}/reveal?after=${afterEventId}&cursor=${cursorMs}${step ? "&step=1" : ""}`,
       );
       const body = (await response.json()) as ReplayRevealResponse & { error?: string };
       if (!response.ok) throw new Error(body.error ?? "Replay reveal request failed.");
@@ -255,7 +255,7 @@ function Field({ label, value, mono = false }: { label: string; value: string; m
   return (
     <div className="min-w-0">
       <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className={`truncate text-sm ${mono ? "font-mono text-xs" : ""}`} title={value}>
+      <dd className={`break-all text-sm ${mono ? "font-mono text-xs" : ""}`} title={value}>
         {value}
       </dd>
     </div>

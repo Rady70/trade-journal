@@ -1594,7 +1594,7 @@ function basketAccountAtCursor(
  * row in force at that cursor. No future event or value crosses the boundary,
  * and the cursor must lie inside the basket's authoritative replay window.
  */
-export function basketReveal(number: number, afterEventId: number, cursorMs: number) {
+export function basketReveal(number: number, afterEventId: number, cursorMs: number, step = false) {
   const loaded = loadPackage();
   const summary = basketSummary(number);
   const cache = loadCandleCache();
@@ -1616,6 +1616,24 @@ export function basketReveal(number: number, afterEventId: number, cursorMs: num
     (view) =>
       view.live && view.timeMs !== null && view.id > afterEventId && view.timeMs <= cursorMs,
   );
+  if (step) {
+    // An M1 close can contain many distinct engine occurrences, including
+    // several liquidations at exactly the same timestamp. Advance only through
+    // the next occurrence and bind its exact snapshot by id, never by time.
+    const event = eligible[0];
+    const account = event
+      ? (loaded.telemetry.find((row) => row.kind === "event" && row.eventId === event.id) ?? null)
+      : basketAccountAtCursor(loaded, summary, cursorMs);
+    if (event && !account) throw new ReplayPackageError("The event snapshot is missing.");
+    return {
+      events: event ? [event] : [],
+      account,
+      hasMore: false,
+      lastEventId: event?.id ?? afterEventId,
+      reachedCursorMs: event?.timeMs ?? cursorMs,
+      reachedEventId: event?.id ?? null,
+    };
+  }
   const batch = eligible.slice(0, REPLAY_REVEAL_BATCH);
   const hasMore = eligible.length > REPLAY_REVEAL_BATCH;
   const lastEventId = batch.length > 0 ? batch[batch.length - 1]!.id : afterEventId;

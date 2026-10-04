@@ -32,8 +32,10 @@ export const GET = handler(async (request: Request, { params }: Context) => {
     Number.isSafeInteger(afterEventId) && afterEventId >= 0,
     '"after" must be a non-negative integer.',
   );
+  const stepRaw = search.get("step");
+  requireValue(stepRaw === null || stepRaw === "1", '"step" must be 1 when supplied.');
   try {
-    return ok(basketReveal(basketNumber, afterEventId, cursorMs));
+    return ok(basketReveal(basketNumber, afterEventId, cursorMs, stepRaw === "1"));
   } catch (error) {
     if (error instanceof ReplayPackageError) return bad(error.message, 422);
     throw error;

@@ -277,6 +277,10 @@ export interface ReplayRevealResponse {
   events: ReplayEventView[];
   /** The exact exported account row in force at the cursor, or null. */
   account: AccountRow | null;
+  /** Forward step stops at the first exported occurrence, or at the candle bound. */
+  reachedCursorMs?: number;
+  /** An occurrence cursor distinguishes multiple events at the same timestamp. */
+  reachedEventId?: number | null;
   hasMore: boolean;
   lastEventId: number;
 }
