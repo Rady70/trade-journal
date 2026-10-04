@@ -466,9 +466,9 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
   }, [visibleEvents.length]);
 
   return (
-    <div className="space-y-3">
+    <div className="grid items-start gap-3 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
       <Card className="journal-replay-enter">
-        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2">
+        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-2 p-3 pb-2">
           <CardTitle>
             Basket #{basket.number} · {outcome}
           </CardTitle>
@@ -480,9 +480,9 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
             </p>
           )}
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-2 p-3 pt-2">
           {closeEvent && (
-            <div className="rounded-lg border p-3 text-sm" aria-label="Authoritative basket close">
+            <div className="rounded-lg border p-2 text-xs" aria-label="Authoritative basket close">
               <p className="font-semibold">
                 Basket #{basket.number} closed · {show(closeEvent.payload.reason)} ·{" "}
                 {formatUtc(closeEvent.timeMs)}
@@ -528,9 +528,10 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
               events={visibleEvents}
               basket={basket}
               cursorMs={cursorMs}
+              height={280}
             />
           ) : (
-            <div className="flex h-[460px] items-center justify-center rounded-lg border text-sm text-muted-foreground">
+            <div className="flex h-[280px] items-center justify-center rounded-lg border text-sm text-muted-foreground">
               {loading
                 ? "Loading derived M1 candles…"
                 : "No derived candles available at the cursor."}
@@ -623,7 +624,7 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
         </CardContent>
       </Card>
 
-      <div className="grid gap-3 lg:grid-cols-2">
+      <div className="grid gap-3 lg:grid-cols-2 xl:grid-cols-1">
         <Card>
           <CardHeader>
             <CardTitle>Account state at the replay cursor</CardTitle>
@@ -635,7 +636,7 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
               </p>
             ) : accountRow ? (
               <>
-                <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
+                <dl className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
                   <AccountValue label="Balance" value={accountRow.balance} privacy={privacy} />
                   <AccountValue label="Equity" value={accountRow.equity} privacy={privacy} />
                   <AccountValue
@@ -707,7 +708,7 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
           <CardContent>
             <div
               ref={feedRef}
-              className="max-h-80 space-y-1 overflow-y-auto pr-1"
+              className="max-h-48 space-y-1 overflow-y-auto pr-1"
               aria-label="Revealed authoritative events"
             >
               {visibleEvents.length === 0 && (
