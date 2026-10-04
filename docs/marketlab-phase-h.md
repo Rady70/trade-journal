@@ -1,7 +1,42 @@
 # Phase H — completed-run replay and navigation
 
-Status: **implemented and ready for independent review; not finalized or merged.**
+Status: **finalized — independently reviewed, delta re-reviewed, user-approved and merged.**
 Phase F and Phase G remain finalized. Phase I remains **not started**.
+
+## Merge finalization — 2026-10-04
+
+Independent review and the focused delta re-review passed; both findings are
+resolved. The user authorized application-first merge, minimal documentation
+follow-ups, the consistent control merge and clean default synchronization.
+
+- Live finalization starting defaults: application `main`
+  `99ff48cd4b71be51e220230480dadae048489ef3`, control `main`
+  `f0c49cd945d28d1b5c7fe5ad1c8ab635a2677230`, LEAN `master`
+  `2722bc3c2d67ebfb2b67fdec401904abfa825359`.
+- Reviewed application head: `3813d298f31e26110b46004b568fa166abcc97ed`.
+  The sole pre-merge follow-up, `b5382817afce3be2f2a2cd5f2863a5a5e71dcbc9`,
+  removes the duplicated word "qualification" in this document.
+- Application [PR #5](https://github.com/Rady70/trade-journal/pull/5) final head:
+  `b5382817afce3be2f2a2cd5f2863a5a5e71dcbc9`; normal merge commit
+  **`1875855a6b35053b7318d37825363f80dd6c0e10`** at
+  **`2026-10-04T22:24:44Z`**. Its tree equals the final PR head's tree.
+- This documentation-only finalization changes only this file and
+  `MARKETLAB_FORK.md`. The qualified runtime, tests, sealed evidence and
+  authoritative inputs retain their identities. All 35 artifacts, 13 runtime
+  paths and four test paths were verified read-only against the refreshed seal
+  (sealed Git blob bytes, LF-normalized source; Windows checkout CRLF is checked
+  separately and is not a new seal);
+  no replay/export, browser/test qualification or production build was repeated.
+- The exact application documentation merge, control approved/final heads,
+  implementation merge and documentation receipt merge are recorded in
+  [control PR #51](https://github.com/Rady70/Market_Lab/pull/51), its linked
+  finalization receipt and
+  [the control Phase H record](https://github.com/Rady70/Market_Lab/blob/main/docs/SINGLE_ANCHOR_PHASE_H_QUALIFICATION.md).
+  Follow-up heads and merge SHAs are available in their PR metadata, as in Phase G.
+
+The original and refreshed evidence manifests retain their historical pre-merge
+status and receipts unchanged; they are not resealed to record a documentation
+merge. The current Phase H status is finalized. Phase I remains **not started**.
 
 ## Provenance and scope
 
@@ -266,25 +301,29 @@ this host has no bare pnpm shim; the actual three package checks above pass.
   no new authoritative export; no historical characterization rerun; no historical
   data qualification rerun; no optimization; no broker account/route; no hosted
   CI added or dispatched. Application Actions were confirmed disabled; control
-  has zero workflows. No merge is performed.
+  has zero workflows. Finalization performs only the authorized application and
+  documentation/control merges recorded above.
 - Phase I launcher/service startup/Fincept actions, navigation and web views remain
-  **not started** and require Phase H independent review/finalization first.
+  **not started** and require a separate user request.
 
 Self-audit covers all Phase H scope/acceptance items above. No known Phase H
 acceptance defect remains in the qualified local Windows workflow.
 
-## Published independent-review PRs
+## Historical independent-review publication
+
+The following initial publication identities are retained as review history;
+the current merged status and exact final identities are recorded above.
 
 - Application: [Rady70/trade-journal#5](https://github.com/Rady70/trade-journal/pull/5),
   branch `marketlab/phase-h-run-navigation`. Initial sealed publication head
-  `ce339aa39843743aea53e4f80947ea39a87d3365`; this follow-up only adds review links.
+  `ce339aa39843743aea53e4f80947ea39a87d3365`; the original follow-up added review links.
 - Control: [Rady70/Market_Lab#51](https://github.com/Rady70/Market_Lab/pull/51),
   branch `marketlab/single-anchor-phase-h-record`, documentation only; initial
   publication head `2c09f78df2356d2c9e00ee0a9dbea282042b2142`.
-- [Paired control qualification record](https://github.com/Rady70/Market_Lab/blob/marketlab/single-anchor-phase-h-record/docs/SINGLE_ANCHOR_PHASE_H_QUALIFICATION.md)
+- [Paired control qualification record](https://github.com/Rady70/Market_Lab/blob/main/docs/SINGLE_ANCHOR_PHASE_H_QUALIFICATION.md)
   records exact review provenance and the final application publication head.
-  Current review heads are in PR metadata. Both PRs remain open, unmerged and
-  awaiting independent review; Phase H is not finalized and Phase I is not started.
+  Final PR heads and merge commits are in PR metadata and the control record.
+  Phase H is finalized; Phase I remains not started.
 - The original evidence manifest SHA-256 was
   `91d7f6a1469c8399fb575b5845d70f173cd9fe63aef87acee2ff16fc3090c24d`.
   It is preserved in `pre-review-manifest.json`. The review correction refreshes
@@ -304,10 +343,10 @@ architecture. Native-request regression covers the accepted-candle-only switch,
 all five routes, fresh bindings and omitted/manifest-only rejection. The affected
 Windows automated, complete run-navigation browser, four fail-closed cases and
 full preserved Phase G regression pass; whitespace validation is now in the
-automated receipt. Review corrections are **ready for delta re-review**, with
-approval, merge and Phase H finalization still pending. Phase I remains unstarted.
+automated receipt. Independent review and **delta re-review passed**; both findings
+are resolved and the user approved merge/finalization. Phase I remains unstarted.
 
 Refreshed evidence manifest SHA-256:
 **`4e503ac916faaec27561a9e436b67d59e8934cc1c52e5ac41dc7fd1cf1d08983`**,
-binding 35 artifacts, 13 runtime paths and four test paths. Exact current review
-heads are recorded in the paired control record and PR metadata.
+binding 35 artifacts, 13 runtime paths and four test paths. Exact final PR heads
+and merge commits are recorded in the paired control record and PR metadata.

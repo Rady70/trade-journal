@@ -50,7 +50,13 @@ The MarketLab adaptation is confined to new, reviewable paths:
   Phase H completed-run summary, paged basket/event browsing, distinct risk
   filters and exact occurrence navigation into the existing basket replay.
 - `docs/marketlab-phase-h.md`, `docs/evidence/phase-h/` and run/navigation tests —
-  Phase H implemented and ready for independent review, **not finalized**.
+  Phase H **finalized**, independently reviewed, delta re-reviewed and user-approved.
+  Reviewed head `3813d298f31e26110b46004b568fa166abcc97ed`; documentation typo-only
+  final head `b5382817afce3be2f2a2cd5f2863a5a5e71dcbc9` merged through PR #5 as
+  `1875855a6b35053b7318d37825363f80dd6c0e10`. Qualified runtime
+  `121cc595f57ab2c45ecec83ec4eaf60b9522f5d4` and refreshed evidence seal
+  `4e503ac916faaec27561a9e436b67d59e8934cc1c52e5ac41dc7fd1cf1d08983` are unchanged;
+  exact paired-control and documentation-merge provenance is linked from the Phase H document.
   Phase I remains **not started**. Replay/navigation requests are source-bound;
   candle arrays remain bounded. Local Windows browser/Phase G regression pass;
   the inherited production-build symlink limitation remains documented.
