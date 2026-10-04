@@ -1,0 +1,3 @@
+# Unsuccessful/interrupted local harness screenshots; the acceptance defect is
+# explicitly retained in baseline.json and baseline-skipped-liquidation-states.png.
+failure-*.png

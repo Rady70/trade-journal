@@ -1,0 +1,17 @@
+{
+  "attempts": [
+    {
+      "started": "2026-10-04T01:14:34.047Z",
+      "ended": "2026-10-04T01:26:02.021Z",
+      "status": "not accepted: follow-up navigation harness timing failure",
+      "continuousPlayEventsCompared": 117,
+      "accountRowTransitionsCompared": 1749,
+      "periodicComparisons": 1632,
+      "exactAccountFieldComparisons": 17490,
+      "negativeCheckerFixturesRejected": 15,
+      "failure": "Next-navigation loop observed 25 of 30 liquidation snapshots after using a fixed 35ms wait",
+      "correction": "Wait for cursor/occurrence identity to change, including same-time liquidation occurrence ids; rerun full qualification after the screen-fit UI correction",
+      "visualFinding": "Full-page screenshot was 1694px tall at a 1432x900 viewport; presentation needed a compact desktop replay layout and expandable provenance"
+    }
+  ]
+}

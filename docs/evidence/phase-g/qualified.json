@@ -1,0 +1,3340 @@
+{
+  "mode": "qualified",
+  "platform": "win32",
+  "started": "2026-10-04T11:22:58.048Z",
+  "packageHash": "d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4",
+  "candleHash": "ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
+  "resultsHash": "bc3958b2629e8930ef8de3890cac9c80006f26d7c8dffdf5ecf54d6a6aa9bdad",
+  "evidenceHash": "f98263618bde5d2cd24542e028d322d0bab35074c430ce6b0bdb4c7a4b22f685",
+  "counts": {
+    "basket_anchored": 1,
+    "entry_executed": 36,
+    "hard_breakeven_activated": 1,
+    "margin_call_entered": 22,
+    "margin_call_left": 22,
+    "stop_out_triggered": 4,
+    "forced_liquidation": 30,
+    "strategy_exit": 1
+  },
+  "checks": [
+    "Basket #276 opened; pre-anchor events, levels, outcome and account hidden",
+    "4× Play advances; Pause holds the cursor",
+    "64× continuous Play from Restart visits all 117 event occurrences with exact DOM event values and exact bound account snapshots",
+    "Backward scrub, Next through all 30 liquidations, Previous before the risk minute, and Next again remain occurrence/account coherent",
+    "Full-window navigation retains the basket close snapshot rather than another basket's account",
+    "Restart after full-history navigation removes future events, account and levels"
+  ],
+  "observations": [
+    {
+      "id": 1248,
+      "cursor": "2020-03-16 15:47:17.769Z",
+      "event": {
+        "id": 1248,
+        "type": "basket_anchored",
+        "time": "2020-03-16 15:47:17.769Z · basket_anchored",
+        "title": "Basket anchored @ 1503.750 · upper 1507.509375 · lower 1499.990625"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "25519.92800",
+        "Floating P/L": "0",
+        "Realized P/L": "5519.92800",
+        "Used margin": "0",
+        "Free margin": "25519.92800",
+        "Margin level": "not defined",
+        "Open positions": "0",
+        "Gross exposure (lots)": "0",
+        "Net exposure (lots, signed)": "0"
+      },
+      "accountTime": "2020-03-16 15:47:17.769Z",
+      "quote": "49862706",
+      "snapshotId": 1248,
+      "marginCallActive": false,
+      "candles": 29
+    },
+    {
+      "id": 1249,
+      "cursor": "2020-03-16 15:48:53.366Z",
+      "event": {
+        "id": 1249,
+        "type": "entry_executed",
+        "time": "2020-03-16 15:48:53.366Z · entry_executed",
+        "title": "#1 Sell 0.10 lots @ 1499.868 (Arithmetic)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "25515.28800",
+        "Floating P/L": "-4.64000",
+        "Realized P/L": "5519.92800",
+        "Used margin": "29.99736",
+        "Free margin": "25485.29064",
+        "Margin level": "85058.44514317259918872860812%",
+        "Open positions": "1",
+        "Gross exposure (lots)": "0.10",
+        "Net exposure (lots, signed)": "-0.10"
+      },
+      "accountTime": "2020-03-16 15:48:53.366Z",
+      "quote": "49863444",
+      "snapshotId": 1249,
+      "marginCallActive": false,
+      "candles": 30
+    },
+    {
+      "id": 1250,
+      "cursor": "2020-03-16 15:54:51.202Z",
+      "event": {
+        "id": 1250,
+        "type": "entry_executed",
+        "time": "2020-03-16 15:54:51.202Z · entry_executed",
+        "title": "#2 Buy 0.20 lots @ 1507.582 (Arithmetic)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "25429.90800",
+        "Floating P/L": "-90.02000",
+        "Realized P/L": "5519.92800",
+        "Used margin": "30.15164",
+        "Free margin": "25399.75636",
+        "Margin level": "84340.04916482154867861250665%",
+        "Open positions": "2",
+        "Gross exposure (lots)": "0.30",
+        "Net exposure (lots, signed)": "0.10"
+      },
+      "accountTime": "2020-03-16 15:54:51.202Z",
+      "quote": "49866508",
+      "snapshotId": 1250,
+      "marginCallActive": false,
+      "candles": 36
+    },
+    {
+      "id": 1251,
+      "cursor": "2020-03-16 16:15:04.578Z",
+      "event": {
+        "id": 1251,
+        "type": "entry_executed",
+        "time": "2020-03-16 16:15:04.578Z · entry_executed",
+        "title": "#3 Sell 0.30 lots @ 1499.988 (Arithmetic)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "25351.48800",
+        "Floating P/L": "-168.44000",
+        "Realized P/L": "5519.92800",
+        "Used margin": "59.99832",
+        "Free margin": "25291.48968",
+        "Margin level": "42253.663102566871872412427548%",
+        "Open positions": "3",
+        "Gross exposure (lots)": "0.60",
+        "Net exposure (lots, signed)": "-0.20"
+      },
+      "accountTime": "2020-03-16 16:15:04.578Z",
+      "quote": "49875194",
+      "snapshotId": 1251,
+      "marginCallActive": false,
+      "candles": 57
+    },
+    {
+      "id": 1252,
+      "cursor": "2020-03-16 16:20:53.712Z",
+      "event": {
+        "id": 1252,
+        "type": "entry_executed",
+        "time": "2020-03-16 16:20:53.712Z · entry_executed",
+        "title": "#4 Buy 0.40 lots @ 1507.852 (Arithmetic)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "25177.52800",
+        "Floating P/L": "-342.40000",
+        "Realized P/L": "5519.92800",
+        "Used margin": "60.31048",
+        "Free margin": "25117.21752",
+        "Margin level": "41746.522329120909002879764844%",
+        "Open positions": "4",
+        "Gross exposure (lots)": "1.00",
+        "Net exposure (lots, signed)": "0.20"
+      },
+      "accountTime": "2020-03-16 16:20:53.712Z",
+      "quote": "49877555",
+      "snapshotId": 1252,
+      "marginCallActive": false,
+      "candles": 62
+    },
+    {
+      "id": 1253,
+      "cursor": "2020-03-16 17:18:58.529Z",
+      "event": {
+        "id": 1253,
+        "type": "hard_breakeven_activated",
+        "time": "2020-03-16 17:18:58.529Z · hard_breakeven_activated",
+        "title": "Hard-BE activated · lower 1436.41207500 · upper 1571.08792500"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "25035.94800",
+        "Floating P/L": "-483.98000",
+        "Realized P/L": "5519.92800",
+        "Used margin": "60.31048",
+        "Free margin": "24975.63752",
+        "Margin level": "41511.770425305850658127741646%",
+        "Open positions": "4",
+        "Gross exposure (lots)": "1.00",
+        "Net exposure (lots, signed)": "0.20"
+      },
+      "accountTime": "2020-03-16 17:18:58.529Z",
+      "quote": "49896079",
+      "snapshotId": 1253,
+      "marginCallActive": false,
+      "candles": 120
+    },
+    {
+      "id": 1254,
+      "cursor": "2020-03-16 17:18:58.529Z",
+      "event": {
+        "id": 1254,
+        "type": "entry_executed",
+        "time": "2020-03-16 17:18:58.529Z · entry_executed",
+        "title": "#5 Sell 0.28 lots @ 1499.905 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "25025.67200",
+        "Floating P/L": "-494.25600",
+        "Realized P/L": "5519.92800",
+        "Used margin": "23.998978823529411764705882354",
+        "Free margin": "25001.673021176470588235294118",
+        "Margin level": "104278.07026298962132310335557%",
+        "Open positions": "5",
+        "Gross exposure (lots)": "1.28",
+        "Net exposure (lots, signed)": "-0.08"
+      },
+      "accountTime": "2020-03-16 17:18:58.529Z",
+      "quote": "49896079",
+      "snapshotId": 1254,
+      "marginCallActive": false,
+      "candles": 120
+    },
+    {
+      "id": 1255,
+      "cursor": "2020-03-16 18:53:16.402Z",
+      "event": {
+        "id": 1255,
+        "type": "entry_executed",
+        "time": "2020-03-16 18:53:16.402Z · entry_executed",
+        "title": "#6 Buy 0.17 lots @ 1507.525 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "24943.69900",
+        "Floating P/L": "-576.22900",
+        "Realized P/L": "5519.92800",
+        "Used margin": "27.138774155844155844155844156",
+        "Free margin": "24916.560225844155844155844156",
+        "Margin level": "91911.66431011600831189147156%",
+        "Open positions": "6",
+        "Gross exposure (lots)": "1.45",
+        "Net exposure (lots, signed)": "0.09"
+      },
+      "accountTime": "2020-03-16 18:53:16.402Z",
+      "quote": "49922423",
+      "snapshotId": 1255,
+      "marginCallActive": false,
+      "candles": 215
+    },
+    {
+      "id": 1256,
+      "cursor": "2020-03-16 19:29:57.464Z",
+      "event": {
+        "id": 1256,
+        "type": "entry_executed",
+        "time": "2020-03-16 19:29:57.464Z · entry_executed",
+        "title": "#7 Sell 0.20 lots @ 1499.818 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "24877.71300",
+        "Floating P/L": "-642.21500",
+        "Realized P/L": "5519.92800",
+        "Used margin": "32.998005000000000000000000",
+        "Free margin": "24844.714995000000000000000000",
+        "Margin level": "75391.566853814344230810317169%",
+        "Open positions": "7",
+        "Gross exposure (lots)": "1.65",
+        "Net exposure (lots, signed)": "-0.11"
+      },
+      "accountTime": "2020-03-16 19:29:57.464Z",
+      "quote": "49930162",
+      "snapshotId": 1256,
+      "marginCallActive": false,
+      "candles": 251
+    },
+    {
+      "id": 1257,
+      "cursor": "2020-03-16 19:59:51.606Z",
+      "event": {
+        "id": 1257,
+        "type": "entry_executed",
+        "time": "2020-03-16 19:59:51.606Z · entry_executed",
+        "title": "#8 Buy 0.23 lots @ 1508.715 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "24634.43800",
+        "Floating P/L": "-885.49000",
+        "Realized P/L": "5519.92800",
+        "Used margin": "36.1905816",
+        "Free margin": "24598.2474184",
+        "Margin level": "68068.643583224426545275525497%",
+        "Open positions": "8",
+        "Gross exposure (lots)": "1.88",
+        "Net exposure (lots, signed)": "0.12"
+      },
+      "accountTime": "2020-03-16 19:59:51.606Z",
+      "quote": "49938293",
+      "snapshotId": 1257,
+      "marginCallActive": false,
+      "candles": 281
+    },
+    {
+      "id": 1258,
+      "cursor": "2020-03-16 20:04:29.989Z",
+      "event": {
+        "id": 1258,
+        "type": "entry_executed",
+        "time": "2020-03-16 20:04:29.989Z · entry_executed",
+        "title": "#9 Sell 0.26 lots @ 1499.828 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "24656.05800",
+        "Floating P/L": "-863.87000",
+        "Realized P/L": "5519.92800",
+        "Used margin": "41.996941614035087719298245614",
+        "Free margin": "24614.061058385964912280701754",
+        "Margin level": "58709.175126600446951844703920%",
+        "Open positions": "9",
+        "Gross exposure (lots)": "2.14",
+        "Net exposure (lots, signed)": "-0.14"
+      },
+      "accountTime": "2020-03-16 20:04:29.989Z",
+      "quote": "49939481",
+      "snapshotId": 1258,
+      "marginCallActive": false,
+      "candles": 286
+    },
+    {
+      "id": 1259,
+      "cursor": "2020-03-16 20:45:20.176Z",
+      "event": {
+        "id": 1259,
+        "type": "entry_executed",
+        "time": "2020-03-16 20:45:20.176Z · entry_executed",
+        "title": "#10 Buy 0.30 lots @ 1507.542 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "24501.97800",
+        "Floating P/L": "-1017.95000",
+        "Realized P/L": "5519.92800",
+        "Used margin": "48.251163076923076923076923078",
+        "Free margin": "24453.726836923076923076923077",
+        "Margin level": "50780.077489403523664762357581%",
+        "Open positions": "10",
+        "Gross exposure (lots)": "2.44",
+        "Net exposure (lots, signed)": "0.16"
+      },
+      "accountTime": "2020-03-16 20:45:20.176Z",
+      "quote": "49942629",
+      "snapshotId": 1259,
+      "marginCallActive": false,
+      "candles": 327
+    },
+    {
+      "id": 1260,
+      "cursor": "2020-03-16 22:28:01.267Z",
+      "event": {
+        "id": 1260,
+        "type": "entry_executed",
+        "time": "2020-03-16 22:28:01.267Z · entry_executed",
+        "title": "#11 Sell 0.34 lots @ 1499.948 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "24388.02200",
+        "Floating P/L": "-1131.90600",
+        "Realized P/L": "5519.92800",
+        "Used margin": "53.99654108108108108108108108",
+        "Free margin": "24334.025458918918918918918919",
+        "Margin level": "45165.896762496328468527228287%",
+        "Open positions": "11",
+        "Gross exposure (lots)": "2.78",
+        "Net exposure (lots, signed)": "-0.18"
+      },
+      "accountTime": "2020-03-16 22:28:01.267Z",
+      "quote": "49946692",
+      "snapshotId": 1260,
+      "marginCallActive": false,
+      "candles": 370
+    },
+    {
+      "id": 1261,
+      "cursor": "2020-03-16 22:34:08.696Z",
+      "event": {
+        "id": 1261,
+        "type": "entry_executed",
+        "time": "2020-03-16 22:34:08.696Z · entry_executed",
+        "title": "#12 Buy 0.38 lots @ 1507.862 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "24175.17000",
+        "Floating P/L": "-1344.75800",
+        "Realized P/L": "5519.92800",
+        "Used margin": "60.314072857142857142857142856",
+        "Free margin": "24114.855927142857142857142857",
+        "Margin level": "40082.138139236919618688374813%",
+        "Open positions": "12",
+        "Gross exposure (lots)": "3.16",
+        "Net exposure (lots, signed)": "0.20"
+      },
+      "accountTime": "2020-03-16 22:34:08.696Z",
+      "quote": "49947209",
+      "snapshotId": 1261,
+      "marginCallActive": false,
+      "candles": 376
+    },
+    {
+      "id": 1262,
+      "cursor": "2020-03-17 01:07:02.787Z",
+      "event": {
+        "id": 1262,
+        "type": "entry_executed",
+        "time": "2020-03-17 01:07:02.787Z · entry_executed",
+        "title": "#13 Sell 0.43 lots @ 1499.408 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "24047.36500",
+        "Floating P/L": "-1472.56300",
+        "Realized P/L": "5519.92800",
+        "Used margin": "68.990444523560209424083769632",
+        "Free margin": "23978.374555476439790575916230",
+        "Margin level": "34856.080673299379012325508707%",
+        "Open positions": "13",
+        "Gross exposure (lots)": "3.59",
+        "Net exposure (lots, signed)": "-0.23"
+      },
+      "accountTime": "2020-03-17 01:07:02.787Z",
+      "quote": "49967083",
+      "snapshotId": 1262,
+      "marginCallActive": false,
+      "candles": 529
+    },
+    {
+      "id": 1263,
+      "cursor": "2020-03-17 01:14:00.405Z",
+      "event": {
+        "id": 1263,
+        "type": "entry_executed",
+        "time": "2020-03-17 01:14:00.405Z · entry_executed",
+        "title": "#14 Buy 0.49 lots @ 1507.512 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "23870.32200",
+        "Floating P/L": "-1649.60600",
+        "Realized P/L": "5519.92800",
+        "Used margin": "78.404304552995391705069124426",
+        "Free margin": "23791.917695447004608294930876",
+        "Margin level": "30445.167693395538156479503101%",
+        "Open positions": "14",
+        "Gross exposure (lots)": "4.08",
+        "Net exposure (lots, signed)": "0.26"
+      },
+      "accountTime": "2020-03-17 01:14:00.405Z",
+      "quote": "49969034",
+      "snapshotId": 1263,
+      "marginCallActive": false,
+      "candles": 536
+    },
+    {
+      "id": 1264,
+      "cursor": "2020-03-17 01:53:55.598Z",
+      "event": {
+        "id": 1264,
+        "type": "entry_executed",
+        "time": "2020-03-17 01:53:55.598Z · entry_executed",
+        "title": "#15 Sell 0.55 lots @ 1499.988 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "23702.46400",
+        "Floating P/L": "-1817.46400",
+        "Realized P/L": "5519.92800",
+        "Used margin": "86.99048988617886178861788618",
+        "Free margin": "23615.473510113821138211382114",
+        "Margin level": "27247.189929626861175880695205%",
+        "Open positions": "15",
+        "Gross exposure (lots)": "4.63",
+        "Net exposure (lots, signed)": "-0.29"
+      },
+      "accountTime": "2020-03-17 01:53:55.598Z",
+      "quote": "49977920",
+      "snapshotId": 1264,
+      "marginCallActive": false,
+      "candles": 575
+    },
+    {
+      "id": 1265,
+      "cursor": "2020-03-17 14:25:27.551Z",
+      "event": {
+        "id": 1265,
+        "type": "entry_executed",
+        "time": "2020-03-17 14:25:27.551Z · entry_executed",
+        "title": "#16 Buy 0.62 lots @ 1507.592 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "23467.04700",
+        "Floating P/L": "-2052.88100",
+        "Realized P/L": "5519.92800",
+        "Used margin": "99.51047049462365591397849462",
+        "Free margin": "23367.536529505376344086021505",
+        "Margin level": "23582.490247865802041180914016%",
+        "Open positions": "16",
+        "Gross exposure (lots)": "5.25",
+        "Net exposure (lots, signed)": "0.33"
+      },
+      "accountTime": "2020-03-17 14:25:27.551Z",
+      "quote": "50167710",
+      "snapshotId": 1265,
+      "marginCallActive": false,
+      "candles": 1327
+    },
+    {
+      "id": 1266,
+      "cursor": "2020-03-18 07:42:55.273Z",
+      "event": {
+        "id": 1266,
+        "type": "entry_executed",
+        "time": "2020-03-18 07:42:55.273Z · entry_executed",
+        "title": "#17 Sell 0.71 lots @ 1499.708 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "23088.89000",
+        "Floating P/L": "-2431.03800",
+        "Realized P/L": "5519.92800",
+        "Used margin": "113.98535909148264984227129338",
+        "Free margin": "22974.904640908517350157728707",
+        "Margin level": "20256.013740737757274211434980%",
+        "Open positions": "17",
+        "Gross exposure (lots)": "5.96",
+        "Net exposure (lots, signed)": "-0.38"
+      },
+      "accountTime": "2020-03-18 07:42:55.273Z",
+      "quote": "50398966",
+      "snapshotId": 1266,
+      "marginCallActive": false,
+      "candles": 2304
+    },
+    {
+      "id": 1267,
+      "cursor": "2020-03-18 08:04:48.711Z",
+      "event": {
+        "id": 1267,
+        "type": "entry_executed",
+        "time": "2020-03-18 08:04:48.711Z · entry_executed",
+        "title": "#18 Buy 0.80 lots @ 1507.602 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "22801.35300",
+        "Floating P/L": "-2718.57500",
+        "Realized P/L": "5519.92800",
+        "Used margin": "126.64721134261838440111420613",
+        "Free margin": "22674.705788657381615598885794",
+        "Margin level": "18003.833450636000741590403375%",
+        "Open positions": "18",
+        "Gross exposure (lots)": "6.76",
+        "Net exposure (lots, signed)": "0.42"
+      },
+      "accountTime": "2020-03-18 08:04:48.711Z",
+      "quote": "50405456",
+      "snapshotId": 1267,
+      "marginCallActive": false,
+      "candles": 2326
+    },
+    {
+      "id": 1268,
+      "cursor": "2020-03-18 08:26:54.251Z",
+      "event": {
+        "id": 1268,
+        "type": "entry_executed",
+        "time": "2020-03-18 08:26:54.251Z · entry_executed",
+        "title": "#19 Sell 0.90 lots @ 1499.948 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "22497.70000",
+        "Floating P/L": "-3022.22800",
+        "Realized P/L": "5519.92800",
+        "Used margin": "143.98449187223587223587223587",
+        "Free margin": "22353.715508127764127764127764",
+        "Margin level": "15625.085526546327110971704343%",
+        "Open positions": "19",
+        "Gross exposure (lots)": "7.66",
+        "Net exposure (lots, signed)": "-0.48"
+      },
+      "accountTime": "2020-03-18 08:26:54.251Z",
+      "quote": "50410547",
+      "snapshotId": 1268,
+      "marginCallActive": false,
+      "candles": 2348
+    },
+    {
+      "id": 1269,
+      "cursor": "2020-03-18 10:13:06.054Z",
+      "event": {
+        "id": 1269,
+        "type": "entry_executed",
+        "time": "2020-03-18 10:13:06.054Z · entry_executed",
+        "title": "#20 Buy 1.02 lots @ 1507.532 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "22258.81900",
+        "Floating P/L": "-3261.10900",
+        "Realized P/L": "5519.92800",
+        "Used margin": "162.82799734490238611713665944",
+        "Free margin": "22095.991002655097613882863341",
+        "Margin level": "13670.142336057448951686712797%",
+        "Open positions": "20",
+        "Gross exposure (lots)": "8.68",
+        "Net exposure (lots, signed)": "0.54"
+      },
+      "accountTime": "2020-03-18 10:13:06.054Z",
+      "quote": "50434457",
+      "snapshotId": 1269,
+      "marginCallActive": false,
+      "candles": 2455
+    },
+    {
+      "id": 1270,
+      "cursor": "2020-03-18 10:35:14.393Z",
+      "event": {
+        "id": 1270,
+        "type": "entry_executed",
+        "time": "2020-03-18 10:35:14.393Z · entry_executed",
+        "title": "#21 Sell 1.15 lots @ 1499.948 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "21695.72200",
+        "Floating P/L": "-3824.20600",
+        "Realized P/L": "5519.92800",
+        "Used margin": "182.98323598467432950191570882",
+        "Free margin": "21512.738764015325670498084291",
+        "Margin level": "11856.671942241263278296546802%",
+        "Open positions": "21",
+        "Gross exposure (lots)": "9.83",
+        "Net exposure (lots, signed)": "-0.61"
+      },
+      "accountTime": "2020-03-18 10:35:14.393Z",
+      "quote": "50440383",
+      "snapshotId": 1270,
+      "marginCallActive": false,
+      "candles": 2477
+    },
+    {
+      "id": 1271,
+      "cursor": "2020-03-18 10:41:29.956Z",
+      "event": {
+        "id": 1271,
+        "type": "entry_executed",
+        "time": "2020-03-18 10:41:29.956Z · entry_executed",
+        "title": "#22 Buy 1.30 lots @ 1507.522 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "21084.47900",
+        "Floating P/L": "-4435.44900",
+        "Realized P/L": "5519.92800",
+        "Used margin": "208.05360594923857868020304568",
+        "Free margin": "20876.425394050761421319796954",
+        "Margin level": "10134.156965846697276010199766%",
+        "Open positions": "22",
+        "Gross exposure (lots)": "11.13",
+        "Net exposure (lots, signed)": "0.69"
+      },
+      "accountTime": "2020-03-18 10:41:29.956Z",
+      "quote": "50441967",
+      "snapshotId": 1271,
+      "marginCallActive": false,
+      "candles": 2483
+    },
+    {
+      "id": 1272,
+      "cursor": "2020-03-18 10:58:22.399Z",
+      "event": {
+        "id": 1272,
+        "type": "entry_executed",
+        "time": "2020-03-18 10:58:22.399Z · entry_executed",
+        "title": "#23 Sell 1.47 lots @ 1499.685 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "20568.41000",
+        "Floating P/L": "-4951.51800",
+        "Realized P/L": "5519.92800",
+        "Used margin": "233.97247660986547085201793722",
+        "Free margin": "20334.437523390134529147982063",
+        "Margin level": "8790.952806939143675849249909%",
+        "Open positions": "23",
+        "Gross exposure (lots)": "12.60",
+        "Net exposure (lots, signed)": "-0.78"
+      },
+      "accountTime": "2020-03-18 10:58:22.399Z",
+      "quote": "50444761",
+      "snapshotId": 1272,
+      "marginCallActive": false,
+      "candles": 2500
+    },
+    {
+      "id": 1273,
+      "cursor": "2020-03-18 11:33:34.352Z",
+      "event": {
+        "id": 1273,
+        "type": "entry_executed",
+        "time": "2020-03-18 11:33:34.352Z · entry_executed",
+        "title": "#24 Buy 1.67 lots @ 1507.852 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "19834.58500",
+        "Floating P/L": "-5685.34300",
+        "Realized P/L": "5519.92800",
+        "Used margin": "268.36751576253298153034300792",
+        "Free margin": "19566.217484237467018469656992",
+        "Margin level": "7390.8293049710166824722354563%",
+        "Open positions": "24",
+        "Gross exposure (lots)": "14.27",
+        "Net exposure (lots, signed)": "0.89"
+      },
+      "accountTime": "2020-03-18 11:33:34.352Z",
+      "quote": "50451829",
+      "snapshotId": 1273,
+      "marginCallActive": false,
+      "candles": 2535
+    },
+    {
+      "id": 1274,
+      "cursor": "2020-03-18 12:58:01.887Z",
+      "event": {
+        "id": 1274,
+        "type": "entry_executed",
+        "time": "2020-03-18 12:58:01.887Z · entry_executed",
+        "title": "#25 Sell 1.89 lots @ 1499.958 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "19425.39900",
+        "Floating P/L": "-6094.52900",
+        "Realized P/L": "5519.92800",
+        "Used margin": "299.97063613053613053613053614",
+        "Free margin": "19125.428363869463869463869464",
+        "Margin level": "6475.7668452410737088548392795%",
+        "Open positions": "25",
+        "Gross exposure (lots)": "16.16",
+        "Net exposure (lots, signed)": "-1.00"
+      },
+      "accountTime": "2020-03-18 12:58:01.887Z",
+      "quote": "50481866",
+      "snapshotId": 1274,
+      "marginCallActive": false,
+      "candles": 2620
+    },
+    {
+      "id": 1275,
+      "cursor": "2020-03-18 13:23:01.360Z",
+      "event": {
+        "id": 1275,
+        "type": "entry_executed",
+        "time": "2020-03-18 13:23:01.360Z · entry_executed",
+        "title": "#26 Buy 2.13 lots @ 1507.612 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "18591.78700",
+        "Floating P/L": "-6928.14100",
+        "Realized P/L": "5519.92800",
+        "Used margin": "340.73278040370751802265705458",
+        "Free margin": "18251.054219596292481977342945",
+        "Margin level": "5456.4127871618490489462194211%",
+        "Open positions": "26",
+        "Gross exposure (lots)": "18.29",
+        "Net exposure (lots, signed)": "1.13"
+      },
+      "accountTime": "2020-03-18 13:23:01.360Z",
+      "quote": "50492953",
+      "snapshotId": 1275,
+      "marginCallActive": false,
+      "candles": 2645
+    },
+    {
+      "id": 1276,
+      "cursor": "2020-03-18 13:32:53.374Z",
+      "event": {
+        "id": 1276,
+        "type": "entry_executed",
+        "time": "2020-03-18 13:32:53.374Z · entry_executed",
+        "title": "#27 Sell 2.40 lots @ 1499.988 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "16801.46700",
+        "Floating P/L": "-8718.46100",
+        "Realized P/L": "5519.92800",
+        "Used margin": "380.9701929380692167577413479",
+        "Free margin": "16420.496807061930783242258652",
+        "Margin level": "4410.1788831367335671615847322%",
+        "Open positions": "27",
+        "Gross exposure (lots)": "20.69",
+        "Net exposure (lots, signed)": "-1.27"
+      },
+      "accountTime": "2020-03-18 13:32:53.374Z",
+      "quote": "50497559",
+      "snapshotId": 1276,
+      "marginCallActive": false,
+      "candles": 2654
+    },
+    {
+      "id": 1277,
+      "cursor": "2020-03-18 13:37:08.419Z",
+      "event": {
+        "id": 1277,
+        "type": "entry_executed",
+        "time": "2020-03-18 13:37:08.419Z · entry_executed",
+        "title": "#28 Buy 2.70 lots @ 1507.522 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "16080.06700",
+        "Floating P/L": "-9439.86100",
+        "Realized P/L": "5519.92800",
+        "Used margin": "431.1837775439161966156325544",
+        "Free margin": "15648.883222456083803384367446",
+        "Margin level": "3729.2838546928497025883696358%",
+        "Open positions": "28",
+        "Gross exposure (lots)": "23.39",
+        "Net exposure (lots, signed)": "1.43"
+      },
+      "accountTime": "2020-03-18 13:37:08.419Z",
+      "quote": "50499767",
+      "snapshotId": 1277,
+      "marginCallActive": false,
+      "candles": 2659
+    },
+    {
+      "id": 1278,
+      "cursor": "2020-03-18 14:55:15.935Z",
+      "event": {
+        "id": 1278,
+        "type": "entry_executed",
+        "time": "2020-03-18 14:55:15.935Z · entry_executed",
+        "title": "#29 Sell 3.05 lots @ 1499.775 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "15255.99900",
+        "Floating P/L": "-10263.92900",
+        "Realized P/L": "5519.92800",
+        "Used margin": "485.95439613399857448325017818",
+        "Free margin": "14770.044603866001425516749822",
+        "Margin level": "3139.3890293757654274112030355%",
+        "Open positions": "29",
+        "Gross exposure (lots)": "26.44",
+        "Net exposure (lots, signed)": "-1.62"
+      },
+      "accountTime": "2020-03-18 14:55:15.935Z",
+      "quote": "50533445",
+      "snapshotId": 1278,
+      "marginCallActive": false,
+      "candles": 2737
+    },
+    {
+      "id": 1279,
+      "cursor": "2020-03-20 07:27:06.359Z",
+      "event": {
+        "id": 1279,
+        "type": "entry_executed",
+        "time": "2020-03-20 07:27:06.359Z · entry_executed",
+        "title": "#30 Buy 3.48 lots @ 1508.165 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "13225.74700",
+        "Floating P/L": "-12294.18100",
+        "Realized P/L": "5519.92800",
+        "Used margin": "560.88356935431088735053492762",
+        "Free margin": "12664.863430645689112649465072",
+        "Margin level": "2358.0200459830689479823033787%",
+        "Open positions": "30",
+        "Gross exposure (lots)": "29.92",
+        "Net exposure (lots, signed)": "1.86"
+      },
+      "accountTime": "2020-03-20 07:27:06.359Z",
+      "quote": "51024244",
+      "snapshotId": 1279,
+      "marginCallActive": false,
+      "candles": 5049
+    },
+    {
+      "id": 1280,
+      "cursor": "2020-03-20 12:01:01.035Z",
+      "event": {
+        "id": 1280,
+        "type": "entry_executed",
+        "time": "2020-03-20 12:01:01.035Z · entry_executed",
+        "title": "#31 Sell 3.96 lots @ 1499.945 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "12419.36000",
+        "Floating P/L": "-13100.56800",
+        "Realized P/L": "5519.92800",
+        "Used margin": "629.94881182879377431906614788",
+        "Free margin": "11789.411188171206225680933852",
+        "Margin level": "1971.4871695599465267008801166%",
+        "Open positions": "31",
+        "Gross exposure (lots)": "33.88",
+        "Net exposure (lots, signed)": "-2.10"
+      },
+      "accountTime": "2020-03-20 12:01:01.035Z",
+      "quote": "51072365",
+      "snapshotId": 1280,
+      "marginCallActive": false,
+      "candles": 5323
+    },
+    {
+      "id": 1281,
+      "cursor": "2020-03-20 12:11:45.299Z",
+      "event": {
+        "id": 1281,
+        "type": "entry_executed",
+        "time": "2020-03-20 12:11:45.299Z · entry_executed",
+        "title": "#32 Buy 4.47 lots @ 1507.555 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "10425.76800",
+        "Floating P/L": "-15094.16000",
+        "Realized P/L": "5519.92800",
+        "Used margin": "714.6537733585461689587426326",
+        "Free margin": "9711.114226641453831041257367",
+        "Margin level": "1458.8557968432258496991208463%",
+        "Open positions": "32",
+        "Gross exposure (lots)": "38.35",
+        "Net exposure (lots, signed)": "2.37"
+      },
+      "accountTime": "2020-03-20 12:11:45.299Z",
+      "quote": "51075162",
+      "snapshotId": 1281,
+      "marginCallActive": false,
+      "candles": 5333
+    },
+    {
+      "id": 1282,
+      "cursor": "2020-03-20 12:20:06.207Z",
+      "event": {
+        "id": 1282,
+        "type": "entry_executed",
+        "time": "2020-03-20 12:20:06.207Z · entry_executed",
+        "title": "#33 Sell 5.05 lots @ 1499.868 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "8430.03300",
+        "Floating P/L": "-17089.89500",
+        "Realized P/L": "5519.92800",
+        "Used margin": "803.9334848194444444444444445",
+        "Free margin": "7626.0995151805555555555555555",
+        "Margin level": "1048.5983180428543188107766109%",
+        "Open positions": "33",
+        "Gross exposure (lots)": "43.40",
+        "Net exposure (lots, signed)": "-2.68"
+      },
+      "accountTime": "2020-03-20 12:20:06.207Z",
+      "quote": "51076968",
+      "snapshotId": 1282,
+      "marginCallActive": false,
+      "candles": 5342
+    },
+    {
+      "id": 1283,
+      "cursor": "2020-03-22 22:07:44.002Z",
+      "event": {
+        "id": 1283,
+        "type": "entry_executed",
+        "time": "2020-03-22 22:07:44.002Z · entry_executed",
+        "title": "#34 Buy 5.70 lots @ 1507.512 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "6056.74500",
+        "Floating P/L": "-19463.18300",
+        "Realized P/L": "5519.92800",
+        "Used margin": "910.6299188902532617037605526",
+        "Free margin": "5146.1150811097467382962394474",
+        "Margin level": "665.11596800828845606779981258%",
+        "Open positions": "34",
+        "Gross exposure (lots)": "49.10",
+        "Net exposure (lots, signed)": "3.02"
+      },
+      "accountTime": "2020-03-22 22:07:44.002Z",
+      "quote": "51194452",
+      "snapshotId": 1283,
+      "marginCallActive": false,
+      "candles": 5869
+    },
+    {
+      "id": 1284,
+      "cursor": "2020-03-22 22:11:19.104Z",
+      "event": {
+        "id": 1284,
+        "type": "entry_executed",
+        "time": "2020-03-22 22:11:19.104Z · entry_executed",
+        "title": "#35 Sell 6.42 lots @ 1499.978 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "2529.15700",
+        "Floating P/L": "-22990.77100",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1019.930744331296673455532926",
+        "Free margin": "1509.226255668703326544467074",
+        "Margin level": "247.97340545491707980845596415%",
+        "Open positions": "35",
+        "Gross exposure (lots)": "55.52",
+        "Net exposure (lots, signed)": "-3.40"
+      },
+      "accountTime": "2020-03-22 22:11:19.104Z",
+      "quote": "51195036",
+      "snapshotId": 1284,
+      "marginCallActive": false,
+      "candles": 5873
+    },
+    {
+      "id": 1285,
+      "cursor": "2020-03-23 12:05:16.724Z",
+      "event": {
+        "id": 1285,
+        "type": "entry_executed",
+        "time": "2020-03-23 12:05:16.724Z · entry_executed",
+        "title": "#36 Buy 7.24 lots @ 1507.652 (HardBreakeven)"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "1829.58100",
+        "Floating P/L": "-23690.34700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "671.6961930810810810810810811",
+        "Margin level": "158.01062325607634659627940188%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:05:16.724Z",
+      "quote": "51303985",
+      "snapshotId": 1285,
+      "marginCallActive": false,
+      "candles": 6707
+    },
+    {
+      "id": 1286,
+      "cursor": "2020-03-23 12:05:19.738Z",
+      "event": {
+        "id": 1286,
+        "type": "margin_call_entered",
+        "time": "2020-03-23 12:05:19.738Z · margin_call_entered",
+        "title": "Margin Call entered · level 35.666846782360368682052373560%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "412.98100",
+        "Floating P/L": "-25106.94700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-744.9038069189189189189189189",
+        "Margin level": "35.666846782360368682052373560%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:05:19.738Z",
+      "quote": "51304024",
+      "snapshotId": 1286,
+      "marginCallActive": true,
+      "candles": 6707
+    },
+    {
+      "id": 1287,
+      "cursor": "2020-03-23 12:05:19.889Z",
+      "event": {
+        "id": 1287,
+        "type": "margin_call_left",
+        "time": "2020-03-23 12:05:19.889Z · margin_call_left",
+        "title": "Margin Call left · level 69.864549147387416384082923040%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "808.95100",
+        "Floating P/L": "-24710.97700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-348.9338069189189189189189189",
+        "Margin level": "69.864549147387416384082923040%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:05:19.889Z",
+      "quote": "51304027",
+      "snapshotId": 1287,
+      "marginCallActive": false,
+      "candles": 6707
+    },
+    {
+      "id": 1288,
+      "cursor": "2020-03-23 12:05:19.940Z",
+      "event": {
+        "id": 1288,
+        "type": "margin_call_entered",
+        "time": "2020-03-23 12:05:19.940Z · margin_call_entered",
+        "title": "Margin Call entered · level 46.525439903947485654490439540%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "538.71100",
+        "Floating P/L": "-24981.21700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-619.1738069189189189189189189",
+        "Margin level": "46.525439903947485654490439540%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:05:19.940Z",
+      "quote": "51304028",
+      "snapshotId": 1288,
+      "marginCallActive": true,
+      "candles": 6707
+    },
+    {
+      "id": 1289,
+      "cursor": "2020-03-23 12:05:19.990Z",
+      "event": {
+        "id": 1289,
+        "type": "margin_call_left",
+        "time": "2020-03-23 12:05:19.990Z · margin_call_left",
+        "title": "Margin Call left · level 66.879796277888881725946761740%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "774.39100",
+        "Floating P/L": "-24745.53700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-383.4938069189189189189189189",
+        "Margin level": "66.879796277888881725946761740%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:05:19.990Z",
+      "quote": "51304029",
+      "snapshotId": 1289,
+      "marginCallActive": false,
+      "candles": 6707
+    },
+    {
+      "id": 1290,
+      "cursor": "2020-03-23 12:06:19.385Z",
+      "event": {
+        "id": 1290,
+        "type": "margin_call_entered",
+        "time": "2020-03-23 12:06:19.385Z · margin_call_entered",
+        "title": "Margin Call entered · level 45.735205854297265975035987110%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "529.56100",
+        "Floating P/L": "-24990.36700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-628.3238069189189189189189189",
+        "Margin level": "45.735205854297265975035987110%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:19.385Z",
+      "quote": "51304667",
+      "snapshotId": 1290,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1291,
+      "cursor": "2020-03-23 12:06:19.435Z",
+      "event": {
+        "id": 1291,
+        "type": "margin_call_left",
+        "time": "2020-03-23 12:06:19.435Z · margin_call_left",
+        "title": "Margin Call left · level 58.456678588010638519696188490%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "676.86100",
+        "Floating P/L": "-24843.06700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-481.0238069189189189189189189",
+        "Margin level": "58.456678588010638519696188490%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:19.435Z",
+      "quote": "51304668",
+      "snapshotId": 1291,
+      "marginCallActive": false,
+      "candles": 6708
+    },
+    {
+      "id": 1292,
+      "cursor": "2020-03-23 12:06:19.839Z",
+      "event": {
+        "id": 1292,
+        "type": "margin_call_entered",
+        "time": "2020-03-23 12:06:19.839Z · margin_call_entered",
+        "title": "Margin Call entered · level 38.107504076689899626465797120%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "441.24100",
+        "Floating P/L": "-25078.68700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-716.6438069189189189189189189",
+        "Margin level": "38.107504076689899626465797120%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:19.839Z",
+      "quote": "51304674",
+      "snapshotId": 1292,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1293,
+      "cursor": "2020-03-23 12:06:19.889Z",
+      "event": {
+        "id": 1293,
+        "type": "margin_call_left",
+        "time": "2020-03-23 12:06:19.889Z · margin_call_left",
+        "title": "Margin Call left · level 57.907401150220977627747519920%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "670.50100",
+        "Floating P/L": "-24849.42700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-487.3838069189189189189189189",
+        "Margin level": "57.907401150220977627747519920%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:19.889Z",
+      "quote": "51304675",
+      "snapshotId": 1293,
+      "marginCallActive": false,
+      "candles": 6708
+    },
+    {
+      "id": 1294,
+      "cursor": "2020-03-23 12:06:20.091Z",
+      "event": {
+        "id": 1294,
+        "type": "margin_call_entered",
+        "time": "2020-03-23 12:06:20.091Z · margin_call_entered",
+        "title": "Margin Call entered · level 44.740288231131087755657266680%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "518.04100",
+        "Floating P/L": "-25001.88700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-639.8438069189189189189189189",
+        "Margin level": "44.740288231131087755657266680%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:20.091Z",
+      "quote": "51304678",
+      "snapshotId": 1294,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1295,
+      "cursor": "2020-03-23 12:06:20.191Z",
+      "event": {
+        "id": 1295,
+        "type": "margin_call_left",
+        "time": "2020-03-23 12:06:20.191Z · margin_call_left",
+        "title": "Margin Call left · level 67.207289995514415389825590550%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "778.18300",
+        "Floating P/L": "-24741.74500",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-379.7018069189189189189189189",
+        "Margin level": "67.207289995514415389825590550%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:20.191Z",
+      "quote": "51304679",
+      "snapshotId": 1295,
+      "marginCallActive": false,
+      "candles": 6708
+    },
+    {
+      "id": 1296,
+      "cursor": "2020-03-23 12:06:20.595Z",
+      "event": {
+        "id": 1296,
+        "type": "margin_call_entered",
+        "time": "2020-03-23 12:06:20.595Z · margin_call_entered",
+        "title": "Margin Call entered · level 48.616321471382657068653531700%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "562.92100",
+        "Floating P/L": "-24957.00700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-594.9638069189189189189189189",
+        "Margin level": "48.616321471382657068653531700%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:20.595Z",
+      "quote": "51304683",
+      "snapshotId": 1296,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1297,
+      "cursor": "2020-03-23 12:06:20.709Z",
+      "event": {
+        "id": 1297,
+        "type": "margin_call_left",
+        "time": "2020-03-23 12:06:20.709Z · margin_call_left",
+        "title": "Margin Call left · level 57.798582035187176885002972370%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "669.24100",
+        "Floating P/L": "-24850.68700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-488.6438069189189189189189189",
+        "Margin level": "57.798582035187176885002972370%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:20.709Z",
+      "quote": "51304684",
+      "snapshotId": 1297,
+      "marginCallActive": false,
+      "candles": 6708
+    },
+    {
+      "id": 1298,
+      "cursor": "2020-03-23 12:06:21.163Z",
+      "event": {
+        "id": 1298,
+        "type": "margin_call_entered",
+        "time": "2020-03-23 12:06:21.163Z · margin_call_entered",
+        "title": "Margin Call entered · level 44.968290186440003597598223440%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "520.68100",
+        "Floating P/L": "-24999.24700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-637.2038069189189189189189189",
+        "Margin level": "44.968290186440003597598223440%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:21.163Z",
+      "quote": "51304688",
+      "snapshotId": 1298,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1299,
+      "cursor": "2020-03-23 12:06:21.441Z",
+      "event": {
+        "id": 1299,
+        "type": "margin_call_left",
+        "time": "2020-03-23 12:06:21.441Z · margin_call_left",
+        "title": "Margin Call left · level 79.59349621767126850326806687%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "921.60100",
+        "Floating P/L": "-24598.32700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-236.2838069189189189189189189",
+        "Margin level": "79.59349621767126850326806687%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:21.441Z",
+      "quote": "51304690",
+      "snapshotId": 1299,
+      "marginCallActive": false,
+      "candles": 6708
+    },
+    {
+      "id": 1300,
+      "cursor": "2020-03-23 12:06:21.592Z",
+      "event": {
+        "id": 1300,
+        "type": "margin_call_entered",
+        "time": "2020-03-23 12:06:21.592Z · margin_call_entered",
+        "title": "Margin Call entered · level 49.175962634413632317054061950%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "569.40100",
+        "Floating P/L": "-24950.52700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-588.4838069189189189189189189",
+        "Margin level": "49.175962634413632317054061950%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:21.592Z",
+      "quote": "51304692",
+      "snapshotId": 1300,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1301,
+      "cursor": "2020-03-23 12:06:21.894Z",
+      "event": {
+        "id": 1301,
+        "type": "margin_call_left",
+        "time": "2020-03-23 12:06:21.894Z · margin_call_left",
+        "title": "Margin Call left · level 72.515071877853563046646545450%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "839.64100",
+        "Floating P/L": "-24680.28700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-318.2438069189189189189189189",
+        "Margin level": "72.515071877853563046646545450%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:21.894Z",
+      "quote": "51304694",
+      "snapshotId": 1301,
+      "marginCallActive": false,
+      "candles": 6708
+    },
+    {
+      "id": 1302,
+      "cursor": "2020-03-23 12:06:22.045Z",
+      "event": {
+        "id": 1302,
+        "type": "margin_call_entered",
+        "time": "2020-03-23 12:06:22.045Z · margin_call_entered",
+        "title": "Margin Call entered · level 45.859570557193038252458327170%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "531.00100",
+        "Floating P/L": "-24988.92700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-626.8838069189189189189189189",
+        "Margin level": "45.859570557193038252458327170%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:22.045Z",
+      "quote": "51304697",
+      "snapshotId": 1302,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1303,
+      "cursor": "2020-03-23 12:06:22.548Z",
+      "event": {
+        "id": 1303,
+        "type": "margin_call_left",
+        "time": "2020-03-23 12:06:22.548Z · margin_call_left",
+        "title": "Margin Call left · level 54.373370842932782077662690040%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "629.58100",
+        "Floating P/L": "-24890.34700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-528.3038069189189189189189189",
+        "Margin level": "54.373370842932782077662690040%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:22.548Z",
+      "quote": "51304700",
+      "snapshotId": 1303,
+      "marginCallActive": false,
+      "candles": 6708
+    },
+    {
+      "id": 1304,
+      "cursor": "2020-03-23 12:06:23.357Z",
+      "event": {
+        "id": 1304,
+        "type": "margin_call_entered",
+        "time": "2020-03-23 12:06:23.357Z · margin_call_entered",
+        "title": "Margin Call entered · level 48.844323426691572910594488470%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "565.56100",
+        "Floating P/L": "-24954.36700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-592.3238069189189189189189189",
+        "Margin level": "48.844323426691572910594488470%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:23.357Z",
+      "quote": "51304709",
+      "snapshotId": 1304,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1305,
+      "cursor": "2020-03-23 12:06:23.408Z",
+      "event": {
+        "id": 1305,
+        "type": "margin_call_left",
+        "time": "2020-03-23 12:06:23.408Z · margin_call_left",
+        "title": "Margin Call left · level 61.565796160404945455254689840%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "712.86100",
+        "Floating P/L": "-24807.06700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-445.0238069189189189189189189",
+        "Margin level": "61.565796160404945455254689840%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:23.408Z",
+      "quote": "51304710",
+      "snapshotId": 1305,
+      "marginCallActive": false,
+      "candles": 6708
+    },
+    {
+      "id": 1306,
+      "cursor": "2020-03-23 12:06:23.509Z",
+      "event": {
+        "id": 1306,
+        "type": "margin_call_entered",
+        "time": "2020-03-23 12:06:23.509Z · margin_call_entered",
+        "title": "Margin Call entered · level 46.745669065325415729092500050%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "541.26100",
+        "Floating P/L": "-24978.66700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-616.6238069189189189189189189",
+        "Margin level": "46.745669065325415729092500050%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:23.509Z",
+      "quote": "51304711",
+      "snapshotId": 1306,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1307,
+      "cursor": "2020-03-23 12:06:23.559Z",
+      "event": {
+        "id": 1307,
+        "type": "margin_call_left",
+        "time": "2020-03-23 12:06:23.559Z · margin_call_left",
+        "title": "Margin Call left · level 55.373470328719617475267341310%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "641.16100",
+        "Floating P/L": "-24878.76700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-516.7238069189189189189189189",
+        "Margin level": "55.373470328719617475267341310%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:23.559Z",
+      "quote": "51304712",
+      "snapshotId": 1307,
+      "marginCallActive": false,
+      "candles": 6708
+    },
+    {
+      "id": 1308,
+      "cursor": "2020-03-23 12:06:23.660Z",
+      "event": {
+        "id": 1308,
+        "type": "margin_call_entered",
+        "time": "2020-03-23 12:06:23.660Z · margin_call_entered",
+        "title": "Margin Call entered · level 29.490066538537012236742817530%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "341.46100",
+        "Floating P/L": "-25178.46700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-816.4238069189189189189189189",
+        "Margin level": "29.490066538537012236742817530%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:23.660Z",
+      "quote": "51304713",
+      "snapshotId": 1308,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1309,
+      "cursor": "2020-03-23 12:06:23.812Z",
+      "event": {
+        "id": 1309,
+        "type": "margin_call_left",
+        "time": "2020-03-23 12:06:23.812Z · margin_call_left",
+        "title": "Margin Call left · level 51.834258158810764746956580600%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "600.18100",
+        "Floating P/L": "-24919.74700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-557.7038069189189189189189189",
+        "Margin level": "51.834258158810764746956580600%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:23.812Z",
+      "quote": "51304715",
+      "snapshotId": 1309,
+      "marginCallActive": false,
+      "candles": 6708
+    },
+    {
+      "id": 1310,
+      "cursor": "2020-03-23 12:06:23.862Z",
+      "event": {
+        "id": 1310,
+        "type": "margin_call_entered",
+        "time": "2020-03-23 12:06:23.862Z · margin_call_entered",
+        "title": "Margin Call entered · level 39.112785425097392202296379230%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "452.88100",
+        "Floating P/L": "-25067.04700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-705.0038069189189189189189189",
+        "Margin level": "39.112785425097392202296379230%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:23.862Z",
+      "quote": "51304716",
+      "snapshotId": 1310,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1311,
+      "cursor": "2020-03-23 12:06:23.913Z",
+      "event": {
+        "id": 1311,
+        "type": "margin_call_left",
+        "time": "2020-03-23 12:06:23.913Z · margin_call_left",
+        "title": "Margin Call left · level 56.591208044574054358361087680%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "655.26100",
+        "Floating P/L": "-24864.66700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-502.6238069189189189189189189",
+        "Margin level": "56.591208044574054358361087680%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:23.913Z",
+      "quote": "51304717",
+      "snapshotId": 1311,
+      "marginCallActive": false,
+      "candles": 6708
+    },
+    {
+      "id": 1312,
+      "cursor": "2020-03-23 12:06:24.114Z",
+      "event": {
+        "id": 1312,
+        "type": "margin_call_entered",
+        "time": "2020-03-23 12:06:24.114Z · margin_call_entered",
+        "title": "Margin Call entered · level 46.082390649881296916173353100%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "533.58100",
+        "Floating P/L": "-24986.34700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-624.3038069189189189189189189",
+        "Margin level": "46.082390649881296916173353100%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:24.114Z",
+      "quote": "51304719",
+      "snapshotId": 1312,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1313,
+      "cursor": "2020-03-23 12:06:24.226Z",
+      "event": {
+        "id": 1313,
+        "type": "margin_call_left",
+        "time": "2020-03-23 12:06:24.226Z · margin_call_left",
+        "title": "Margin Call left · level 56.259568836851994951901514200%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "651.42100",
+        "Floating P/L": "-24868.50700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-506.4638069189189189189189189",
+        "Margin level": "56.259568836851994951901514200%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:24.226Z",
+      "quote": "51304720",
+      "snapshotId": 1313,
+      "marginCallActive": false,
+      "candles": 6708
+    },
+    {
+      "id": 1314,
+      "cursor": "2020-03-23 12:06:24.276Z",
+      "event": {
+        "id": 1314,
+        "type": "margin_call_entered",
+        "time": "2020-03-23 12:06:24.276Z · margin_call_entered",
+        "title": "Margin Call entered · level 46.082390649881296916173353100%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "533.58100",
+        "Floating P/L": "-24986.34700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-624.3038069189189189189189189",
+        "Margin level": "46.082390649881296916173353100%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:24.276Z",
+      "quote": "51304721",
+      "snapshotId": 1314,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1315,
+      "cursor": "2020-03-23 12:06:24.327Z",
+      "event": {
+        "id": 1315,
+        "type": "margin_call_left",
+        "time": "2020-03-23 12:06:24.327Z · margin_call_left",
+        "title": "Margin Call left · level 55.041831120997558068807767830%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "637.32100",
+        "Floating P/L": "-24882.60700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-520.5638069189189189189189189",
+        "Margin level": "55.041831120997558068807767830%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:24.327Z",
+      "quote": "51304722",
+      "snapshotId": 1315,
+      "marginCallActive": false,
+      "candles": 6708
+    },
+    {
+      "id": 1316,
+      "cursor": "2020-03-23 12:06:24.377Z",
+      "event": {
+        "id": 1316,
+        "type": "margin_call_entered",
+        "time": "2020-03-23 12:06:24.377Z · margin_call_entered",
+        "title": "Margin Call entered · level 46.082390649881296916173353100%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "533.58100",
+        "Floating P/L": "-24986.34700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-624.3038069189189189189189189",
+        "Margin level": "46.082390649881296916173353100%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:24.377Z",
+      "quote": "51304723",
+      "snapshotId": 1316,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1317,
+      "cursor": "2020-03-23 12:06:24.428Z",
+      "event": {
+        "id": 1317,
+        "type": "margin_call_left",
+        "time": "2020-03-23 12:06:24.428Z · margin_call_left",
+        "title": "Margin Call left · level 91.87969249124943807695007806%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "1063.86100",
+        "Floating P/L": "-24456.06700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-94.0238069189189189189189189",
+        "Margin level": "91.87969249124943807695007806%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:24.428Z",
+      "quote": "51304724",
+      "snapshotId": 1317,
+      "marginCallActive": false,
+      "candles": 6708
+    },
+    {
+      "id": 1318,
+      "cursor": "2020-03-23 12:06:25.234Z",
+      "event": {
+        "id": 1318,
+        "type": "margin_call_entered",
+        "time": "2020-03-23 12:06:25.234Z · margin_call_entered",
+        "title": "Margin Call entered · level 44.652196566579915725816442470%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "517.02100",
+        "Floating P/L": "-25002.90700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-640.8638069189189189189189189",
+        "Margin level": "44.652196566579915725816442470%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:25.234Z",
+      "quote": "51304736",
+      "snapshotId": 1318,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1319,
+      "cursor": "2020-03-23 12:06:25.285Z",
+      "event": {
+        "id": 1319,
+        "type": "margin_call_left",
+        "time": "2020-03-23 12:06:25.285Z · margin_call_left",
+        "title": "Margin Call left · level 51.730620906397621182437963890%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "598.98100",
+        "Floating P/L": "-24920.94700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-558.9038069189189189189189189",
+        "Margin level": "51.730620906397621182437963890%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:25.285Z",
+      "quote": "51304737",
+      "snapshotId": 1319,
+      "marginCallActive": false,
+      "candles": 6708
+    },
+    {
+      "id": 1320,
+      "cursor": "2020-03-23 12:06:25.385Z",
+      "event": {
+        "id": 1320,
+        "type": "margin_call_entered",
+        "time": "2020-03-23 12:06:25.385Z · margin_call_entered",
+        "title": "Margin Call entered · level 44.875016659268174389531468400%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "519.60100",
+        "Floating P/L": "-25000.32700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-638.2838069189189189189189189",
+        "Margin level": "44.875016659268174389531468400%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:25.385Z",
+      "quote": "51304738",
+      "snapshotId": 1320,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1321,
+      "cursor": "2020-03-23 12:06:25.486Z",
+      "event": {
+        "id": 1321,
+        "type": "margin_call_left",
+        "time": "2020-03-23 12:06:25.486Z · margin_call_left",
+        "title": "Margin Call left · level 55.052194846238872425259629510%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "637.44100",
+        "Floating P/L": "-24882.48700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-520.4438069189189189189189189",
+        "Margin level": "55.052194846238872425259629510%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:25.486Z",
+      "quote": "51304739",
+      "snapshotId": 1321,
+      "marginCallActive": false,
+      "candles": 6708
+    },
+    {
+      "id": 1322,
+      "cursor": "2020-03-23 12:06:25.536Z",
+      "event": {
+        "id": 1322,
+        "type": "margin_call_entered",
+        "time": "2020-03-23 12:06:25.536Z · margin_call_entered",
+        "title": "Margin Call entered · level 40.786527051569660769272039120%"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "472.26100",
+        "Floating P/L": "-25047.66700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-685.6238069189189189189189189",
+        "Margin level": "40.786527051569660769272039120%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:25.536Z",
+      "quote": "51304740",
+      "snapshotId": 1322,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1323,
+      "cursor": "2020-03-23 12:06:26.292Z",
+      "event": {
+        "id": 1323,
+        "type": "stop_out_triggered",
+        "time": "2020-03-23 12:06:26.292Z · stop_out_triggered",
+        "title": "Stop Out MarginLevel · margin level 17.229779578062128554190460520% · 36 open"
+      },
+      "account": {
+        "Balance": "25519.92800",
+        "Equity": "199.50100",
+        "Floating P/L": "-25320.42700",
+        "Realized P/L": "5519.92800",
+        "Used margin": "1157.8848069189189189189189189",
+        "Free margin": "-958.3838069189189189189189189",
+        "Margin level": "17.229779578062128554190460520%",
+        "Open positions": "36",
+        "Gross exposure (lots)": "62.76",
+        "Net exposure (lots, signed)": "3.84"
+      },
+      "accountTime": "2020-03-23 12:06:26.292Z",
+      "quote": "51304749",
+      "snapshotId": 1323,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1324,
+      "cursor": "2020-03-23 12:06:26.292Z",
+      "event": {
+        "id": 1324,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:26.292Z · forced_liquidation",
+        "title": "Forced close 1: #35 Sell 6.42 @ 1506.182 · realized -3982.96800"
+      },
+      "account": {
+        "Balance": "21536.96000",
+        "Equity": "199.50100",
+        "Floating P/L": "-21337.45900",
+        "Realized P/L": "1536.96000",
+        "Used margin": "3093.7234684864864864864864864",
+        "Free margin": "-2894.2224684864864864864864864",
+        "Margin level": "6.4485724736606796927964296700%",
+        "Open positions": "35",
+        "Gross exposure (lots)": "56.34",
+        "Net exposure (lots, signed)": "10.26"
+      },
+      "accountTime": "2020-03-23 12:06:26.292Z",
+      "quote": "51304749",
+      "snapshotId": 1324,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1325,
+      "cursor": "2020-03-23 12:06:26.292Z",
+      "event": {
+        "id": 1325,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:26.292Z · forced_liquidation",
+        "title": "Forced close 2: #33 Sell 5.05 @ 1506.182 · realized -3188.57000"
+      },
+      "account": {
+        "Balance": "18348.39000",
+        "Equity": "199.50100",
+        "Floating P/L": "-18148.88900",
+        "Realized P/L": "-1651.61000",
+        "Used margin": "4616.4626025855855855855855856",
+        "Free margin": "-4416.9616025855855855855855856",
+        "Margin level": "4.3215123174238127791045962400%",
+        "Open positions": "34",
+        "Gross exposure (lots)": "51.29",
+        "Net exposure (lots, signed)": "15.31"
+      },
+      "accountTime": "2020-03-23 12:06:26.292Z",
+      "quote": "51304749",
+      "snapshotId": 1325,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1326,
+      "cursor": "2020-03-23 12:06:26.292Z",
+      "event": {
+        "id": 1326,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:26.292Z · forced_liquidation",
+        "title": "Forced close 3: #31 Sell 3.96 @ 1506.182 · realized -2469.85200"
+      },
+      "account": {
+        "Balance": "15878.53800",
+        "Equity": "199.50100",
+        "Floating P/L": "-15679.03700",
+        "Realized P/L": "-4121.46200",
+        "Used margin": "5810.5313097207207207207207206",
+        "Free margin": "-5611.0303097207207207207207206",
+        "Margin level": "3.4334381722760027840213476100%",
+        "Open positions": "33",
+        "Gross exposure (lots)": "47.33",
+        "Net exposure (lots, signed)": "19.27"
+      },
+      "accountTime": "2020-03-23 12:06:26.292Z",
+      "quote": "51304749",
+      "snapshotId": 1326,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1327,
+      "cursor": "2020-03-23 12:06:26.292Z",
+      "event": {
+        "id": 1327,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:26.292Z · forced_liquidation",
+        "title": "Forced close 4: #29 Sell 3.05 @ 1506.182 · realized -1954.13500"
+      },
+      "account": {
+        "Balance": "13924.40300",
+        "Equity": "199.50100",
+        "Floating P/L": "-13724.90200",
+        "Realized P/L": "-6075.59700",
+        "Used margin": "6730.2054402162162162162162162",
+        "Free margin": "-6530.7044402162162162162162162",
+        "Margin level": "2.9642631532149898587854555700%",
+        "Open positions": "32",
+        "Gross exposure (lots)": "44.28",
+        "Net exposure (lots, signed)": "22.32"
+      },
+      "accountTime": "2020-03-23 12:06:26.292Z",
+      "quote": "51304749",
+      "snapshotId": 1327,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1328,
+      "cursor": "2020-03-23 12:06:26.292Z",
+      "event": {
+        "id": 1328,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:26.292Z · forced_liquidation",
+        "title": "Forced close 5: #27 Sell 2.40 @ 1506.182 · realized -1486.56000"
+      },
+      "account": {
+        "Balance": "12437.84300",
+        "Equity": "199.50100",
+        "Floating P/L": "-12238.34200",
+        "Realized P/L": "-7562.15700",
+        "Used margin": "7453.8834445405405405405405404",
+        "Free margin": "-7254.3824445405405405405405404",
+        "Margin level": "2.6764706140679034647286152300%",
+        "Open positions": "31",
+        "Gross exposure (lots)": "41.88",
+        "Net exposure (lots, signed)": "24.72"
+      },
+      "accountTime": "2020-03-23 12:06:26.292Z",
+      "quote": "51304749",
+      "snapshotId": 1328,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1329,
+      "cursor": "2020-03-23 12:06:26.292Z",
+      "event": {
+        "id": 1329,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:26.292Z · forced_liquidation",
+        "title": "Forced close 6: #36 Buy 7.24 @ 1505.618 · realized -1472.61600"
+      },
+      "account": {
+        "Balance": "10965.22700",
+        "Equity": "199.50100",
+        "Floating P/L": "-10765.72600",
+        "Realized P/L": "-9034.77300",
+        "Used margin": "5270.7983384773599386032233308",
+        "Free margin": "-5071.2973384773599386032233308",
+        "Margin level": "3.7850243395506627735565605500%",
+        "Open positions": "30",
+        "Gross exposure (lots)": "34.64",
+        "Net exposure (lots, signed)": "17.48"
+      },
+      "accountTime": "2020-03-23 12:06:26.292Z",
+      "quote": "51304749",
+      "snapshotId": 1329,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1330,
+      "cursor": "2020-03-23 12:06:26.292Z",
+      "event": {
+        "id": 1330,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:26.292Z · forced_liquidation",
+        "title": "Forced close 7: #25 Sell 1.89 @ 1506.182 · realized -1176.33600"
+      },
+      "account": {
+        "Balance": "9788.89100",
+        "Equity": "199.50100",
+        "Floating P/L": "-9589.39000",
+        "Realized P/L": "-10211.10900",
+        "Used margin": "5840.695870498081350729086723",
+        "Free margin": "-5641.194870498081350729086723",
+        "Margin level": "3.4157060121500044027758739500%",
+        "Open positions": "29",
+        "Gross exposure (lots)": "32.75",
+        "Net exposure (lots, signed)": "19.37"
+      },
+      "accountTime": "2020-03-23 12:06:26.292Z",
+      "quote": "51304749",
+      "snapshotId": 1330,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1331,
+      "cursor": "2020-03-23 12:06:26.292Z",
+      "event": {
+        "id": 1331,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:26.292Z · forced_liquidation",
+        "title": "Forced close 8: #34 Buy 5.70 @ 1505.618 · realized -1079.58000"
+      },
+      "account": {
+        "Balance": "8709.31100",
+        "Equity": "199.50100",
+        "Floating P/L": "-8509.81000",
+        "Realized P/L": "-11290.68900",
+        "Used margin": "4122.0747180638506876227897838",
+        "Free margin": "-3922.5737180638506876227897838",
+        "Margin level": "4.8398200820024471375420509600%",
+        "Open positions": "28",
+        "Gross exposure (lots)": "27.05",
+        "Net exposure (lots, signed)": "13.67"
+      },
+      "accountTime": "2020-03-23 12:06:26.292Z",
+      "quote": "51304749",
+      "snapshotId": 1331,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1332,
+      "cursor": "2020-03-23 12:06:26.292Z",
+      "event": {
+        "id": 1332,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:26.292Z · forced_liquidation",
+        "title": "Forced close 9: #23 Sell 1.47 @ 1506.182 · realized -955.05900"
+      },
+      "account": {
+        "Balance": "7754.25200",
+        "Equity": "199.50100",
+        "Floating P/L": "-7554.75100",
+        "Realized P/L": "-12245.74800",
+        "Used margin": "4565.3409825520628683693516698",
+        "Free margin": "-4365.8399825520628683693516698",
+        "Margin level": "4.3699036011210998923513762600%",
+        "Open positions": "27",
+        "Gross exposure (lots)": "25.58",
+        "Net exposure (lots, signed)": "15.14"
+      },
+      "accountTime": "2020-03-23 12:06:26.292Z",
+      "quote": "51304749",
+      "snapshotId": 1332,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1333,
+      "cursor": "2020-03-23 12:06:26.292Z",
+      "event": {
+        "id": 1333,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:26.292Z · forced_liquidation",
+        "title": "Forced close 10: #30 Buy 3.48 @ 1505.618 · realized -886.35600"
+      },
+      "account": {
+        "Balance": "6867.89600",
+        "Equity": "199.50100",
+        "Floating P/L": "-6668.39500",
+        "Realized P/L": "-13132.10400",
+        "Used margin": "3515.7564213293838862559241706",
+        "Free margin": "-3316.2554213293838862559241706",
+        "Margin level": "5.6744829872077525080570377900%",
+        "Open positions": "26",
+        "Gross exposure (lots)": "22.10",
+        "Net exposure (lots, signed)": "11.66"
+      },
+      "accountTime": "2020-03-23 12:06:26.292Z",
+      "quote": "51304749",
+      "snapshotId": 1333,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1334,
+      "cursor": "2020-03-23 12:06:26.292Z",
+      "event": {
+        "id": 1334,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:26.292Z · forced_liquidation",
+        "title": "Forced close 11: #32 Buy 4.47 @ 1505.618 · realized -865.83900"
+      },
+      "account": {
+        "Balance": "6002.05700",
+        "Equity": "199.50100",
+        "Floating P/L": "-5802.55600",
+        "Realized P/L": "-13997.94300",
+        "Used margin": "2167.9799724061240934730056406",
+        "Free margin": "-1968.4789724061240934730056406",
+        "Margin level": "9.202160653660679134050181010%",
+        "Open positions": "25",
+        "Gross exposure (lots)": "17.63",
+        "Net exposure (lots, signed)": "7.19"
+      },
+      "accountTime": "2020-03-23 12:06:26.292Z",
+      "quote": "51304749",
+      "snapshotId": 1334,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1335,
+      "cursor": "2020-03-23 12:06:26.292Z",
+      "event": {
+        "id": 1335,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:26.292Z · forced_liquidation",
+        "title": "Forced close 12: #21 Sell 1.15 @ 1506.182 · realized -716.91000"
+      },
+      "account": {
+        "Balance": "5285.14700",
+        "Equity": "199.50100",
+        "Floating P/L": "-5085.64600",
+        "Realized P/L": "-14714.85300",
+        "Used margin": "2514.7361571442385173247381144",
+        "Free margin": "-2315.2351571442385173247381144",
+        "Margin level": "7.933277589906508749858609280%",
+        "Open positions": "24",
+        "Gross exposure (lots)": "16.48",
+        "Net exposure (lots, signed)": "8.34"
+      },
+      "accountTime": "2020-03-23 12:06:26.292Z",
+      "quote": "51304749",
+      "snapshotId": 1335,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1336,
+      "cursor": "2020-03-23 12:06:26.292Z",
+      "event": {
+        "id": 1336,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:26.292Z · forced_liquidation",
+        "title": "Forced close 13: #19 Sell 0.90 @ 1506.182 · realized -561.06000"
+      },
+      "account": {
+        "Balance": "4724.08700",
+        "Equity": "199.50100",
+        "Floating P/L": "-4524.58600",
+        "Realized P/L": "-15275.91300",
+        "Used margin": "2786.1105625914585012087026592",
+        "Free margin": "-2586.6095625914585012087026592",
+        "Margin level": "7.1605557467337968586386148700%",
+        "Open positions": "23",
+        "Gross exposure (lots)": "15.58",
+        "Net exposure (lots, signed)": "9.24"
+      },
+      "accountTime": "2020-03-23 12:06:26.292Z",
+      "quote": "51304749",
+      "snapshotId": 1336,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1337,
+      "cursor": "2020-03-23 12:06:26.292Z",
+      "event": {
+        "id": 1337,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:26.292Z · forced_liquidation",
+        "title": "Forced close 14: #28 Buy 2.70 @ 1505.618 · realized -514.08000"
+      },
+      "account": {
+        "Balance": "4210.00700",
+        "Equity": "199.50100",
+        "Floating P/L": "-4010.50600",
+        "Realized P/L": "-15789.99300",
+        "Used margin": "1972.028658265705458290422245",
+        "Free margin": "-1772.527658265705458290422245",
+        "Margin level": "10.116536550510910992823254910%",
+        "Open positions": "22",
+        "Gross exposure (lots)": "12.88",
+        "Net exposure (lots, signed)": "6.54"
+      },
+      "accountTime": "2020-03-23 12:06:26.292Z",
+      "quote": "51304749",
+      "snapshotId": 1337,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1338,
+      "cursor": "2020-03-23 12:06:26.292Z",
+      "event": {
+        "id": 1338,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:26.292Z · forced_liquidation",
+        "title": "Forced close 15: #17 Sell 0.71 @ 1506.182 · realized -459.65400"
+      },
+      "account": {
+        "Balance": "3750.35300",
+        "Equity": "199.50100",
+        "Floating P/L": "-3550.85200",
+        "Realized P/L": "-16249.64700",
+        "Used margin": "2186.1173963954685890834191554",
+        "Free margin": "-1986.6163963954685890834191554",
+        "Margin level": "9.125813660736739019732977530%",
+        "Open positions": "21",
+        "Gross exposure (lots)": "12.17",
+        "Net exposure (lots, signed)": "7.25"
+      },
+      "accountTime": "2020-03-23 12:06:26.292Z",
+      "quote": "51304749",
+      "snapshotId": 1338,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1339,
+      "cursor": "2020-03-23 12:06:26.292Z",
+      "event": {
+        "id": 1339,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:26.292Z · forced_liquidation",
+        "title": "Forced close 16: #26 Buy 2.13 @ 1505.618 · realized -424.72200"
+      },
+      "account": {
+        "Balance": "3325.63100",
+        "Equity": "199.50100",
+        "Floating P/L": "-3126.13000",
+        "Realized P/L": "-16674.36900",
+        "Used margin": "1543.8670569709762532981530343",
+        "Free margin": "-1344.3660569709762532981530343",
+        "Margin level": "12.922161859675622026473159590%",
+        "Open positions": "20",
+        "Gross exposure (lots)": "10.04",
+        "Net exposure (lots, signed)": "5.12"
+      },
+      "accountTime": "2020-03-23 12:06:26.292Z",
+      "quote": "51304749",
+      "snapshotId": 1339,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1340,
+      "cursor": "2020-03-23 12:06:26.292Z",
+      "event": {
+        "id": 1340,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:26.292Z · forced_liquidation",
+        "title": "Forced close 17: #24 Buy 1.67 @ 1505.618 · realized -373.07800"
+      },
+      "account": {
+        "Balance": "2952.55300",
+        "Equity": "199.50100",
+        "Floating P/L": "-2753.05200",
+        "Realized P/L": "-17047.44700",
+        "Used margin": "1040.2680297461928934010152284",
+        "Free margin": "-840.7670297461928934010152284",
+        "Margin level": "19.177845929637454672333244410%",
+        "Open positions": "19",
+        "Gross exposure (lots)": "8.37",
+        "Net exposure (lots, signed)": "3.45"
+      },
+      "accountTime": "2020-03-23 12:06:26.292Z",
+      "quote": "51304749",
+      "snapshotId": 1340,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1341,
+      "cursor": "2020-03-23 12:06:26.292Z",
+      "event": {
+        "id": 1341,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:26.292Z · forced_liquidation",
+        "title": "Forced close 18: #15 Sell 0.55 @ 1506.182 · realized -340.67000"
+      },
+      "account": {
+        "Balance": "2611.88300",
+        "Equity": "199.50100",
+        "Floating P/L": "-2412.38200",
+        "Realized P/L": "-17388.11700",
+        "Used margin": "1206.1078605752961082910321489",
+        "Free margin": "-1006.6068605752961082910321489",
+        "Margin level": "16.540892114312304654887423300%",
+        "Open positions": "18",
+        "Gross exposure (lots)": "7.82",
+        "Net exposure (lots, signed)": "4.00"
+      },
+      "accountTime": "2020-03-23 12:06:26.292Z",
+      "quote": "51304749",
+      "snapshotId": 1341,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1342,
+      "cursor": "2020-03-23 12:06:26.292Z",
+      "event": {
+        "id": 1342,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:26.292Z · forced_liquidation",
+        "title": "Forced close 19: #13 Sell 0.43 @ 1506.182 · realized -291.28200"
+      },
+      "account": {
+        "Balance": "2320.60100",
+        "Equity": "199.50100",
+        "Floating P/L": "-2121.10000",
+        "Realized P/L": "-17679.39900",
+        "Used margin": "1335.7644555871404399323181049",
+        "Free margin": "-1136.2634555871404399323181049",
+        "Margin level": "14.935342766873412780936725330%",
+        "Open positions": "17",
+        "Gross exposure (lots)": "7.39",
+        "Net exposure (lots, signed)": "4.43"
+      },
+      "accountTime": "2020-03-23 12:06:26.292Z",
+      "quote": "51304749",
+      "snapshotId": 1342,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1343,
+      "cursor": "2020-03-23 12:06:26.292Z",
+      "event": {
+        "id": 1343,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:26.292Z · forced_liquidation",
+        "title": "Forced close 20: #22 Buy 1.30 @ 1505.618 · realized -247.52000"
+      },
+      "account": {
+        "Balance": "2073.08100",
+        "Equity": "199.50100",
+        "Floating P/L": "-1873.58000",
+        "Realized P/L": "-17926.91900",
+        "Used margin": "943.7993179436008676789587853",
+        "Free margin": "-744.2983179436008676789587853",
+        "Margin level": "21.138074186648404680310193890%",
+        "Open positions": "16",
+        "Gross exposure (lots)": "6.09",
+        "Net exposure (lots, signed)": "3.13"
+      },
+      "accountTime": "2020-03-23 12:06:26.292Z",
+      "quote": "51304749",
+      "snapshotId": 1343,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1344,
+      "cursor": "2020-03-23 12:06:31.683Z",
+      "event": {
+        "id": 1344,
+        "type": "margin_call_left",
+        "time": "2020-03-23 12:06:31.683Z · margin_call_left",
+        "title": "Margin Call left · level 50.527796633616261935283560360%"
+      },
+      "account": {
+        "Balance": "2073.08100",
+        "Equity": "476.88100",
+        "Floating P/L": "-1596.20000",
+        "Realized P/L": "-17926.91900",
+        "Used margin": "943.7993179436008676789587853",
+        "Free margin": "-466.9183179436008676789587853",
+        "Margin level": "50.527796633616261935283560360%",
+        "Open positions": "16",
+        "Gross exposure (lots)": "6.09",
+        "Net exposure (lots, signed)": "3.13"
+      },
+      "accountTime": "2020-03-23 12:06:31.683Z",
+      "quote": "51304807",
+      "snapshotId": 1344,
+      "marginCallActive": false,
+      "candles": 6708
+    },
+    {
+      "id": 1345,
+      "cursor": "2020-03-23 12:06:31.733Z",
+      "event": {
+        "id": 1345,
+        "type": "margin_call_entered",
+        "time": "2020-03-23 12:06:31.733Z · margin_call_entered",
+        "title": "Margin Call entered · level 40.758770713901659444445921060%"
+      },
+      "account": {
+        "Balance": "2073.08100",
+        "Equity": "384.68100",
+        "Floating P/L": "-1688.40000",
+        "Realized P/L": "-17926.91900",
+        "Used margin": "943.7993179436008676789587853",
+        "Free margin": "-559.1183179436008676789587853",
+        "Margin level": "40.758770713901659444445921060%",
+        "Open positions": "16",
+        "Gross exposure (lots)": "6.09",
+        "Net exposure (lots, signed)": "3.13"
+      },
+      "accountTime": "2020-03-23 12:06:31.733Z",
+      "quote": "51304808",
+      "snapshotId": 1345,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1346,
+      "cursor": "2020-03-23 12:06:32.137Z",
+      "event": {
+        "id": 1346,
+        "type": "stop_out_triggered",
+        "time": "2020-03-23 12:06:32.137Z · stop_out_triggered",
+        "title": "Stop Out MarginLevel · margin level 14.044723012601403672131154440% · 16 open"
+      },
+      "account": {
+        "Balance": "2073.08100",
+        "Equity": "132.55400",
+        "Floating P/L": "-1940.52700",
+        "Realized P/L": "-17926.91900",
+        "Used margin": "943.7993179436008676789587853",
+        "Free margin": "-811.2453179436008676789587853",
+        "Margin level": "14.044723012601403672131154440%",
+        "Open positions": "16",
+        "Gross exposure (lots)": "6.09",
+        "Net exposure (lots, signed)": "3.13"
+      },
+      "accountTime": "2020-03-23 12:06:32.137Z",
+      "quote": "51304812",
+      "snapshotId": 1346,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1347,
+      "cursor": "2020-03-23 12:06:32.137Z",
+      "event": {
+        "id": 1347,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:32.137Z · forced_liquidation",
+        "title": "Forced close 1: #11 Sell 0.34 @ 1506.625 · realized -227.01800"
+      },
+      "account": {
+        "Balance": "1846.06300",
+        "Equity": "132.55400",
+        "Floating P/L": "-1713.50900",
+        "Realized P/L": "-18153.93700",
+        "Used margin": "1046.3206496052060737527114968",
+        "Free margin": "-913.7666496052060737527114968",
+        "Margin level": "12.668583005602995243161531240%",
+        "Open positions": "15",
+        "Gross exposure (lots)": "5.75",
+        "Net exposure (lots, signed)": "3.47"
+      },
+      "accountTime": "2020-03-23 12:06:32.137Z",
+      "quote": "51304812",
+      "snapshotId": 1347,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1348,
+      "cursor": "2020-03-23 12:06:32.137Z",
+      "event": {
+        "id": 1348,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:32.137Z · forced_liquidation",
+        "title": "Forced close 2: #3 Sell 0.30 @ 1506.625 · realized -199.11000"
+      },
+      "account": {
+        "Balance": "1646.95300",
+        "Equity": "132.55400",
+        "Floating P/L": "-1514.39900",
+        "Realized P/L": "-18353.04700",
+        "Used margin": "1136.7806481301518438177874187",
+        "Free margin": "-1004.2266481301518438177874187",
+        "Margin level": "11.660472952106735674740189230%",
+        "Open positions": "14",
+        "Gross exposure (lots)": "5.45",
+        "Net exposure (lots, signed)": "3.77"
+      },
+      "accountTime": "2020-03-23 12:06:32.137Z",
+      "quote": "51304812",
+      "snapshotId": 1348,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1349,
+      "cursor": "2020-03-23 12:06:32.137Z",
+      "event": {
+        "id": 1349,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:32.137Z · forced_liquidation",
+        "title": "Forced close 3: #20 Buy 1.02 @ 1505.615 · realized -195.53400"
+      },
+      "account": {
+        "Balance": "1451.41900",
+        "Equity": "132.55400",
+        "Floating P/L": "-1318.86500",
+        "Realized P/L": "-18548.58100",
+        "Used margin": "829.2376933147632311977715877",
+        "Free margin": "-696.6836933147632311977715877",
+        "Margin level": "15.98504277707561501868810900%",
+        "Open positions": "13",
+        "Gross exposure (lots)": "4.43",
+        "Net exposure (lots, signed)": "2.75"
+      },
+      "accountTime": "2020-03-23 12:06:32.137Z",
+      "quote": "51304812",
+      "snapshotId": 1349,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1350,
+      "cursor": "2020-03-23 12:06:32.137Z",
+      "event": {
+        "id": 1350,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:32.137Z · forced_liquidation",
+        "title": "Forced close 4: #5 Sell 0.28 @ 1506.625 · realized -188.16000"
+      },
+      "account": {
+        "Balance": "1263.25900",
+        "Equity": "132.55400",
+        "Floating P/L": "-1130.70500",
+        "Realized P/L": "-18736.74100",
+        "Used margin": "913.6691675431754874651810585",
+        "Free margin": "-781.1151675431754874651810585",
+        "Margin level": "14.507877107906911320591518070%",
+        "Open positions": "12",
+        "Gross exposure (lots)": "4.15",
+        "Net exposure (lots, signed)": "3.03"
+      },
+      "accountTime": "2020-03-23 12:06:32.137Z",
+      "quote": "51304812",
+      "snapshotId": 1350,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1351,
+      "cursor": "2020-03-23 12:06:32.137Z",
+      "event": {
+        "id": 1351,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:32.137Z · forced_liquidation",
+        "title": "Forced close 5: #9 Sell 0.26 @ 1506.625 · realized -176.72200"
+      },
+      "account": {
+        "Balance": "1086.53700",
+        "Equity": "132.55400",
+        "Floating P/L": "-953.98300",
+        "Realized P/L": "-18913.46300",
+        "Used margin": "992.0698221838440111420612813",
+        "Free margin": "-859.5158221838440111420612813",
+        "Margin level": "13.361357944364115897079726370%",
+        "Open positions": "11",
+        "Gross exposure (lots)": "3.89",
+        "Net exposure (lots, signed)": "3.29"
+      },
+      "accountTime": "2020-03-23 12:06:32.137Z",
+      "quote": "51304812",
+      "snapshotId": 1351,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1352,
+      "cursor": "2020-03-23 12:06:32.137Z",
+      "event": {
+        "id": 1352,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:32.137Z · forced_liquidation",
+        "title": "Forced close 6: #18 Buy 0.80 @ 1505.615 · realized -158.96000"
+      },
+      "account": {
+        "Balance": "927.57700",
+        "Equity": "132.55400",
+        "Floating P/L": "-795.02300",
+        "Realized P/L": "-19072.42300",
+        "Used margin": "750.85173191397849462365591398",
+        "Free margin": "-618.29773191397849462365591398",
+        "Margin level": "17.653818239469157967660514710%",
+        "Open positions": "10",
+        "Gross exposure (lots)": "3.09",
+        "Net exposure (lots, signed)": "2.49"
+      },
+      "accountTime": "2020-03-23 12:06:32.137Z",
+      "quote": "51304812",
+      "snapshotId": 1352,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1353,
+      "cursor": "2020-03-23 12:06:32.137Z",
+      "event": {
+        "id": 1353,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:32.137Z · forced_liquidation",
+        "title": "Forced close 7: #7 Sell 0.20 @ 1506.625 · realized -136.14000"
+      },
+      "account": {
+        "Balance": "791.43700",
+        "Equity": "132.55400",
+        "Floating P/L": "-658.88300",
+        "Realized P/L": "-19208.56300",
+        "Used margin": "811.1611079713261648745519713",
+        "Free margin": "-678.6071079713261648745519713",
+        "Margin level": "16.341266697501190832518469010%",
+        "Open positions": "9",
+        "Gross exposure (lots)": "2.89",
+        "Net exposure (lots, signed)": "2.69"
+      },
+      "accountTime": "2020-03-23 12:06:32.137Z",
+      "quote": "51304812",
+      "snapshotId": 1353,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1354,
+      "cursor": "2020-03-23 12:06:32.137Z",
+      "event": {
+        "id": 1354,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:32.137Z · forced_liquidation",
+        "title": "Forced close 8: #16 Buy 0.62 @ 1505.615 · realized -122.57400"
+      },
+      "account": {
+        "Balance": "668.86300",
+        "Equity": "132.55400",
+        "Floating P/L": "-536.30900",
+        "Realized P/L": "-19331.13700",
+        "Used margin": "624.218886248847926267281106",
+        "Free margin": "-491.664886248847926267281106",
+        "Margin level": "21.235179344951235032153583970%",
+        "Open positions": "8",
+        "Gross exposure (lots)": "2.27",
+        "Net exposure (lots, signed)": "2.07"
+      },
+      "accountTime": "2020-03-23 12:06:32.137Z",
+      "quote": "51304812",
+      "snapshotId": 1354,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1355,
+      "cursor": "2020-03-23 12:06:35.374Z",
+      "event": {
+        "id": 1355,
+        "type": "margin_call_left",
+        "time": "2020-03-23 12:06:35.374Z · margin_call_left",
+        "title": "Margin Call left · level 51.787122613769942760453312040%"
+      },
+      "account": {
+        "Balance": "668.86300",
+        "Equity": "323.26500",
+        "Floating P/L": "-345.59800",
+        "Realized P/L": "-19331.13700",
+        "Used margin": "624.218886248847926267281106",
+        "Free margin": "-300.953886248847926267281106",
+        "Margin level": "51.787122613769942760453312040%",
+        "Open positions": "8",
+        "Gross exposure (lots)": "2.27",
+        "Net exposure (lots, signed)": "2.07"
+      },
+      "accountTime": "2020-03-23 12:06:35.374Z",
+      "quote": "51304844",
+      "snapshotId": 1355,
+      "marginCallActive": false,
+      "candles": 6708
+    },
+    {
+      "id": 1356,
+      "cursor": "2020-03-23 12:06:35.425Z",
+      "event": {
+        "id": 1356,
+        "type": "margin_call_entered",
+        "time": "2020-03-23 12:06:35.425Z · margin_call_entered",
+        "title": "Margin Call entered · level 46.572605604263155335731318290%"
+      },
+      "account": {
+        "Balance": "668.86300",
+        "Equity": "290.71500",
+        "Floating P/L": "-378.14800",
+        "Realized P/L": "-19331.13700",
+        "Used margin": "624.218886248847926267281106",
+        "Free margin": "-333.503886248847926267281106",
+        "Margin level": "46.572605604263155335731318290%",
+        "Open positions": "8",
+        "Gross exposure (lots)": "2.27",
+        "Net exposure (lots, signed)": "2.07"
+      },
+      "accountTime": "2020-03-23 12:06:35.425Z",
+      "quote": "51304845",
+      "snapshotId": 1356,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1357,
+      "cursor": "2020-03-23 12:06:38.717Z",
+      "event": {
+        "id": 1357,
+        "type": "stop_out_triggered",
+        "time": "2020-03-23 12:06:38.717Z · stop_out_triggered",
+        "title": "Stop Out MarginLevel · margin level 18.257217541887589212240922170% · 8 open"
+      },
+      "account": {
+        "Balance": "668.86300",
+        "Equity": "113.96500",
+        "Floating P/L": "-554.89800",
+        "Realized P/L": "-19331.13700",
+        "Used margin": "624.218886248847926267281106",
+        "Free margin": "-510.253886248847926267281106",
+        "Margin level": "18.257217541887589212240922170%",
+        "Open positions": "8",
+        "Gross exposure (lots)": "2.27",
+        "Net exposure (lots, signed)": "2.07"
+      },
+      "accountTime": "2020-03-23 12:06:38.717Z",
+      "quote": "51304862",
+      "snapshotId": 1357,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1358,
+      "cursor": "2020-03-23 12:06:38.717Z",
+      "event": {
+        "id": 1358,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:38.717Z · forced_liquidation",
+        "title": "Forced close 1: #14 Buy 0.49 @ 1505.508 · realized -98.19600"
+      },
+      "account": {
+        "Balance": "570.66700",
+        "Equity": "113.96500",
+        "Floating P/L": "-456.70200",
+        "Realized P/L": "-19429.33300",
+        "Used margin": "476.48117557142857142857142856",
+        "Free margin": "-362.51617557142857142857142856",
+        "Margin level": "23.918048779854825438525816220%",
+        "Open positions": "7",
+        "Gross exposure (lots)": "1.78",
+        "Net exposure (lots, signed)": "1.58"
+      },
+      "accountTime": "2020-03-23 12:06:38.717Z",
+      "quote": "51304862",
+      "snapshotId": 1358,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1359,
+      "cursor": "2020-03-23 12:06:47.964Z",
+      "event": {
+        "id": 1359,
+        "type": "margin_call_left",
+        "time": "2020-03-23 12:06:47.964Z · margin_call_left",
+        "title": "Margin Call left · level 50.282154318619912716090095010%"
+      },
+      "account": {
+        "Balance": "570.66700",
+        "Equity": "239.58500",
+        "Floating P/L": "-331.08200",
+        "Realized P/L": "-19429.33300",
+        "Used margin": "476.48117557142857142857142856",
+        "Free margin": "-236.89617557142857142857142856",
+        "Margin level": "50.282154318619912716090095010%",
+        "Open positions": "7",
+        "Gross exposure (lots)": "1.78",
+        "Net exposure (lots, signed)": "1.58"
+      },
+      "accountTime": "2020-03-23 12:06:47.964Z",
+      "quote": "51304937",
+      "snapshotId": 1359,
+      "marginCallActive": false,
+      "candles": 6708
+    },
+    {
+      "id": 1360,
+      "cursor": "2020-03-23 12:06:48.116Z",
+      "event": {
+        "id": 1360,
+        "type": "margin_call_entered",
+        "time": "2020-03-23 12:06:48.116Z · margin_call_entered",
+        "title": "Margin Call entered · level 47.755296885991894479966277810%"
+      },
+      "account": {
+        "Balance": "570.66700",
+        "Equity": "227.54500",
+        "Floating P/L": "-343.12200",
+        "Realized P/L": "-19429.33300",
+        "Used margin": "476.48117557142857142857142856",
+        "Free margin": "-248.93617557142857142857142856",
+        "Margin level": "47.755296885991894479966277810%",
+        "Open positions": "7",
+        "Gross exposure (lots)": "1.78",
+        "Net exposure (lots, signed)": "1.58"
+      },
+      "accountTime": "2020-03-23 12:06:48.116Z",
+      "quote": "51304940",
+      "snapshotId": 1360,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1361,
+      "cursor": "2020-03-23 12:06:54.330Z",
+      "event": {
+        "id": 1361,
+        "type": "stop_out_triggered",
+        "time": "2020-03-23 12:06:54.330Z · stop_out_triggered",
+        "title": "Stop Out MarginLevel · margin level 17.269307628222299049788064650% · 7 open"
+      },
+      "account": {
+        "Balance": "570.66700",
+        "Equity": "82.28500",
+        "Floating P/L": "-488.38200",
+        "Realized P/L": "-19429.33300",
+        "Used margin": "476.48117557142857142857142856",
+        "Free margin": "-394.19617557142857142857142856",
+        "Margin level": "17.269307628222299049788064650%",
+        "Open positions": "7",
+        "Gross exposure (lots)": "1.78",
+        "Net exposure (lots, signed)": "1.58"
+      },
+      "accountTime": "2020-03-23 12:06:54.330Z",
+      "quote": "51304981",
+      "snapshotId": 1361,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1362,
+      "cursor": "2020-03-23 12:06:54.330Z",
+      "event": {
+        "id": 1362,
+        "type": "forced_liquidation",
+        "time": "2020-03-23 12:06:54.330Z · forced_liquidation",
+        "title": "Forced close 1: #4 Buy 0.40 @ 1505.298 · realized -102.16000"
+      },
+      "account": {
+        "Balance": "468.50700",
+        "Equity": "82.28500",
+        "Floating P/L": "-386.22200",
+        "Realized P/L": "-19531.49300",
+        "Used margin": "355.85301668750",
+        "Free margin": "-273.56801668750",
+        "Margin level": "23.123311069823063237706671630%",
+        "Open positions": "6",
+        "Gross exposure (lots)": "1.38",
+        "Net exposure (lots, signed)": "1.18"
+      },
+      "accountTime": "2020-03-23 12:06:54.330Z",
+      "quote": "51304981",
+      "snapshotId": 1362,
+      "marginCallActive": true,
+      "candles": 6708
+    },
+    {
+      "id": 1363,
+      "cursor": "2020-03-23 12:06:57.119Z",
+      "event": {
+        "id": 1363,
+        "type": "margin_call_left",
+        "time": "2020-03-23 12:06:57.119Z · margin_call_left",
+        "title": "Margin Call left · level 52.826586029782931794862838510%"
+      },
+      "account": {
+        "Balance": "468.50700",
+        "Equity": "187.98500",
+        "Floating P/L": "-280.52200",
+        "Realized P/L": "-19531.49300",
+        "Used margin": "355.85301668750",
+        "Free margin": "-167.86801668750",
+        "Margin level": "52.826586029782931794862838510%",
+        "Open positions": "6",
+        "Gross exposure (lots)": "1.38",
+        "Net exposure (lots, signed)": "1.18"
+      },
+      "accountTime": "2020-03-23 12:06:57.119Z",
+      "quote": "51305003",
+      "snapshotId": 1363,
+      "marginCallActive": false,
+      "candles": 6708
+    },
+    {
+      "id": 1364,
+      "cursor": "2020-04-13 18:24:10.475Z",
+      "event": {
+        "id": 1364,
+        "type": "strategy_exit",
+        "time": "2020-04-13 18:24:10.475Z · strategy_exit",
+        "title": "Strategy exit Escape · realized 30.65700 · liquidated -25051.42100"
+      },
+      "account": {
+        "Balance": "25550.58500",
+        "Equity": "25550.58500",
+        "Floating P/L": "0",
+        "Realized P/L": "5550.58500",
+        "Used margin": "0",
+        "Free margin": "25550.58500",
+        "Margin level": "not defined",
+        "Open positions": "0",
+        "Gross exposure (lots)": "0",
+        "Net exposure (lots, signed)": "0"
+      },
+      "accountTime": "2020-04-13 18:24:10.475Z",
+      "quote": "53244477",
+      "snapshotId": 1364,
+      "marginCallActive": false,
+      "candles": 3096
+    }
+  ],
+  "errors": [],
+  "browser": "Edg/154.0.4258.53",
+  "browserMode": "headless installed Edge, actual local Next.js application",
+  "runtimeSourceLfSha256": {
+    "apps/web/src/components/marketlab-replay.tsx": "309dc0b075112ef60331aaf1cd652d141f8ad3c4135395234718747c762786f4",
+    "apps/web/src/components/marketlab-replay-chart.tsx": "153dee7b3f63c264e0e7ff03835b0b08ba7fb63307f880d2548dafcbe5e65aba",
+    "apps/web/src/server/marketlab-replay.ts": "2dfcfbf5e3f6e780b7612d78365eb8705fb4676cd690a614b0635b4896c5d6d2",
+    "apps/web/src/lib/marketlab-replay.ts": "1f6354ab2dbf28fe37720f47c8903f85e530b9ff508bc565807cc29dbd1802ad",
+    "apps/web/src/app/backtests/page.tsx": "ac28b6667c6a971cad0be44ea8704f44409da5162dcbc1a286061aa9a52cdf11",
+    "apps/web/src/app/api/marketlab-replay/baskets/[number]/reveal/route.ts": "3ea051cd951fc9797f4cd33440cb7a0b63ac30fdae14c99cfd639d970e784fc9"
+  },
+  "layout": {
+    "width": 1432,
+    "height": 900,
+    "scrollWidth": 1432,
+    "clientWidth": 1432
+  },
+  "accountComparisons": {
+    "observedRowTransitions": 1749,
+    "periodicComparisons": 1632,
+    "exactFieldComparisons": 17490,
+    "sequenceSha256": "026fa1b39c3f00156c45e8c886337df285ece855afe601318c14efb8ae844952",
+    "failures": 0
+  },
+  "candleSamples": [
+    {
+      "cursor": "2020-03-16 15:19:00Z",
+      "candles": 1
+    },
+    {
+      "cursor": "2020-03-16 15:20:00Z",
+      "candles": 2
+    },
+    {
+      "cursor": "2020-03-16 15:21:00Z",
+      "candles": 3
+    },
+    {
+      "cursor": "2020-03-16 15:22:00Z",
+      "candles": 4
+    },
+    {
+      "cursor": "2020-03-16 15:23:00Z",
+      "candles": 5
+    },
+    {
+      "cursor": "2020-03-16 15:24:00Z",
+      "candles": 6
+    },
+    {
+      "cursor": "2020-03-16 15:25:00Z",
+      "candles": 7
+    },
+    {
+      "cursor": "2020-03-16 15:25:00Z",
+      "candles": 7
+    },
+    {
+      "cursor": "2020-03-18 19:27:00Z",
+      "candles": 3009
+    },
+    {
+      "cursor": "2020-03-23 00:35:00Z",
+      "candles": 6017
+    },
+    {
+      "cursor": "2020-03-25 05:02:00Z",
+      "candles": 9028
+    }
+  ],
+  "failurePaths": [
+    {
+      "name": "missing_entry",
+      "rejected": true
+    },
+    {
+      "name": "reordered_entry",
+      "rejected": true
+    },
+    {
+      "name": "wrong_trade_identity",
+      "rejected": true
+    },
+    {
+      "name": "wrong_side",
+      "rejected": true
+    },
+    {
+      "name": "wrong_entry_price",
+      "rejected": true
+    },
+    {
+      "name": "wrong_entry_time",
+      "rejected": true
+    },
+    {
+      "name": "missing_stop_out",
+      "rejected": true
+    },
+    {
+      "name": "missing_liquidation",
+      "rejected": true
+    },
+    {
+      "name": "reordered_liquidation",
+      "rejected": true
+    },
+    {
+      "name": "wrong_liquidation_price",
+      "rejected": true
+    },
+    {
+      "name": "incorrect_account",
+      "rejected": true
+    },
+    {
+      "name": "incorrect_signed_net",
+      "rejected": true
+    },
+    {
+      "name": "stale_account",
+      "rejected": true
+    },
+    {
+      "name": "future_leak",
+      "rejected": true
+    },
+    {
+      "name": "early_normal_exit",
+      "rejected": true
+    }
+  ],
+  "endLayout": {
+    "width": 1432,
+    "height": 900,
+    "scrollWidth": 1432,
+    "clientWidth": 1432,
+    "scrollHeight": 900,
+    "clientHeight": 900
+  },
+  "navigation": {
+    "lastLiquidation": {
+      "cursor": "2020-03-23 12:06:54.330Z",
+      "snapshotId": 1362
+    },
+    "backward": {
+      "cursor": "2020-03-23 12:05:00Z",
+      "snapshotId": null
+    }
+  },
+  "result": "PASS: Basket #276 Phase G local browser acceptance",
+  "ended": "2026-10-04T11:31:10.192Z"
+}
