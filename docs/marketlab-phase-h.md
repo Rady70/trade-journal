@@ -246,5 +246,20 @@ this host has no bare pnpm shim; the actual three package checks above pass.
   **not started** and require Phase H independent review/finalization first.
 
 Self-audit covers all Phase H scope/acceptance items above. No known Phase H
-acceptance defect remains in the qualified local Windows workflow. Publication
-heads/PR links are recorded in the paired control review record and PR metadata.
+acceptance defect remains in the qualified local Windows workflow.
+
+## Published independent-review PRs
+
+- Application: [Rady70/trade-journal#5](https://github.com/Rady70/trade-journal/pull/5),
+  branch `marketlab/phase-h-run-navigation`. Initial sealed publication head
+  `ce339aa39843743aea53e4f80947ea39a87d3365`; this follow-up only adds review links.
+- Control: [Rady70/Market_Lab#51](https://github.com/Rady70/Market_Lab/pull/51),
+  branch `marketlab/single-anchor-phase-h-record`, documentation only; initial
+  publication head `2c09f78df2356d2c9e00ee0a9dbea282042b2142`.
+- [Paired control qualification record](https://github.com/Rady70/Market_Lab/blob/marketlab/single-anchor-phase-h-record/docs/SINGLE_ANCHOR_PHASE_H_QUALIFICATION.md)
+  records exact review provenance and the final application publication head.
+  Current review heads are in PR metadata. Both PRs remain open, unmerged and
+  awaiting independent review; Phase H is not finalized and Phase I is not started.
+- The evidence manifest remains unchanged, SHA-256
+  `91d7f6a1469c8399fb575b5845d70f173cd9fe63aef87acee2ff16fc3090c24d`.
+  Link-only follow-ups do not alter qualified source, tests or retained artifacts.
