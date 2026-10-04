@@ -143,8 +143,8 @@ cancels only the in-flight playback advance, preserving pending causal reveals.
 
 Measured final browser run (`browser.json`): summary **1,880 bytes**; seven basket
 pages **11,390–11,545 bytes**. Warm page requests were approximately **33–59 ms**;
-the first measured page took **11.4 s** during concurrent local qualification
-qualification. Its cause was not separately isolated; this is an observed
+the first measured page took **11.4 s** during concurrent local qualification.
+Its cause was not separately isolated; this is an observed
 development-server result, not a
 performance guarantee. Maximum observed candle response: **12,000 bars /
 692,475 bytes**. Distant cursor checks cover June 2021, June 2024 and June 2026,
