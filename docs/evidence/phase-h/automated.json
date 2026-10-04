@@ -1,5 +1,5 @@
 {
-  "started": "2026-10-04T19:59:11.153Z",
+  "started": "2026-10-04T21:40:18.514Z",
   "platform": "win32",
   "node": "v24.19.0",
   "commands": [
@@ -24,18 +24,23 @@
       "output": "$ tsc --noEmit"
     },
     {
-      "command": "corepack pnpm exec prettier --check \"apps/web/src/app/api/marketlab-replay/baskets/[number]/reveal/route.ts\" \"apps/web/src/app/api/marketlab-replay/baskets/[number]/route.ts\" \"apps/web/src/app/api/marketlab-replay/baskets/[number]/window/route.ts\" \"apps/web/src/app/api/marketlab-replay/route.ts\" \"apps/web/src/app/backtests/page.tsx\" \"apps/web/src/components/marketlab-replay.tsx\" \"apps/web/src/server/marketlab-replay.ts\" \"apps/web/tests/marketlab-replay-ui.test.ts\" \"apps/web/tests/marketlab-replay.test.ts\" \"apps/web/src/app/api/marketlab-replay/run/route.ts\" \"apps/web/src/components/marketlab-run.tsx\" \"apps/web/src/lib/marketlab-run.ts\" \"apps/web/src/server/marketlab-run.ts\" \"apps/web/tests/marketlab-run.test.ts\" \"docs/evidence/phase-h/automated.mjs\" \"docs/evidence/phase-h/browser.mjs\" \"docs/evidence/phase-h/fail-closed.mjs\" \"docs/evidence/phase-h/regression.mjs\" \"docs/evidence/phase-h/source.mjs\"",
+      "command": "corepack pnpm exec prettier --check \"apps/web/src/app/api/marketlab-replay/baskets/[number]/reveal/route.ts\" \"apps/web/src/app/api/marketlab-replay/baskets/[number]/route.ts\" \"apps/web/src/app/api/marketlab-replay/baskets/[number]/window/route.ts\" \"apps/web/src/app/api/marketlab-replay/route.ts\" \"apps/web/src/app/api/marketlab-replay/run/route.ts\" \"apps/web/src/app/backtests/page.tsx\" \"apps/web/src/components/marketlab-replay.tsx\" \"apps/web/src/components/marketlab-run.tsx\" \"apps/web/src/lib/marketlab-run.ts\" \"apps/web/src/server/marketlab-replay.ts\" \"apps/web/src/server/marketlab-run.ts\" \"apps/web/tests/helpers/marketlab-alternate-candles.ts\" \"apps/web/tests/marketlab-replay-ui.test.ts\" \"apps/web/tests/marketlab-replay.test.ts\" \"apps/web/tests/marketlab-run.test.ts\" \"docs/evidence/phase-h/automated.mjs\" \"docs/evidence/phase-h/browser.mjs\" \"docs/evidence/phase-h/fail-closed.mjs\" \"docs/evidence/phase-h/regression.mjs\" \"docs/evidence/phase-h/seal.mjs\" \"docs/evidence/phase-h/source.mjs\"",
       "exit": 0,
       "output": "Checking formatting...\nAll matched files use Prettier code style!"
+    },
+    {
+      "command": "git diff --check 99ff48cd4b71be51e220230480dadae048489ef3",
+      "exit": 0,
+      "output": "warning: in the working copy of 'docs/evidence/phase-h/README.md', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/evidence/phase-h/attempts.json', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/evidence/phase-h/automated-attempts.json', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/evidence/phase-h/automated.json', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/evidence/phase-h/automated.mjs', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/evidence/phase-h/browser.json', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/evidence/phase-h/browser.mjs', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/evidence/phase-h/fail-closed.json', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/evidence/phase-h/fail-closed.mjs', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/evidence/phase-h/failure-attempts.json', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/evidence/phase-h/regression/attempts.json', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/evidence/phase-h/regression/qualified.json', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/evidence/phase-h/seal.mjs', LF will be replaced by CRLF the next time Git touches it\nwarning: in the working copy of 'docs/marketlab-phase-h.md', LF will be replaced by CRLF the next time Git touches it"
     }
   ],
   "tests": {
-    "total": 620,
-    "passed": 620,
+    "total": 621,
+    "passed": 621,
     "failed": 0,
     "pending": 0,
     "success": true
   },
   "result": "PASS",
-  "ended": "2026-10-04T19:59:35.884Z"
+  "ended": "2026-10-04T21:40:55.518Z"
 }

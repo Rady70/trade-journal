@@ -15,8 +15,9 @@ Live default heads independently queried before implementation:
 
 Application and LEAN were clean at those defaults. Application branch:
 `marketlab/phase-h-run-navigation`, qualified implementation commit
-`8e93aa10e9dd7accd158f75d6486cd027038b7a0`. Evidence/doc commits do not change
-the qualified runtime. Control branch: `marketlab/single-anchor-phase-h-record`,
+`121cc595f57ab2c45ecec83ec4eaf60b9522f5d4` after the focused source-binding
+review correction (original implementation `8e93aa10e9dd7accd158f75d6486cd027038b7a0`).
+Subsequent evidence/doc commits do not change that runtime. Control branch: `marketlab/single-anchor-phase-h-record`,
 isolated from the unrelated dirty `E:\Market_Lab` checkout.
 
 During validation, control main advanced to
@@ -130,14 +131,19 @@ cancels only the in-flight playback advance, preserving pending causal reveals.
   this is not a claim of constant server memory for arbitrary future datasets.
 - Both expected identities and existing replay/candle source compatibility remain
   mandatory. New pages carry package, manifest and candle identities; page and
-  browser replay requests bind to the accepted manifest hash. Stale source,
+  browser replay requests require the complete accepted tuple
+  `packageSha256:manifestSha256:candleContentSha256`. Manifest-only, malformed and
+  omitted bindings are rejected. Initial status/summary reads accept a new context;
+  every table, timeline, detail, window and reveal request retains all three hashes.
+  A stale client cannot cross into another accepted candle identity even when the
+  replay package/manifest stay unchanged. Stale source,
   unsupported filter, wrong basket/event, recap jump and inconsistent event/time
   fail closed. Package acceptance now invalidates on payload size/mtime changes
   as well as manifest changes; a candle-file cache entry also binds its hash.
 
 Measured final browser run (`browser.json`): summary **1,880 bytes**; seven basket
-pages **11,390–11,545 bytes**. Warm page requests were approximately **30–68 ms**;
-the first measured page took **9.4 s** during concurrent local compilation/build
+pages **11,390–11,545 bytes**. Warm page requests were approximately **33–59 ms**;
+the first measured page took **11.4 s** during concurrent local qualification
 qualification. Its cause was not separately isolated; this is an observed
 development-server result, not a
 performance guarantee. Maximum observed candle response: **12,000 bars /
@@ -159,13 +165,14 @@ forced-close jump, final-open state, invalid input, and regression replay/close.
 - `source.mjs`: independent raw finalized LEAN oracle, using only the standard
   library and the preserved Phase G identity verifier. No application loader or
   Phase H transformation is imported as the comparison oracle.
-- `automated.json`: **620/620 tests pass, zero skipped**; web, core and importer
-  typechecks pass; changed-source Prettier check passes. New tests compare all
+- `automated.json`: **621/621 tests pass, zero skipped**; web, core and importer
+  typechecks pass; changed-source Prettier and recorded
+  `git diff --check 99ff48cd4b71be51e220230480dadae048489ef3` pass. New tests compare all
   280 lifecycles and all 1,452 exact jump prefixes/snapshots to raw package rows,
   check source/cursor errors and mutation-after-acceptance, and exercise exact
   jump/Restart hiding and delayed-Pause cancellation. Existing Phase F/G tests
   continue to pass. Route tests now supply the real Request used by HTTP handlers.
-- `browser.json`: **PASS**, `2026-10-04T19:47:15.638Z → 19:49:05.495Z`.
+- `browser.json`: **PASS**, `2026-10-04T20:58:10.939Z → 21:01:52.192Z` after correction.
   Actual browser checks all seven basket pages; all live timeline pages; all
   four filters; 61 exact occurrence states including jumps and forward re-entry;
   return navigation; empty event years; distant date windows; direct number
@@ -175,7 +182,7 @@ forced-close jump, final-open state, invalid input, and regression replay/close.
   followed by Escape, total liquidation, and the final anchored/unfunded basket.
 - `regression/qualified.json`: preserved Phase G checker **PASS** on current
   runtime, entering #276 through the run table. Final run
-  `2026-10-04T19:47:16.759Z → 19:56:26.040Z` (exact receipt is authoritative).
+  `2026-10-04T20:58:10.410Z → 21:09:05.072Z` (exact receipt is authoritative).
   Continuous 64× Play observes all **117 occurrences**, **36 entries**, hard-BE,
   **22/22** MC transitions, **4** Stop Outs, **30** distinct forced closes,
   partial continuation and final Escape. **1,749** account-row transitions,
@@ -183,11 +190,23 @@ forced-close jump, final-open state, invalid input, and regression replay/close.
   failures/page errors. Every forced-close snapshot is also checked after backward
   navigation. All controls, signed net, causal close hiding and 15 negative
   checker fixtures pass. Final replay document fits 1432×900 without page overflow.
-- `fail-closed.json`: three real application/Edge cases **PASS**, HTTP 422 with
+- `fail-closed.json`: four real application/Edge cases **PASS**. Original three: HTTP 422 with
   summary/table/replay hidden: payload corruption after successful acceptance,
   unexpected authoritative package, unexpected candle content. Uses an isolated
   same-source snapshot under ignored `.cache/` and unchanged dependency junctions;
-  only its own spawned process tree is stopped.
+  only its own spawned process tree is stopped. Fourth: an isolated cache copy
+  changes one decimal's trailing-zero representation, preserving numerical values;
+  its different content identity is explicitly accepted by the isolated server.
+  The package and replay manifest hashes remain identical. All five old-bound
+  navigation routes return only an error (422); fresh bindings succeed (200).
+  Two already-open browser contexts prove stale overview/jumps/replay fail closed:
+  rejected detail hides replay, stale pages hide rows, Next leaves cursor unchanged,
+  Restart clears candles, explicit reload recovers. Screenshot:
+  `stale-candle-navigation.png`. Native browser request blocking disables only
+  development `webpack-hmr` reloads so the old contexts survive the server restart;
+  application/API responses are real and unmodified. Fresh pages and explicit
+  foreground selection in the headless browser avoid dev-rehydration/background
+  animation-frame polling issues observed in retained unsuccessful attempts.
 - `attempts.json`, `automated-attempts.json`, `failure-attempts.json`,
   `regression/attempts.json`: unsuccessful attempts preserved. Harness issues
   included Windows screenshot paths, case-sensitive CSS heading text, overly short
@@ -198,6 +217,9 @@ forced-close jump, final-open state, invalid input, and regression replay/close.
   is counted as qualification.
 - `manifest.json`: binds the implementation commit, normalized runtime source,
   tests, all retained artifacts and the exact authoritative identities.
+  `pre-review-manifest.json` preserves the original seal for its original
+  publication at `804f7b072ff58f0e93ce4bca577dfb18e4f2624d`, not the refreshed
+  artifact bytes. Historical qualification remains recoverable from that commit.
 
 Final open **#280** remains open, with **zero entries**, no strategy/forced close
 and no close result. Its final account is the exported run-end snapshot #1454;
@@ -214,13 +236,14 @@ Stop the launched development server with Ctrl+C. From the application root:
 node docs/evidence/phase-h/automated.mjs
 node docs/evidence/phase-h/browser.mjs
 node docs/evidence/phase-h/regression.mjs
-node docs/evidence/phase-h/fail-closed.mjs --build
+node docs/evidence/phase-h/fail-closed.mjs
 node docs/evidence/phase-h/seal.mjs
 ```
 
 The automated runner executes `corepack pnpm exec vitest run --reporter=json
 --outputFile=<local temp>`, the three `corepack pnpm --filter <package> typecheck`
-commands and changed-source `corepack pnpm exec prettier --check ...`.
+commands, changed-source `corepack pnpm exec prettier --check ...` and
+`git diff --check 99ff48cd4b71be51e220230480dadae048489ef3`.
 `BROWSER_MODULE_ROOT` names the existing isolated puppeteer-core package.json;
 `APP_URL` overrides localhost:4321; `LEAN_ROOT` overrides the oracle's LEAN root.
 The ordinary monorepo `corepack pnpm typecheck` wrapper initially failed because
@@ -228,12 +251,14 @@ this host has no bare pnpm shim; the actual three package checks above pass.
 
 ### Remaining limitations and boundary audit
 
-- Production `next build` was attempted on the final same-source Windows snapshot:
+- Production `next build` was attempted in the original Phase H Windows qualification:
   compilation succeeds, full build exits **1** on standalone trace-copy symlinks
   with **EPERM**. This is the documented Phase F/G host limitation; no dependency,
   upstream, privilege or packaging workaround is introduced. Production standalone
   deployment is not qualified. The Phase H browser workflows qualify the local
-  Windows development-server experience.
+  Windows development-server experience. It was not repeated for this focused
+  source-binding delta; the original build receipt is retained in
+  `failure-attempts.json` and the original publication commit.
 - Existing derived M1 bar-close, latest-exported-periodic-sample and Phase E MC/
   trailing provenance limits remain. Same-minute canvas annotations can overlap;
   the exact ledger/account panels retain identities and values.
@@ -260,6 +285,29 @@ acceptance defect remains in the qualified local Windows workflow.
   records exact review provenance and the final application publication head.
   Current review heads are in PR metadata. Both PRs remain open, unmerged and
   awaiting independent review; Phase H is not finalized and Phase I is not started.
-- The evidence manifest remains unchanged, SHA-256
+- The original evidence manifest SHA-256 was
   `91d7f6a1469c8399fb575b5845d70f173cd9fe63aef87acee2ff16fc3090c24d`.
-  Link-only follow-ups do not alter qualified source, tests or retained artifacts.
+  It is preserved in `pre-review-manifest.json`. The review correction refreshes
+  the current seal; its hash and publication heads are in the paired control
+  record and PR metadata.
+
+## Independent-review correction — complete source binding
+
+Review of application `804f7b072ff58f0e93ce4bca577dfb18e4f2624d` and control
+`1d8792ea0ea3ddfa13636a702c0bb6e6fe013fba` found a blocking manifest-only
+navigation binding and a missing retained whitespace command. The original
+ready-for-review claim did not establish readiness to merge.
+
+Correction `121cc595f57ab2c45ecec83ec4eaf60b9522f5d4` closes that hole using the
+existing three-field RunSource and a transparent required tuple, with no new
+architecture. Native-request regression covers the accepted-candle-only switch,
+all five routes, fresh bindings and omitted/manifest-only rejection. The affected
+Windows automated, complete run-navigation browser, four fail-closed cases and
+full preserved Phase G regression pass; whitespace validation is now in the
+automated receipt. Review corrections are **ready for delta re-review**, with
+approval, merge and Phase H finalization still pending. Phase I remains unstarted.
+
+Refreshed evidence manifest SHA-256:
+**`4e503ac916faaec27561a9e436b67d59e8934cc1c52e5ac41dc7fd1cf1d08983`**,
+binding 35 artifacts, 13 runtime paths and four test paths. Exact current review
+heads are recorded in the paired control record and PR metadata.

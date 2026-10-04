@@ -1,7 +1,7 @@
 {
   "mode": "qualified",
   "platform": "win32",
-  "started": "2026-10-04T19:47:16.759Z",
+  "started": "2026-10-04T20:58:10.410Z",
   "packageHash": "d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4",
   "candleHash": "ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
   "resultsHash": "bc3958b2629e8930ef8de3890cac9c80006f26d7c8dffdf5ecf54d6a6aa9bdad",
@@ -3191,9 +3191,9 @@
   "runtimeSourceLfSha256": {
     "apps/web/src/components/marketlab-replay.tsx": "2ae55498f3eaff702784f6cc485abf3cdda27838fd2a92f778b710b1a879560e",
     "apps/web/src/components/marketlab-replay-chart.tsx": "153dee7b3f63c264e0e7ff03835b0b08ba7fb63307f880d2548dafcbe5e65aba",
-    "apps/web/src/server/marketlab-replay.ts": "c9f27155ef83db24f74df3fcaf020483c8f3e06cee98822a92906b79a09ed1f3",
+    "apps/web/src/server/marketlab-replay.ts": "b6d4fb98b0bf95e93b9b084c32d680e51559576e51bcd77a45c7b7c20a6a6a95",
     "apps/web/src/lib/marketlab-replay.ts": "1f6354ab2dbf28fe37720f47c8903f85e530b9ff508bc565807cc29dbd1802ad",
-    "apps/web/src/app/backtests/page.tsx": "791dbf0d2e42d6a8e15bbc701eea5fbda2ccd099dfc6f23d44b4f92805faaa4d",
+    "apps/web/src/app/backtests/page.tsx": "25a54442290d327ad8795a315ba3c9c3cdca4f40f66d17af20715113266d6ec9",
     "apps/web/src/app/api/marketlab-replay/baskets/[number]/reveal/route.ts": "4b69ccda468eaa2ee3f69d30a026c6cd673b1e2bcf103b88c86b453f04eef17b"
   },
   "layout": {
@@ -3215,44 +3215,44 @@
       "candles": 1
     },
     {
-      "cursor": "2020-03-16 15:20:00Z",
-      "candles": 2
+      "cursor": "2020-03-16 15:19:00Z",
+      "candles": 1
     },
     {
-      "cursor": "2020-03-16 15:21:00Z",
-      "candles": 3
+      "cursor": "2020-03-16 15:19:00Z",
+      "candles": 1
     },
     {
-      "cursor": "2020-03-16 15:22:00Z",
-      "candles": 4
+      "cursor": "2020-03-16 15:35:00Z",
+      "candles": 17
     },
     {
-      "cursor": "2020-03-16 15:23:00Z",
-      "candles": 5
+      "cursor": "2020-03-16 15:47:17.769Z",
+      "candles": 29
     },
     {
-      "cursor": "2020-03-16 15:24:00Z",
-      "candles": 6
+      "cursor": "2020-03-16 15:48:53.366Z",
+      "candles": 30
     },
     {
-      "cursor": "2020-03-16 15:25:00Z",
-      "candles": 7
+      "cursor": "2020-03-16 15:54:51.202Z",
+      "candles": 36
     },
     {
-      "cursor": "2020-03-16 15:25:00Z",
-      "candles": 7
+      "cursor": "2020-03-16 16:10:00Z",
+      "candles": 52
     },
     {
-      "cursor": "2020-03-18 19:27:00Z",
-      "candles": 3009
+      "cursor": "2020-03-18 20:15:00Z",
+      "candles": 3057
     },
     {
-      "cursor": "2020-03-23 00:35:00Z",
-      "candles": 6017
+      "cursor": "2020-03-23 01:23:00Z",
+      "candles": 6065
     },
     {
-      "cursor": "2020-03-25 05:02:00Z",
-      "candles": 9028
+      "cursor": "2020-03-25 05:51:00Z",
+      "candles": 9076
     }
   ],
   "failurePaths": [
@@ -3336,5 +3336,5 @@
     }
   },
   "result": "PASS: Basket #276 Phase G local browser acceptance",
-  "ended": "2026-10-04T19:56:26.040Z"
+  "ended": "2026-10-04T21:09:05.072Z"
 }

@@ -42,6 +42,7 @@ const commands = [
   "corepack pnpm --filter @luxalgo/journal-core typecheck",
   "corepack pnpm --filter @luxalgo/journal-importers typecheck",
   `corepack pnpm exec prettier --check ${paths.map((p) => `"${p}"`).join(" ")}`,
+  "git diff --check 99ff48cd4b71be51e220230480dadae048489ef3",
 ];
 const report = {
   started: new Date().toISOString(),

@@ -1,15 +1,7 @@
 {
   "status": "Phase H implemented and ready for independent review; not finalized",
-  "sealed": "2026-10-04T21:40:56.742Z",
-  "implementation": "121cc595f57ab2c45ecec83ec4eaf60b9522f5d4",
-  "reviewCorrection": {
-    "reviewedApplicationHead": "804f7b072ff58f0e93ce4bca577dfb18e4f2624d",
-    "reviewedControlHead": "1d8792ea0ea3ddfa13636a702c0bb6e6fe013fba",
-    "originalSeal": "91d7f6a1469c8399fb575b5845d70f173cd9fe63aef87acee2ff16fc3090c24d",
-    "binding": "packageSha256:manifestSha256:candleContentSha256; required on all navigation routes",
-    "staleCandleCheck": "fail-closed.json / unchanged package and manifest / stale clients rejected / fresh clients accepted",
-    "whitespaceCommand": "git diff --check 99ff48cd4b71be51e220230480dadae048489ef3"
-  },
+  "sealed": "2026-10-04T20:15:10.807Z",
+  "implementation": "8e93aa10e9dd7accd158f75d6486cd027038b7a0",
   "packageHash": "d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4",
   "candleHash": "ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
   "resultsHash": "bc3958b2629e8930ef8de3890cac9c80006f26d7c8dffdf5ecf54d6a6aa9bdad",
@@ -18,23 +10,22 @@
   "runtimeSourceLfSha256": {
     "apps/web/src/components/marketlab-replay.tsx": "2ae55498f3eaff702784f6cc485abf3cdda27838fd2a92f778b710b1a879560e",
     "apps/web/src/components/marketlab-replay-chart.tsx": "153dee7b3f63c264e0e7ff03835b0b08ba7fb63307f880d2548dafcbe5e65aba",
-    "apps/web/src/server/marketlab-replay.ts": "b6d4fb98b0bf95e93b9b084c32d680e51559576e51bcd77a45c7b7c20a6a6a95",
+    "apps/web/src/server/marketlab-replay.ts": "c9f27155ef83db24f74df3fcaf020483c8f3e06cee98822a92906b79a09ed1f3",
     "apps/web/src/lib/marketlab-replay.ts": "1f6354ab2dbf28fe37720f47c8903f85e530b9ff508bc565807cc29dbd1802ad",
-    "apps/web/src/app/backtests/page.tsx": "25a54442290d327ad8795a315ba3c9c3cdca4f40f66d17af20715113266d6ec9",
+    "apps/web/src/app/backtests/page.tsx": "791dbf0d2e42d6a8e15bbc701eea5fbda2ccd099dfc6f23d44b4f92805faaa4d",
     "apps/web/src/app/api/marketlab-replay/baskets/[number]/reveal/route.ts": "4b69ccda468eaa2ee3f69d30a026c6cd673b1e2bcf103b88c86b453f04eef17b",
     "apps/web/src/app/api/marketlab-replay/baskets/[number]/route.ts": "dabea8d1975d70d72f0ba869c1cd815f7ce799c397d407701d69805984cae3e6",
     "apps/web/src/app/api/marketlab-replay/baskets/[number]/window/route.ts": "25693caade4fcc1fb4b5fae4cb9d23b576f0278d6fe822f4f6a99fe21967907d",
     "apps/web/src/app/api/marketlab-replay/route.ts": "efbfae5a172a64a1a7ab2fdc420edc08b6ba5fc953b161a7fb3757849a4dd615",
-    "apps/web/src/app/api/marketlab-replay/run/route.ts": "0a54128d7147539a9225b77c288f7c3cec1251f02d689ca518c29636dcccb90c",
-    "apps/web/src/components/marketlab-run.tsx": "8471ad0439cd79505f7fb89c98fffd9e23f5028bfae47a8135b346c41661e697",
-    "apps/web/src/lib/marketlab-run.ts": "90b91981cd5d94513012b0c67084a7e7379a0ffc154f4a63d086472333e98687",
-    "apps/web/src/server/marketlab-run.ts": "c6320316ab1c6122edb32466da97b18d17aaec5689fa9e0287d233c28f49c723"
+    "apps/web/src/app/api/marketlab-replay/run/route.ts": "3842714b0864014d462b9b100db1e07f320205bb135d21cd7339b8e6e4a369ac",
+    "apps/web/src/components/marketlab-run.tsx": "aa96ee33dba59f64857fb15ab28c76a51aa0e742cfe9f126c6959765d1519168",
+    "apps/web/src/lib/marketlab-run.ts": "9f2ee92ae448e05c7978bcfe715b91229457184f286967bc2e7db28bede279ef",
+    "apps/web/src/server/marketlab-run.ts": "365649d81c7eaa9de7ccd0b1930facb65a717fb4f7a124c6de83a30b13b90712"
   },
   "testsSourceLfSha256": {
-    "apps/web/tests/helpers/marketlab-alternate-candles.ts": "30c17c9f0e80b525f36ddd524302761ac39ee6aff09f48d50fc3a4bf8853ee65",
     "apps/web/tests/marketlab-replay-ui.test.ts": "aa4c4a05f423f879ca713fdfdf86339e8fa165dc5b382b6b4ccf856ce634b310",
-    "apps/web/tests/marketlab-replay.test.ts": "6a8f19fa30ebdf1394d023d95f1377d672612b8519cfd886471d4674dbd02e8b",
-    "apps/web/tests/marketlab-run.test.ts": "35b6622ca4ef17cb6fe662c1c3f231773eaad5d0a5a8a9e815314a92369da9a0"
+    "apps/web/tests/marketlab-replay.test.ts": "bace9e578fb4d852b479dbcafb0df508e98b3ee37bfafdaf50bf31fe12de9b22",
+    "apps/web/tests/marketlab-run.test.ts": "af64d4c4ddc9f9eeb891ad8fea7e697f9d3f3da5067e1bbde4fc605c756f4f15"
   },
   "startingDefaults": {
     "control": "f77ecdb8588ba6ccc4453da6916365d2a399aa4d",
@@ -44,8 +35,8 @@
   "controlReviewBase": "f0c49cd945d28d1b5c7fe5ad1c8ab635a2677230",
   "browserMode": "native Windows / headless installed Edge / real application",
   "tests": {
-    "total": 621,
-    "passed": 621,
+    "total": 620,
+    "passed": 620,
     "failed": 0,
     "pending": 0,
     "success": true
@@ -58,63 +49,63 @@
   "evidence": [
     {
       "path": "attempts.json",
-      "bytes": 5099,
-      "sha256": "26a123a4107de109cc628d0ec7297d6ecb73e64b83a1b2d89d13beef5b61518e"
+      "bytes": 4950,
+      "sha256": "3fea19b7420edc71dfb249028aff022da82c5a57df94ee7591c9ec09ce6ff707"
     },
     {
       "path": "automated-attempts.json",
-      "bytes": 10683,
-      "sha256": "725f7c86e35d293ce1604e525318f41ceb25743cf24778f31b6a46c28803b293"
+      "bytes": 4028,
+      "sha256": "4867fa2883e7ae033e8d4dfb88ee13e93b82c5db4e79c1fdd0e75db1270f9035"
     },
     {
       "path": "automated.json",
-      "bytes": 4182,
-      "sha256": "4efa82808a9993c61448f3cc37bc6a0edd6eb6f10a06f8fc69ed76c5623310a4"
+      "bytes": 2133,
+      "sha256": "0af9c767a88040e6423fef4a2cede31c37a591bacac18c7feb8a4379a60a73ac"
     },
     {
       "path": "automated.mjs",
-      "bytes": 3300,
-      "sha256": "e035fdf3d3bd0a66b6fcb776dce6c74b8898220a97b4ce925ff2d96cd88ad74b"
+      "bytes": 3237,
+      "sha256": "3187791af9a1c871d05d6f806765de099b4f2ddf78546190f82ebb5b6eebeb09"
     },
     {
       "path": "browser.json",
-      "bytes": 43431,
-      "sha256": "0cc87b81be87acc51b04b757eaa1829417f35addf83e1d41d0d97e6bf2f79960"
+      "bytes": 34979,
+      "sha256": "e2489c24f99c4e1be97b4f3b617dfbe6e306bb4a82b24c6cd50a08047ca98e90"
     },
     {
       "path": "browser.mjs",
-      "bytes": 20567,
-      "sha256": "29fe1fa9f62cb8c0790b62273bcadccd5b0564370c9b510d40e909e4005696a1"
+      "bytes": 20433,
+      "sha256": "80ccd1486dda2b6319cd6c3b532725df27ad6a0b17b5f91f7ac8797dfda6ee4b"
     },
     {
       "path": "exact-liquidation-jump.png",
-      "bytes": 135172,
-      "sha256": "539271c8c049fd858e4e86b44ca0501e4eb050c767b79afa86c474d17257a3f1"
+      "bytes": 138629,
+      "sha256": "ae2d5a57970a0892e684e9b836b6039740c2bb52c02b4e34bd4b29a3e004c4e2"
     },
     {
       "path": "fail-closed.json",
-      "bytes": 3065,
-      "sha256": "b8030a9d8e889a509a5aa1dc08d0e07a962649f8cc5b65b31f5c53ef0c65a15e"
+      "bytes": 2918,
+      "sha256": "11fd49079d25a5fd1490a7875b81b6c6c03edaf73b770bb32818d2f47d9fd30b"
     },
     {
       "path": "fail-closed.mjs",
-      "bytes": 14629,
-      "sha256": "32c239d5ab561b0be1fa64b17079ec173d4b6104631f1b433fc0fa71c74edc28"
+      "bytes": 7129,
+      "sha256": "1609f8ddb7ed057cff263a8d88a835896a6c99b4b4947f1b4d51d6cd749156fa"
     },
     {
       "path": "failure-attempts.json",
-      "bytes": 6940,
-      "sha256": "34e3d9b147afa37da3a78f475cc506396119ba2b1748e1dddba911a3f133fca8"
+      "bytes": 517,
+      "sha256": "0a5882074ae5a392e5729e1375790c4ec18c99bf052efda03cadb6e428cfabb1"
     },
     {
       "path": "final-open.png",
-      "bytes": 120451,
-      "sha256": "47bd085e1a89a68ef9c1f105d9dcd9711e0d657849a90859832cd8d008be554f"
+      "bytes": 122351,
+      "sha256": "6332b33c4e780633dc6f0195ef5004c428cc823d42af1716293195fd3d79b367"
     },
     {
       "path": "invalid-input.png",
-      "bytes": 48020,
-      "sha256": "d1544d88ccd6a66161b9d18f4ac6e890326c0036d4025a95c0044e81398dd1ab"
+      "bytes": 48025,
+      "sha256": "51e3eec4d5f3c7b0da4200e19ff63da5a198ae98214d9d1de11160bbe0e425c1"
     },
     {
       "path": "overview.png",
@@ -122,14 +113,9 @@
       "sha256": "fe7e339b1eacc0b7abf595191fae7b35096abea892e43c4525efb4d1dc52ce6c"
     },
     {
-      "path": "pre-review-manifest.json",
-      "bytes": 8502,
-      "sha256": "91d7f6a1469c8399fb575b5845d70f173cd9fe63aef87acee2ff16fc3090c24d"
-    },
-    {
       "path": "README.md",
-      "bytes": 3092,
-      "sha256": "118bd89ee84e983ee08bbcf8c968276b5fd536302ec7fdb411d5a4b833e3903f"
+      "bytes": 2430,
+      "sha256": "e0cee59c6763e4e628d12a94e82c60b27ec4cd8b57c373934f13308f784d0127"
     },
     {
       "path": "regression.mjs",
@@ -148,8 +134,8 @@
     },
     {
       "path": "regression/attempts.json",
-      "bytes": 2388,
-      "sha256": "562d8e42cf1dd654f3b4c7fa3d6462b50f2e3cdda95b8acd71ca97ec9279052e"
+      "bytes": 1647,
+      "sha256": "a410e1174b2c80058718e7aa8c7ceb3b8cb390377ac37a9d8513b349066e0c86"
     },
     {
       "path": "regression/failure-qualified.png",
@@ -158,8 +144,8 @@
     },
     {
       "path": "regression/qualified.json",
-      "bytes": 111891,
-      "sha256": "823b2c248d6c4dc82fd6a0feda5f5cc081690ff16a0c26aab80c7ea9dad7edda"
+      "bytes": 111874,
+      "sha256": "598ac9d5ed9cc985d51196edd42a3aaa40d61df4660754fca2958173977e333e"
     },
     {
       "path": "regression/README.md",
@@ -213,8 +199,8 @@
     },
     {
       "path": "seal.mjs",
-      "bytes": 5822,
-      "sha256": "c88bdfa0bcbb1434f2dc7ab5e5d144c988d3c388c36895709d15c2c4193d4b91"
+      "bytes": 4169,
+      "sha256": "932ec7009f79d8b162685a7e270856f6011a6aa4ebb1dfb7a5381c5444a0f1c2"
     },
     {
       "path": "source.mjs",
@@ -222,14 +208,9 @@
       "sha256": "fea77e2a69d302eb45f407a313cca80699808cc8fadb1928fccca995f89028b6"
     },
     {
-      "path": "stale-candle-navigation.png",
-      "bytes": 44032,
-      "sha256": "f1a17aa38494ce871c7d12a1b75c9b33a0a7037df9fbebf67fcbbddf7e7c94a7"
-    },
-    {
       "path": "timeline-run-end.png",
-      "bytes": 106133,
-      "sha256": "80c47d12e118f7db34c735d8995007bb92f8fae8ed060e31332b8a100b1f2b01"
+      "bytes": 106672,
+      "sha256": "ad926970ad37c73079c380b363a98765228069e4f8c85a0170d9b1136fee82ed"
     }
   ],
   "phaseI": "not started",

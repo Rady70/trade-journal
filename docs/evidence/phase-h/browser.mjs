@@ -230,7 +230,7 @@ try {
   const status = (await api("")).data;
   assert.equal(status.package.packageSha256, packageHash);
   assert.equal(status.candles.contentSha256, candleHash);
-  manifest = status.package.manifestSha256;
+  manifest = `${status.package.packageSha256}:${status.package.manifestSha256}:${status.candles.contentSha256}`;
   const summary = await api("/run");
   assert.deepEqual((await api("?index=0")).data.baskets, []);
   const end = s.runEnd;
@@ -523,7 +523,7 @@ try {
   await Promise.all([...pending]);
   report.invalidRequests = [];
   for (const path of [
-    `/run?view=baskets&source=${"0".repeat(64)}`,
+    `/run?view=baskets&source=${"0".repeat(64)}:${status.package.manifestSha256}:${status.candles.contentSha256}`,
     `/run?view=timeline&source=${manifest}&filter=unknown`,
     `/baskets/1?event=1323&source=${manifest}`,
     `/baskets/276/reveal?after=0&cursor=1584965186293&event=1323&source=${manifest}`,

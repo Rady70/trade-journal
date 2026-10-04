@@ -1,5 +1,5 @@
 {
-  "started": "2026-10-04T19:47:15.638Z",
+  "started": "2026-10-04T20:58:10.939Z",
   "platform": "win32",
   "node": "v24.19.0",
   "packageHash": "d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4",
@@ -576,427 +576,427 @@
   ],
   "windows": [
     {
-      "url": "/api/marketlab-replay/baskets/1/window?from=1546382108037&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/1/window?from=1546382108037&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 26982,
       "bars": 467,
       "first": 1546383600000,
       "last": 1546411560000
     },
     {
-      "url": "/api/marketlab-replay/baskets/1/window?from=1546382108037&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/1/window?from=1546382108037&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 26982,
       "bars": 467,
       "first": 1546383600000,
       "last": 1546411560000
     },
     {
-      "url": "/api/marketlab-replay/baskets/5/window?from=1550624088474&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/5/window?from=1550624088474&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 64798,
       "bars": 1132,
       "first": 1550624100000,
       "last": 1550692020000
     },
     {
-      "url": "/api/marketlab-replay/baskets/5/window?from=1550624088474&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/5/window?from=1550624088474&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 64798,
       "bars": 1132,
       "first": 1550624100000,
       "last": 1550692020000
     },
     {
-      "url": "/api/marketlab-replay/baskets/6/window?from=1550688514205&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/6/window?from=1550688514205&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 78109,
       "bars": 1360,
       "first": 1550688540000,
       "last": 1550773740000
     },
     {
-      "url": "/api/marketlab-replay/baskets/6/window?from=1550688514205&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/6/window?from=1550688514205&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 78109,
       "bars": 1360,
       "first": 1550688540000,
       "last": 1550773740000
     },
     {
-      "url": "/api/marketlab-replay/baskets/4/window?from=1546468669002&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/4/window?from=1546468669002&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 681886,
       "bars": 12000,
       "first": 1546470000000,
       "last": 1547566260000
     },
     {
-      "url": "/api/marketlab-replay/baskets/4/window?from=1546468669002&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/4/window?from=1546468669002&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 681886,
       "bars": 12000,
       "first": 1546470000000,
       "last": 1547566260000
     },
     {
-      "url": "/api/marketlab-replay/baskets/276/window?from=1584371837769&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584371837769&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 670007,
       "bars": 12000,
       "first": 1584371880000,
       "last": 1585298580000
     },
     {
-      "url": "/api/marketlab-replay/baskets/276/window?from=1584371837769&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584371837769&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 670007,
       "bars": 12000,
       "first": 1584371880000,
       "last": 1585298580000
     },
     {
-      "url": "/api/marketlab-replay/baskets/279/window?from=1586821313011&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/279/window?from=1586821313011&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 655640,
       "bars": 12000,
       "first": 1586821320000,
       "last": 1587742920000
     },
     {
-      "url": "/api/marketlab-replay/baskets/279/window?from=1586821313011&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/279/window?from=1586821313011&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 655640,
       "bars": 12000,
       "first": 1586821320000,
       "last": 1587742920000
     },
     {
-      "url": "/api/marketlab-replay/baskets/280/window?from=1592384570619&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/280/window?from=1592384570619&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 684358,
       "bars": 12000,
       "first": 1592384580000,
       "last": 1593482640000
     },
     {
-      "url": "/api/marketlab-replay/baskets/280/window?from=1592384570619&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/280/window?from=1592384570619&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 684358,
       "bars": 12000,
       "first": 1592384580000,
       "last": 1593482640000
     },
     {
-      "url": "/api/marketlab-replay/baskets/1/window?from=1546382108037&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/1/window?from=1546382108037&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 26982,
       "bars": 467,
       "first": 1546383600000,
       "last": 1546411560000
     },
     {
-      "url": "/api/marketlab-replay/baskets/1/window?from=1546382108037&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/1/window?from=1546382108037&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 26982,
       "bars": 467,
       "first": 1546383600000,
       "last": 1546411560000
     },
     {
-      "url": "/api/marketlab-replay/baskets/1/window?from=1546382108037&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/1/window?from=1546382108037&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 26982,
       "bars": 467,
       "first": 1546383600000,
       "last": 1546411560000
     },
     {
-      "url": "/api/marketlab-replay/baskets/1/window?from=1546382108037&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/1/window?from=1546382108037&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 26982,
       "bars": 467,
       "first": 1546383600000,
       "last": 1546411560000
     },
     {
-      "url": "/api/marketlab-replay/baskets/1/window?from=1546387345707&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/1/window?from=1546387345707&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 23349,
       "bars": 404,
       "first": 1546387380000,
       "last": 1546411560000
     },
     {
-      "url": "/api/marketlab-replay/baskets/1/window?from=1546387345707&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/1/window?from=1546387345707&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 23349,
       "bars": 404,
       "first": 1546387380000,
       "last": 1546411560000
     },
     {
-      "url": "/api/marketlab-replay/baskets/1/window?from=1546388279941&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/1/window?from=1546388279941&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 22507,
       "bars": 389,
       "first": 1546388280000,
       "last": 1546411560000
     },
     {
-      "url": "/api/marketlab-replay/baskets/1/window?from=1546388279941&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/1/window?from=1546388279941&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 22507,
       "bars": 389,
       "first": 1546388280000,
       "last": 1546411560000
     },
     {
-      "url": "/api/marketlab-replay/baskets/4/window?from=1550604288424&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/4/window?from=1550604288424&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 18956,
       "bars": 326,
       "first": 1550604300000,
       "last": 1550627580000
     },
     {
-      "url": "/api/marketlab-replay/baskets/4/window?from=1550604288424&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/4/window?from=1550604288424&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 18956,
       "bars": 326,
       "first": 1550604300000,
       "last": 1550627580000
     },
     {
-      "url": "/api/marketlab-replay/baskets/276/window?from=1584371837769&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584371837769&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 670007,
       "bars": 12000,
       "first": 1584371880000,
       "last": 1585298580000
     },
     {
-      "url": "/api/marketlab-replay/baskets/276/window?from=1584371837769&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584371837769&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 670007,
       "bars": 12000,
       "first": 1584371880000,
       "last": 1585298580000
     },
     {
-      "url": "/api/marketlab-replay/baskets/276/window?from=1584943519738&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943519738&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 659696,
       "bars": 12000,
       "first": 1584943560000,
       "last": 1585870320000
     },
     {
-      "url": "/api/marketlab-replay/baskets/276/window?from=1584943519738&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943519738&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 659696,
       "bars": 12000,
       "first": 1584943560000,
       "last": 1585870320000
     },
     {
-      "url": "/api/marketlab-replay/baskets/276/window?from=1584943519889&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943519889&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 659696,
       "bars": 12000,
       "first": 1584943560000,
       "last": 1585870320000
     },
     {
-      "url": "/api/marketlab-replay/baskets/276/window?from=1584943519889&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943519889&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 659696,
       "bars": 12000,
       "first": 1584943560000,
       "last": 1585870320000
     },
     {
-      "url": "/api/marketlab-replay/baskets/276/window?from=1584943586292&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943586292&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 659696,
       "bars": 12000,
       "first": 1584943620000,
       "last": 1585870380000
     },
     {
-      "url": "/api/marketlab-replay/baskets/276/window?from=1584943586292&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943586292&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 659696,
       "bars": 12000,
       "first": 1584943620000,
       "last": 1585870380000
     },
     {
-      "url": "/api/marketlab-replay/baskets/276/window?from=1584943592137&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943592137&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 659696,
       "bars": 12000,
       "first": 1584943620000,
       "last": 1585870380000
     },
     {
-      "url": "/api/marketlab-replay/baskets/276/window?from=1584943592137&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943592137&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 659696,
       "bars": 12000,
       "first": 1584943620000,
       "last": 1585870380000
     },
     {
-      "url": "/api/marketlab-replay/baskets/276/window?from=1584943598717&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943598717&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 659696,
       "bars": 12000,
       "first": 1584943620000,
       "last": 1585870380000
     },
     {
-      "url": "/api/marketlab-replay/baskets/276/window?from=1584943598717&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943598717&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 659696,
       "bars": 12000,
       "first": 1584943620000,
       "last": 1585870380000
     },
     {
-      "url": "/api/marketlab-replay/baskets/276/window?from=1584943614330&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943614330&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 659696,
       "bars": 12000,
       "first": 1584943620000,
       "last": 1585870380000
     },
     {
-      "url": "/api/marketlab-replay/baskets/276/window?from=1584943614330&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943614330&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 659696,
       "bars": 12000,
       "first": 1584943620000,
       "last": 1585870380000
     },
     {
-      "url": "/api/marketlab-replay/baskets/279/window?from=1592364770569&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/279/window?from=1592364770569&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 22505,
       "bars": 389,
       "first": 1592364780000,
       "last": 1592388060000
     },
     {
-      "url": "/api/marketlab-replay/baskets/279/window?from=1592364770569&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/279/window?from=1592364770569&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 22505,
       "bars": 389,
       "first": 1592364780000,
       "last": 1592388060000
     },
     {
-      "url": "/api/marketlab-replay/baskets/276/window?from=1584943586292&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943586292&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 659696,
       "bars": 12000,
       "first": 1584943620000,
       "last": 1585870380000
     },
     {
-      "url": "/api/marketlab-replay/baskets/276/window?from=1584943586292&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943586292&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 659696,
       "bars": 12000,
       "first": 1584943620000,
       "last": 1585870380000
     },
     {
-      "url": "/api/marketlab-replay/baskets/276/window?from=1584943586292&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943586292&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 659696,
       "bars": 12000,
       "first": 1584943620000,
       "last": 1585870380000
     },
     {
-      "url": "/api/marketlab-replay/baskets/276/window?from=1584943586292&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943586292&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 659696,
       "bars": 12000,
       "first": 1584943620000,
       "last": 1585870380000
     },
     {
-      "url": "/api/marketlab-replay/baskets/276/window?from=1586780650475&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/276/window?from=1586780650475&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 22003,
       "bars": 389,
       "first": 1586780700000,
       "last": 1586803980000
     },
     {
-      "url": "/api/marketlab-replay/baskets/276/window?from=1586780650475&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/276/window?from=1586780650475&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 22003,
       "bars": 389,
       "first": 1586780700000,
       "last": 1586803980000
     },
     {
-      "url": "/api/marketlab-replay/baskets/279/window?from=1592364770569&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/279/window?from=1592364770569&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 22505,
       "bars": 389,
       "first": 1592364780000,
       "last": 1592388060000
     },
     {
-      "url": "/api/marketlab-replay/baskets/279/window?from=1592364770569&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/279/window?from=1592364770569&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 22505,
       "bars": 389,
       "first": 1592364780000,
       "last": 1592388060000
     },
     {
-      "url": "/api/marketlab-replay/baskets/280/window?from=1592384570619&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/280/window?from=1592384570619&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 684358,
       "bars": 12000,
       "first": 1592384580000,
       "last": 1593482640000
     },
     {
-      "url": "/api/marketlab-replay/baskets/280/window?from=1592384570619&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/280/window?from=1592384570619&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 684358,
       "bars": 12000,
       "first": 1592384580000,
       "last": 1593482640000
     },
     {
-      "url": "/api/marketlab-replay/baskets/280/window?from=1614633488907&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/280/window?from=1614633488907&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 692475,
       "bars": 12000,
       "first": 1614633540000,
       "last": 1615558680000
     },
     {
-      "url": "/api/marketlab-replay/baskets/280/window?from=1614633488907&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/280/window?from=1614633488907&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 692475,
       "bars": 12000,
       "first": 1614633540000,
       "last": 1615558680000
     },
     {
-      "url": "/api/marketlab-replay/baskets/280/window?from=1782842399678&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/280/window?from=1782842399678&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 16241,
       "bars": 299,
       "first": 1782842400000,
       "last": 1782863880000
     },
     {
-      "url": "/api/marketlab-replay/baskets/280/window?from=1782842399678&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/280/window?from=1782842399678&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 16241,
       "bars": 299,
       "first": 1782842400000,
       "last": 1782863880000
     },
     {
-      "url": "/api/marketlab-replay/baskets/280/window?from=1592384570619&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/280/window?from=1592384570619&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 684358,
       "bars": 12000,
       "first": 1592384580000,
       "last": 1593482640000
     },
     {
-      "url": "/api/marketlab-replay/baskets/280/window?from=1592384570619&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/280/window?from=1592384570619&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 684358,
       "bars": 12000,
       "first": 1592384580000,
       "last": 1593482640000
     },
     {
-      "url": "/api/marketlab-replay/baskets/280/window?from=1623792076414&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/280/window?from=1623792076414&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 658801,
       "bars": 12000,
       "first": 1623794400000,
       "last": 1624888740000
     },
     {
-      "url": "/api/marketlab-replay/baskets/280/window?from=1718460352656&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/280/window?from=1718460352656&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 676869,
       "bars": 12000,
       "first": 1718575200000,
       "last": 1719505860000
     },
     {
-      "url": "/api/marketlab-replay/baskets/280/window?from=1782651920249&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/280/window?from=1782651920249&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 157443,
       "bars": 2879,
       "first": 1782684000000,
       "last": 1782863880000
     },
     {
-      "url": "/api/marketlab-replay/baskets/6/window?from=1550688514205&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/6/window?from=1550688514205&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 78109,
       "bars": 1360,
       "first": 1550688540000,
       "last": 1550773740000
     },
     {
-      "url": "/api/marketlab-replay/baskets/6/window?from=1550688514205&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "url": "/api/marketlab-replay/baskets/6/window?from=1550688514205&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "bytes": 78109,
       "bars": 1360,
       "first": 1550688540000,
@@ -1095,43 +1095,43 @@
     {
       "offset": 0,
       "bytes": 11390,
-      "ms": 9408.006399999998,
+      "ms": 11394.474300000002,
       "count": 40
     },
     {
       "offset": 40,
       "bytes": 11460,
-      "ms": 67.73790000000008,
+      "ms": 57.619000000006054,
       "count": 40
     },
     {
       "offset": 80,
       "bytes": 11462,
-      "ms": 58.794800000003306,
+      "ms": 56.187999999994645,
       "count": 40
     },
     {
       "offset": 120,
       "bytes": 11495,
-      "ms": 29.56040000000212,
+      "ms": 58.60329999998794,
       "count": 40
     },
     {
       "offset": 160,
       "bytes": 11494,
-      "ms": 33.60049999999319,
+      "ms": 44.65910000001895,
       "count": 40
     },
     {
       "offset": 200,
       "bytes": 11527,
-      "ms": 42.64640000000509,
+      "ms": 32.920799999992596,
       "count": 40
     },
     {
       "offset": 240,
       "bytes": 11545,
-      "ms": 35.26029999999446,
+      "ms": 42.5683999999892,
       "count": 40
     }
   ],
@@ -1158,28 +1158,28 @@
   ],
   "invalidRequests": [
     {
-      "path": "/run?view=baskets&source=0000000000000000000000000000000000000000000000000000000000000000",
+      "path": "/run?view=baskets&source=0000000000000000000000000000000000000000000000000000000000000000:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "status": 422,
       "body": {
         "error": "Run navigation source identity changed; reload the run."
       }
     },
     {
-      "path": "/run?view=timeline&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18&filter=unknown",
+      "path": "/run?view=timeline&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d&filter=unknown",
       "status": 400,
       "body": {
         "error": "Unsupported run filter."
       }
     },
     {
-      "path": "/baskets/1?event=1323&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "path": "/baskets/1?event=1323&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "status": 422,
       "body": {
         "error": "The requested occurrence does not belong to this basket context."
       }
     },
     {
-      "path": "/baskets/276/reveal?after=0&cursor=1584965186293&event=1323&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "path": "/baskets/276/reveal?after=0&cursor=1584965186293&event=1323&source=d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4:825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18:ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
       "status": 422,
       "body": {
         "error": "The occurrence cursor is inconsistent."
@@ -1189,5 +1189,5 @@
   "maxWindowBars": 12000,
   "maxWindowBytes": 692475,
   "result": "PASS",
-  "ended": "2026-10-04T19:49:05.495Z"
+  "ended": "2026-10-04T21:01:52.192Z"
 }

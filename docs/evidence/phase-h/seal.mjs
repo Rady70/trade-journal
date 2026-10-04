@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { join, relative } from "node:path";
@@ -16,15 +16,39 @@ assert.equal(json("browser.json").result, "PASS");
 assert.equal(json("fail-closed.json").result, "PASS");
 assert.equal(json("automated.json").result, "PASS");
 assert.ok(json("regression/qualified.json").result.startsWith("PASS"));
-const implementation = "8e93aa10e9dd7accd158f75d6486cd027038b7a0";
+const implementation = "121cc595f57ab2c45ecec83ec4eaf60b9522f5d4";
 const files = execFileSync(
   "git",
   ["diff", "--name-only", "99ff48cd4b71be51e220230480dadae048489ef3", implementation],
   { encoding: "utf8" },
 )
   .trim()
-  .split("\n");
+  .split("\n")
+  .filter((p) => /^apps\/web\/(?:src|tests)\//.test(p));
 const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
+const originalSeal = "91d7f6a1469c8399fb575b5845d70f173cd9fe63aef87acee2ff16fc3090c24d";
+const previous = join(dir, "pre-review-manifest.json");
+if (!existsSync(previous)) {
+  const bytes = readFileSync(join(dir, "manifest.json"));
+  assert.equal(hash(bytes), originalSeal);
+  writeFileSync(previous, bytes);
+}
+assert.equal(hash(readFileSync(previous)), originalSeal);
+const stale = json("fail-closed.json").cases.find((c) => c.oldSource && c.newSource);
+assert.ok(stale);
+assert.equal(stale.oldSource.packageSha256, stale.newSource.packageSha256);
+assert.equal(stale.oldSource.manifestSha256, stale.newSource.manifestSha256);
+assert.notEqual(stale.oldSource.candleContentSha256, stale.newSource.candleContentSha256);
+assert.equal(stale.requests.length, 5);
+for (const request of stale.requests) {
+  assert.equal(request.staleStatus, 422);
+  assert.equal(request.freshStatus, 200);
+}
+assert.ok(stale.explicitReloadRecovers && stale.revealCursorUnchanged && stale.windowCleared);
+const whitespace = json("automated.json").commands.find((c) =>
+  c.command.startsWith("git diff --check"),
+);
+assert.equal(whitespace?.exit, 0);
 const runtimeSourceLfSha256 = {
   ...json("regression/qualified.json").runtimeSourceLfSha256,
   ...Object.fromEntries(
@@ -64,6 +88,15 @@ const manifest = {
   status: "Phase H implemented and ready for independent review; not finalized",
   sealed: new Date().toISOString(),
   implementation,
+  reviewCorrection: {
+    reviewedApplicationHead: "804f7b072ff58f0e93ce4bca577dfb18e4f2624d",
+    reviewedControlHead: "1d8792ea0ea3ddfa13636a702c0bb6e6fe013fba",
+    originalSeal,
+    binding: "packageSha256:manifestSha256:candleContentSha256; required on all navigation routes",
+    staleCandleCheck:
+      "fail-closed.json / unchanged package and manifest / stale clients rejected / fresh clients accepted",
+    whitespaceCommand: whitespace.command,
+  },
   packageHash,
   candleHash,
   resultsHash,
