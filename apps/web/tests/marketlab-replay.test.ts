@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { mkdtempSync, readFileSync, rmSync, unlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { runSourceToken } from "../src/lib/marketlab-run";
 import {
   accountAtCursor,
   barCloseMs,
@@ -599,12 +600,18 @@ describe("API route handlers", () => {
     const boundedBody = await bounded.json();
     expect(boundedBody.baskets).toEqual([]);
     expect(boundedBody.package).toEqual(indexBody.package);
+    const source = runSourceToken({
+      packageSha256: indexBody.package.packageSha256,
+      manifestSha256: indexBody.package.manifestSha256,
+      candleContentSha256: indexBody.candles.contentSha256,
+    });
 
     const { GET: GET_BASKET } =
       await import("../src/app/api/marketlab-replay/baskets/[number]/route");
-    const detail = await GET_BASKET(new Request("http://test/api/marketlab-replay/baskets/1"), {
-      params: Promise.resolve({ number: "1" }),
-    });
+    const detail = await GET_BASKET(
+      new Request(`http://test/api/marketlab-replay/baskets/1?source=${source}`),
+      { params: Promise.resolve({ number: "1" }) },
+    );
     expect(detail.status).toBe(200);
     const detailBody = await detail.json();
     expect(detailBody.basket.number).toBe(1);
@@ -615,9 +622,10 @@ describe("API route handlers", () => {
     expect(detailBody.basket).not.toHaveProperty("step");
     expect(detailBody).not.toHaveProperty("events");
 
-    const missing = await GET_BASKET(new Request("http://test/api/marketlab-replay/baskets/999"), {
-      params: Promise.resolve({ number: "999" }),
-    });
+    const missing = await GET_BASKET(
+      new Request(`http://test/api/marketlab-replay/baskets/999?source=${source}`),
+      { params: Promise.resolve({ number: "999" }) },
+    );
     expect(missing.status).toBe(422);
 
     const invalid = await GET_BASKET(new Request("http://test/api/marketlab-replay/baskets/x"), {
@@ -629,7 +637,7 @@ describe("API route handlers", () => {
       await import("../src/app/api/marketlab-replay/baskets/[number]/window/route");
     const windowResponse = await GET_WINDOW(
       new Request(
-        "http://test/api/marketlab-replay/baskets/1/window?from=2024-01-01T00%3A00%3A00.000Z",
+        `http://test/api/marketlab-replay/baskets/1/window?from=2024-01-01T00%3A00%3A00.000Z&source=${source}`,
       ),
       { params: Promise.resolve({ number: "1" }) },
     );
@@ -642,7 +650,7 @@ describe("API route handlers", () => {
       await import("../src/app/api/marketlab-replay/baskets/[number]/reveal/route");
     const revealResponse = await GET_REVEAL(
       new Request(
-        "http://test/api/marketlab-replay/baskets/1/reveal?after=0&cursor=2024-01-01T00%3A37%3A00.000Z",
+        `http://test/api/marketlab-replay/baskets/1/reveal?after=0&cursor=2024-01-01T00%3A37%3A00.000Z&source=${source}`,
       ),
       { params: Promise.resolve({ number: "1" }) },
     );

@@ -4,6 +4,7 @@ import { ReplayPackageError } from "@/lib/marketlab-replay";
 import {
   MAJOR_EVENT_TYPES,
   RUN_PAGE_SIZE,
+  runSourceToken,
   type RunFilter,
   type RunPage,
   type RunSource,
@@ -21,7 +22,7 @@ function ready(expected?: string) {
     manifestSha256: loaded.manifestSha256,
     candleContentSha256: candles.manifest.content_sha256!,
   };
-  if (expected !== undefined && expected !== source.manifestSha256) {
+  if (expected !== undefined && expected !== runSourceToken(source)) {
     throw new ReplayPackageError("Run navigation source identity changed; reload the run.");
   }
   return { loaded, source };

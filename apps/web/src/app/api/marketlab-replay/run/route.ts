@@ -2,6 +2,7 @@ import { bad, handler, ok, requireValue } from "@/server/api";
 import { runSummary, runBaskets, runTimeline } from "@/server/marketlab-run";
 import { ReplayPackageError } from "@/lib/marketlab-replay";
 import type { RunFilter } from "@/lib/marketlab-run";
+import { RUN_SOURCE_TOKEN_PATTERN } from "@/lib/marketlab-run";
 
 export const GET = handler(async (request: Request) => {
   const search = new URL(request.url).searchParams;
@@ -19,7 +20,7 @@ export const GET = handler(async (request: Request) => {
   );
   const source = search.get("source");
   requireValue(
-    view === "summary" || (source !== null && /^[a-f0-9]{64}$/.test(source)),
+    view === "summary" || (source !== null && RUN_SOURCE_TOKEN_PATTERN.test(source)),
     "Run source identity is required.",
   );
   const year = search.get("year");

@@ -7,6 +7,7 @@ import { MarketlabReplay } from "@/components/marketlab-replay";
 import { MarketlabRun } from "@/components/marketlab-run";
 import { Button } from "@/components/ui/button";
 import type { ReplayTarget } from "@/lib/marketlab-run";
+import { runSourceToken } from "@/lib/marketlab-run";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useApi } from "@/lib/use-api";
 import type {
@@ -37,7 +38,15 @@ function Backtests() {
     setShowRun(false);
   };
   const basketNumber = selected === "" ? null : Number(selected);
-  const sourceQuery = `source=${data?.package?.manifestSha256 ?? ""}`;
+  const sourceQuery = `source=${
+    data?.package && data.candles.contentSha256
+      ? runSourceToken({
+          packageSha256: data.package.packageSha256,
+          manifestSha256: data.package.manifestSha256,
+          candleContentSha256: data.candles.contentSha256,
+        })
+      : ""
+  }`;
   const detailUrl =
     basketNumber === null
       ? null

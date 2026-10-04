@@ -4,6 +4,8 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { runSummary, runBaskets, runTimeline } from "../src/server/marketlab-run";
 import { basketDetail, basketReveal, loadPackage } from "../src/server/marketlab-replay";
+import { runSourceToken } from "../src/lib/marketlab-run";
+import { alternateCandleCache } from "./helpers/marketlab-alternate-candles";
 
 const root = process.env.MARKETLAB_REPLAY_AUTHORITATIVE_PACKAGE;
 const candles = process.env.MARKETLAB_REPLAY_AUTHORITATIVE_CANDLE_CACHE;
@@ -53,7 +55,7 @@ describe.skipIf(!root || !candles)("Phase H against independent raw Phase E sour
     expect(snapshot).toEqual(rows.find((r) => r.eventId === end.id));
   });
   it("paginates all 280 immutable baskets and matches every exported anchor/close lifecycle", () => {
-    const source = runSummary().source.manifestSha256;
+    const source = runSourceToken(runSummary().source);
     const items = allPages((offset) => runBaskets(offset, "all", source));
     expect(items.map((b) => b.number)).toEqual(
       raw.filter((e) => e.type === "basket_anchored").map((e) => e.basket),
@@ -80,7 +82,7 @@ describe.skipIf(!root || !candles)("Phase H against independent raw Phase E sour
     });
   });
   it("discovers five Stop Outs and all 46 Margin Call transitions with their original context", () => {
-    const source = runSummary().source.manifestSha256;
+    const source = runSourceToken(runSummary().source);
     for (const [filter, types, count] of [
       ["stop-out", ["stop_out_triggered"], 5],
       ["margin-call", ["margin_call_entered", "margin_call_left"], 46],
@@ -95,7 +97,7 @@ describe.skipIf(!root || !candles)("Phase H against independent raw Phase E sour
     }
   });
   it("preserves all live chronology and exact same-time jump prefixes/account states for every occurrence", () => {
-    const source = runSummary().source.manifestSha256;
+    const source = runSourceToken(runSummary().source);
     const events = allPages((offset) => runTimeline(offset, "all", null, source, true));
     expect(events.map((e) => e.id)).toEqual(raw.filter((e) => e.time).map((e) => e.id));
     for (const event of events) {
@@ -110,7 +112,7 @@ describe.skipIf(!root || !candles)("Phase H against independent raw Phase E sour
     }
   }, 60000);
   it("rejects stale sources, cross-basket/recap jumps, inconsistent occurrence times, and invalid pages", () => {
-    const source = runSummary().source.manifestSha256;
+    const source = runSourceToken(runSummary().source);
     expect(() => runBaskets(0, "all", "0".repeat(64))).toThrow(/identity changed/);
     expect(() => runBaskets(99999, "all", source)).toThrow(/offset/);
     expect(() => basketDetail(1, 1323)).toThrow(/does not belong/);
@@ -134,4 +136,68 @@ describe.skipIf(!root || !candles)("Phase H against independent raw Phase E sour
       rmSync(temp, { recursive: true, force: true });
     }
   });
+  it("rejects an old complete source on every HTTP navigation route when only the accepted candle identity changes", async () => {
+    const accepted = runSummary().source;
+    const token = runSourceToken(accepted);
+    const temp = mkdtempSync(join(tmpdir(), "marketlab-stale-candles-"));
+    const { GET: run } = await import("../src/app/api/marketlab-replay/run/route");
+    const { GET: detail } = await import("../src/app/api/marketlab-replay/baskets/[number]/route");
+    const { GET: window } =
+      await import("../src/app/api/marketlab-replay/baskets/[number]/window/route");
+    const { GET: reveal } =
+      await import("../src/app/api/marketlab-replay/baskets/[number]/reveal/route");
+    const context = { params: Promise.resolve({ number: "1" }) };
+    const request = (path: string, source: string | null) => {
+      const url = new URL(`http://test/api/marketlab-replay${path}`);
+      if (source !== null) url.searchParams.set("source", source);
+      return new Request(url);
+    };
+    const anchor = raw.find((e) => e.type === "basket_anchored")!;
+    const paths = [
+      (s: string | null) => run(request("/run?view=baskets", s)),
+      (s: string | null) => run(request("/run?view=timeline", s)),
+      (s: string | null) => detail(request(`/baskets/1?event=${anchor.id}`, s), context),
+      (s: string | null) =>
+        window(request(`/baskets/1/window?from=${Date.parse(anchor.time)}`, s), context),
+      (s: string | null) =>
+        reveal(
+          request(
+            `/baskets/1/reveal?after=0&cursor=${Date.parse(anchor.time)}&event=${anchor.id}`,
+            s,
+          ),
+          context,
+        ),
+    ];
+    try {
+      for (const fetch of paths) expect((await fetch(token)).status).toBe(200);
+      const changedHash = alternateCandleCache(candles!, temp);
+      vi.stubEnv("MARKETLAB_CANDLE_CACHE", temp);
+      vi.stubEnv("MARKETLAB_EXPECTED_CANDLE_CONTENT_SHA256", changedHash);
+      const current = runSummary().source;
+      expect(current.packageSha256).toBe(accepted.packageSha256);
+      expect(current.manifestSha256).toBe(accepted.manifestSha256);
+      expect(current.candleContentSha256).not.toBe(accepted.candleContentSha256);
+      const fresh = runSourceToken(current);
+      for (const fetch of paths) {
+        const rejected = await fetch(token);
+        expect(rejected.status).toBe(422);
+        expect(await rejected.json()).toEqual({
+          error: "Run navigation source identity changed; reload the run.",
+        });
+        expect((await fetch(fresh)).status).toBe(200);
+        for (const incomplete of [null, accepted.manifestSha256]) {
+          const response = await fetch(incomplete);
+          expect([400, 422]).toContain(response.status);
+          expect(Object.keys(await response.json())).toEqual(["error"]);
+        }
+      }
+      expect(() => runBaskets(0, "all", token)).toThrow(/identity changed/);
+      expect(() => runTimeline(0, "all", null, token)).toThrow(/identity changed/);
+      expect(runBaskets(0, "all", fresh).items.length).toBe(40);
+    } finally {
+      vi.stubEnv("MARKETLAB_CANDLE_CACHE", candles!);
+      vi.stubEnv("MARKETLAB_EXPECTED_CANDLE_CONTENT_SHA256", candleHash);
+      rmSync(temp, { recursive: true, force: true });
+    }
+  }, 60000);
 });

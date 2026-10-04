@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useApi } from "@/lib/use-api";
 import type { RunBasketRow, RunOccurrence, RunPage, RunSummary } from "@/lib/marketlab-run";
-import { RUN_PAGE_SIZE } from "@/lib/marketlab-run";
+import { RUN_PAGE_SIZE, runSourceToken } from "@/lib/marketlab-run";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { usePrivacy } from "./privacy";
@@ -21,7 +21,7 @@ export function MarketlabRun({
   const [eventOffset, setEventOffset] = useState(0);
   const [year, setYear] = useState("");
   const [all, setAll] = useState(false);
-  const source = summary?.source.manifestSha256;
+  const source = summary ? runSourceToken(summary.source) : null;
   const query = source ? `source=${source}&filter=${filter}` : null;
   const baskets = useApi<RunPage<RunBasketRow>>(
     query ? `/api/marketlab-replay/run?view=baskets&${query}&offset=${basketOffset}` : null,

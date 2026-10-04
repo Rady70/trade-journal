@@ -24,6 +24,10 @@ export interface RunSource {
   manifestSha256: string;
   candleContentSha256: string;
 }
+/** Transparent, complete accepted identity; not a session or authorization token. */
+export const runSourceToken = (source: RunSource): string =>
+  `${source.packageSha256}:${source.manifestSha256}:${source.candleContentSha256}`;
+export const RUN_SOURCE_TOKEN_PATTERN = /^[a-f0-9]{64}:[a-f0-9]{64}:[a-f0-9]{64}$/;
 export interface RunSummary {
   source: RunSource;
   started: string;

@@ -12,6 +12,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { basename, join, resolve } from "node:path";
 import type { ReplayTarget } from "@/lib/marketlab-run";
+import { runSourceToken, RUN_SOURCE_TOKEN_PATTERN } from "@/lib/marketlab-run";
 import {
   accountAtCursor,
   CANDLE_CACHE_CONTRACT,
@@ -1508,9 +1509,20 @@ export function requireReplayCompatibility(
   if (error) throw new ReplayPackageError(error);
 }
 
-/** Optional binding for browser requests made from an accepted run overview. */
+/** Every HTTP navigation request must retain the complete accepted source. */
 export function requireNavigationSource(expected: string | null): void {
-  if (expected !== null && expected !== loadPackage().manifestSha256) {
+  if (expected === null || !RUN_SOURCE_TOKEN_PATTERN.test(expected)) {
+    throw new ReplayPackageError("Complete run source identity is required; reload the run.");
+  }
+  const loaded = loadPackage();
+  const cache = loadCandleCache();
+  requireReplayCompatibility(loaded, cache);
+  const current = runSourceToken({
+    packageSha256: loaded.manifest.packageSha256,
+    manifestSha256: loaded.manifestSha256,
+    candleContentSha256: cache.manifest.content_sha256!,
+  });
+  if (expected !== current) {
     throw new ReplayPackageError("Run navigation source identity changed; reload the run.");
   }
 }
