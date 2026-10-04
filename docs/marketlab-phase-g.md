@@ -1,7 +1,32 @@
 # Phase G — Basket #276 replay acceptance
 
-Status: **implemented/qualified; ready for independent review, not finalized.** Phase F is the
+Status: **finalized — independently reviewed, user-approved and merged.** Phase F is the
 finalized implementation baseline. Phase H and Phase I have not started.
+
+## Merge finalization — 2026-10-04
+
+The user approved the independently reviewed application PR and authorized
+application-first merge, finalization documentation, control-record merge and
+local default-branch synchronization.
+
+- Application PR [Rady70/trade-journal#3](https://github.com/Rady70/trade-journal/pull/3)
+  merged with a normal merge commit at **2026-10-04T15:42:15Z**.
+- Approved head: **`f0766d5800ee8ebe29cbb6442fdf358ede706d3d`**.
+- Application merge SHA: **`77377f5275e4ceb6094f9f6f31abadafb116598b`**.
+- Pre-merge default: `66ac370fd74a2d13613b21141bafcbeab4eff122`.
+  The merged tree is byte-for-byte equal to the approved head's Git tree.
+- This finalization follow-up changes only this document and
+  `MARKETLAB_FORK.md`. The runtime, tests and sealed qualification evidence
+  retain their approved identities; no additional replay or research run is
+  needed for the documentation-only change.
+- The paired control finalization and exact final default-head identities are
+  recorded in [Rady70/Market_Lab#48](https://github.com/Rady70/Market_Lab/pull/48)
+  and `docs/SINGLE_ANCHOR_PHASE_G_QUALIFICATION.md` in that repository.
+
+The retained evidence manifest's "ready for independent review, not finalized"
+status is its historical pre-merge receipt, not the current phase status. It
+is preserved unchanged rather than resealed after approval. Phase G is
+finalized; Phase H and Phase I remain not started.
 
 ## Starting state and scope
 
@@ -230,7 +255,8 @@ the old defect and must be run on the original Phase F source, not the correctio
 - No strategy, account, hard-BE, margin, liquidation, ordering, execution economics
   or qualified market-data change. No LEAN implementation/export change.
 - No historical characterization rerun, historical-data qualification rerun,
-  parameter optimization or hosted CI dispatch. PR work is not merged.
+  parameter optimization or hosted CI dispatch. The user-approved application
+  PR is merged; the finalization is documentation-only.
 - This qualifies the local Windows development-server experience; the existing
   production standalone-build symlink limitation is not reclassified as a pass.
 - Between authoritative events, the account is the latest exported periodic
