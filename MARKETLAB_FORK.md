@@ -41,8 +41,10 @@ The MarketLab adaptation is confined to new, reviewable paths:
 - `docs/marketlab-phase-f.md` and `docs/evidence/phase-f/` — the Phase F record
   and validation evidence.
 - `docs/marketlab-phase-g.md` and `docs/evidence/phase-g/` — Basket #276
-  qualification and its bounded playback/close-display corrections, pending
-  independent review; Phase H/I remain unstarted.
+  qualification and its bounded playback/close-display corrections,
+  independently reviewed, user-approved and finalized through PR #3 (approved
+  head `f0766d5800ee8ebe29cbb6442fdf358ede706d3d`, merge
+  `77377f5275e4ceb6094f9f6f31abadafb116598b`); Phase H/I remain unstarted.
 
 Upstream files edited by MarketLab (kept minimal so they merge easily):
 
