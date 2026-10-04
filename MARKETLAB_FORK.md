@@ -40,6 +40,9 @@ The MarketLab adaptation is confined to new, reviewable paths:
   contract, fail-closed, UI and authoritative-package tests.
 - `docs/marketlab-phase-f.md` and `docs/evidence/phase-f/` — the Phase F record
   and validation evidence.
+- `docs/marketlab-phase-g.md` and `docs/evidence/phase-g/` — Basket #276
+  qualification and its bounded playback/close-display corrections, pending
+  independent review; Phase H/I remain unstarted.
 
 Upstream files edited by MarketLab (kept minimal so they merge easily):
 

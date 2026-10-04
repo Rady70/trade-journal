@@ -1,0 +1,463 @@
+{
+  "mode": "baseline",
+  "platform": "win32",
+  "started": "2026-10-03T23:10:32.623Z",
+  "packageHash": "d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4",
+  "candleHash": "ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
+  "resultsHash": "bc3958b2629e8930ef8de3890cac9c80006f26d7c8dffdf5ecf54d6a6aa9bdad",
+  "evidenceHash": "f98263618bde5d2cd24542e028d322d0bab35074c430ce6b0bdb4c7a4b22f685",
+  "counts": {
+    "basket_anchored": 1,
+    "entry_executed": 36,
+    "hard_breakeven_activated": 1,
+    "margin_call_entered": 22,
+    "margin_call_left": 22,
+    "stop_out_triggered": 4,
+    "forced_liquidation": 30,
+    "strategy_exit": 1
+  },
+  "checks": ["Basket #276 opened; pre-anchor events, levels, outcome and account hidden"],
+  "observations": [
+    {
+      "before": {
+        "cursor": "2020-03-23 12:06:00Z",
+        "account": {
+          "Contract": "marketlab-single-anchor-replay-package-v1",
+          "Model revision": "marketlab-single-anchor-broker-liquidation-v1",
+          "Stop Out model": "BrokerLiquidation",
+          "Instrument": "XAUUSD · dukascopy · UTC",
+          "Run window": "2019-01-01 .. 2026-06-30",
+          "Package SHA-256": "d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4",
+          "Manifest SHA-256": "825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+          "Expected package identity": "anchored",
+          "M1 candle cache": "2019-01 .. 2026-06 · 90 monthly files",
+          "Candle content SHA-256": "ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
+          "Expected candle identity": "anchored",
+          "Balance": "25519.92800",
+          "Equity": "774.39100",
+          "Floating P/L": "-24745.53700",
+          "Realized P/L": "5519.92800",
+          "Used margin": "1157.8848069189189189189189189",
+          "Free margin": "-383.4938069189189189189189189",
+          "Margin level": "66.879796277888881725946761740%",
+          "Open positions": "36",
+          "Gross exposure (lots)": "62.76",
+          "Net exposure (lots, signed)": "3.84"
+        },
+        "eventIds": [
+          1248, 1249, 1250, 1251, 1252, 1253, 1254, 1255, 1256, 1257, 1258, 1259, 1260, 1261, 1262,
+          1263, 1264, 1265, 1266, 1267, 1268, 1269, 1270, 1271, 1272, 1273, 1274, 1275, 1276, 1277,
+          1278, 1279, 1280, 1281, 1282, 1283, 1284, 1285, 1286, 1287, 1288, 1289
+        ]
+      },
+      "after": {
+        "cursor": "2020-03-23 12:07:00Z",
+        "account": {
+          "Contract": "marketlab-single-anchor-replay-package-v1",
+          "Model revision": "marketlab-single-anchor-broker-liquidation-v1",
+          "Stop Out model": "BrokerLiquidation",
+          "Instrument": "XAUUSD · dukascopy · UTC",
+          "Run window": "2019-01-01 .. 2026-06-30",
+          "Package SHA-256": "d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4",
+          "Manifest SHA-256": "825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+          "Expected package identity": "anchored",
+          "M1 candle cache": "2019-01 .. 2026-06 · 90 monthly files",
+          "Candle content SHA-256": "ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
+          "Expected candle identity": "anchored",
+          "Balance": "468.50700",
+          "Equity": "187.98500",
+          "Floating P/L": "-280.52200",
+          "Realized P/L": "-19531.49300",
+          "Used margin": "355.85301668750",
+          "Free margin": "-167.86801668750",
+          "Margin level": "52.826586029782931794862838510%",
+          "Open positions": "6",
+          "Gross exposure (lots)": "1.38",
+          "Net exposure (lots, signed)": "1.18"
+        },
+        "provenance": "Exported LEAN value at 2020-03-23 12:06:57.119Z · quote #51305003 · event snapshot #1363",
+        "newEvents": [
+          {
+            "id": 1290,
+            "type": "margin_call_entered",
+            "text": "2020-03-23 12:06:19.385Z · margin_call_entered\n\nMargin Call entered · level 45.735205854297265975035987110%"
+          },
+          {
+            "id": 1291,
+            "type": "margin_call_left",
+            "text": "2020-03-23 12:06:19.435Z · margin_call_left\n\nMargin Call left · level 58.456678588010638519696188490%"
+          },
+          {
+            "id": 1292,
+            "type": "margin_call_entered",
+            "text": "2020-03-23 12:06:19.839Z · margin_call_entered\n\nMargin Call entered · level 38.107504076689899626465797120%"
+          },
+          {
+            "id": 1293,
+            "type": "margin_call_left",
+            "text": "2020-03-23 12:06:19.889Z · margin_call_left\n\nMargin Call left · level 57.907401150220977627747519920%"
+          },
+          {
+            "id": 1294,
+            "type": "margin_call_entered",
+            "text": "2020-03-23 12:06:20.091Z · margin_call_entered\n\nMargin Call entered · level 44.740288231131087755657266680%"
+          },
+          {
+            "id": 1295,
+            "type": "margin_call_left",
+            "text": "2020-03-23 12:06:20.191Z · margin_call_left\n\nMargin Call left · level 67.207289995514415389825590550%"
+          },
+          {
+            "id": 1296,
+            "type": "margin_call_entered",
+            "text": "2020-03-23 12:06:20.595Z · margin_call_entered\n\nMargin Call entered · level 48.616321471382657068653531700%"
+          },
+          {
+            "id": 1297,
+            "type": "margin_call_left",
+            "text": "2020-03-23 12:06:20.709Z · margin_call_left\n\nMargin Call left · level 57.798582035187176885002972370%"
+          },
+          {
+            "id": 1298,
+            "type": "margin_call_entered",
+            "text": "2020-03-23 12:06:21.163Z · margin_call_entered\n\nMargin Call entered · level 44.968290186440003597598223440%"
+          },
+          {
+            "id": 1299,
+            "type": "margin_call_left",
+            "text": "2020-03-23 12:06:21.441Z · margin_call_left\n\nMargin Call left · level 79.59349621767126850326806687%"
+          },
+          {
+            "id": 1300,
+            "type": "margin_call_entered",
+            "text": "2020-03-23 12:06:21.592Z · margin_call_entered\n\nMargin Call entered · level 49.175962634413632317054061950%"
+          },
+          {
+            "id": 1301,
+            "type": "margin_call_left",
+            "text": "2020-03-23 12:06:21.894Z · margin_call_left\n\nMargin Call left · level 72.515071877853563046646545450%"
+          },
+          {
+            "id": 1302,
+            "type": "margin_call_entered",
+            "text": "2020-03-23 12:06:22.045Z · margin_call_entered\n\nMargin Call entered · level 45.859570557193038252458327170%"
+          },
+          {
+            "id": 1303,
+            "type": "margin_call_left",
+            "text": "2020-03-23 12:06:22.548Z · margin_call_left\n\nMargin Call left · level 54.373370842932782077662690040%"
+          },
+          {
+            "id": 1304,
+            "type": "margin_call_entered",
+            "text": "2020-03-23 12:06:23.357Z · margin_call_entered\n\nMargin Call entered · level 48.844323426691572910594488470%"
+          },
+          {
+            "id": 1305,
+            "type": "margin_call_left",
+            "text": "2020-03-23 12:06:23.408Z · margin_call_left\n\nMargin Call left · level 61.565796160404945455254689840%"
+          },
+          {
+            "id": 1306,
+            "type": "margin_call_entered",
+            "text": "2020-03-23 12:06:23.509Z · margin_call_entered\n\nMargin Call entered · level 46.745669065325415729092500050%"
+          },
+          {
+            "id": 1307,
+            "type": "margin_call_left",
+            "text": "2020-03-23 12:06:23.559Z · margin_call_left\n\nMargin Call left · level 55.373470328719617475267341310%"
+          },
+          {
+            "id": 1308,
+            "type": "margin_call_entered",
+            "text": "2020-03-23 12:06:23.660Z · margin_call_entered\n\nMargin Call entered · level 29.490066538537012236742817530%"
+          },
+          {
+            "id": 1309,
+            "type": "margin_call_left",
+            "text": "2020-03-23 12:06:23.812Z · margin_call_left\n\nMargin Call left · level 51.834258158810764746956580600%"
+          },
+          {
+            "id": 1310,
+            "type": "margin_call_entered",
+            "text": "2020-03-23 12:06:23.862Z · margin_call_entered\n\nMargin Call entered · level 39.112785425097392202296379230%"
+          },
+          {
+            "id": 1311,
+            "type": "margin_call_left",
+            "text": "2020-03-23 12:06:23.913Z · margin_call_left\n\nMargin Call left · level 56.591208044574054358361087680%"
+          },
+          {
+            "id": 1312,
+            "type": "margin_call_entered",
+            "text": "2020-03-23 12:06:24.114Z · margin_call_entered\n\nMargin Call entered · level 46.082390649881296916173353100%"
+          },
+          {
+            "id": 1313,
+            "type": "margin_call_left",
+            "text": "2020-03-23 12:06:24.226Z · margin_call_left\n\nMargin Call left · level 56.259568836851994951901514200%"
+          },
+          {
+            "id": 1314,
+            "type": "margin_call_entered",
+            "text": "2020-03-23 12:06:24.276Z · margin_call_entered\n\nMargin Call entered · level 46.082390649881296916173353100%"
+          },
+          {
+            "id": 1315,
+            "type": "margin_call_left",
+            "text": "2020-03-23 12:06:24.327Z · margin_call_left\n\nMargin Call left · level 55.041831120997558068807767830%"
+          },
+          {
+            "id": 1316,
+            "type": "margin_call_entered",
+            "text": "2020-03-23 12:06:24.377Z · margin_call_entered\n\nMargin Call entered · level 46.082390649881296916173353100%"
+          },
+          {
+            "id": 1317,
+            "type": "margin_call_left",
+            "text": "2020-03-23 12:06:24.428Z · margin_call_left\n\nMargin Call left · level 91.87969249124943807695007806%"
+          },
+          {
+            "id": 1318,
+            "type": "margin_call_entered",
+            "text": "2020-03-23 12:06:25.234Z · margin_call_entered\n\nMargin Call entered · level 44.652196566579915725816442470%"
+          },
+          {
+            "id": 1319,
+            "type": "margin_call_left",
+            "text": "2020-03-23 12:06:25.285Z · margin_call_left\n\nMargin Call left · level 51.730620906397621182437963890%"
+          },
+          {
+            "id": 1320,
+            "type": "margin_call_entered",
+            "text": "2020-03-23 12:06:25.385Z · margin_call_entered\n\nMargin Call entered · level 44.875016659268174389531468400%"
+          },
+          {
+            "id": 1321,
+            "type": "margin_call_left",
+            "text": "2020-03-23 12:06:25.486Z · margin_call_left\n\nMargin Call left · level 55.052194846238872425259629510%"
+          },
+          {
+            "id": 1322,
+            "type": "margin_call_entered",
+            "text": "2020-03-23 12:06:25.536Z · margin_call_entered\n\nMargin Call entered · level 40.786527051569660769272039120%"
+          },
+          {
+            "id": 1323,
+            "type": "stop_out_triggered",
+            "text": "2020-03-23 12:06:26.292Z · stop_out_triggered\n\nStop Out MarginLevel · margin level 17.229779578062128554190460520% · 36 open"
+          },
+          {
+            "id": 1324,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:26.292Z · forced_liquidation\n\nForced close 1: #35 Sell 6.42 @ 1506.182 · realized -3982.96800"
+          },
+          {
+            "id": 1325,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:26.292Z · forced_liquidation\n\nForced close 2: #33 Sell 5.05 @ 1506.182 · realized -3188.57000"
+          },
+          {
+            "id": 1326,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:26.292Z · forced_liquidation\n\nForced close 3: #31 Sell 3.96 @ 1506.182 · realized -2469.85200"
+          },
+          {
+            "id": 1327,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:26.292Z · forced_liquidation\n\nForced close 4: #29 Sell 3.05 @ 1506.182 · realized -1954.13500"
+          },
+          {
+            "id": 1328,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:26.292Z · forced_liquidation\n\nForced close 5: #27 Sell 2.40 @ 1506.182 · realized -1486.56000"
+          },
+          {
+            "id": 1329,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:26.292Z · forced_liquidation\n\nForced close 6: #36 Buy 7.24 @ 1505.618 · realized -1472.61600"
+          },
+          {
+            "id": 1330,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:26.292Z · forced_liquidation\n\nForced close 7: #25 Sell 1.89 @ 1506.182 · realized -1176.33600"
+          },
+          {
+            "id": 1331,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:26.292Z · forced_liquidation\n\nForced close 8: #34 Buy 5.70 @ 1505.618 · realized -1079.58000"
+          },
+          {
+            "id": 1332,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:26.292Z · forced_liquidation\n\nForced close 9: #23 Sell 1.47 @ 1506.182 · realized -955.05900"
+          },
+          {
+            "id": 1333,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:26.292Z · forced_liquidation\n\nForced close 10: #30 Buy 3.48 @ 1505.618 · realized -886.35600"
+          },
+          {
+            "id": 1334,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:26.292Z · forced_liquidation\n\nForced close 11: #32 Buy 4.47 @ 1505.618 · realized -865.83900"
+          },
+          {
+            "id": 1335,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:26.292Z · forced_liquidation\n\nForced close 12: #21 Sell 1.15 @ 1506.182 · realized -716.91000"
+          },
+          {
+            "id": 1336,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:26.292Z · forced_liquidation\n\nForced close 13: #19 Sell 0.90 @ 1506.182 · realized -561.06000"
+          },
+          {
+            "id": 1337,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:26.292Z · forced_liquidation\n\nForced close 14: #28 Buy 2.70 @ 1505.618 · realized -514.08000"
+          },
+          {
+            "id": 1338,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:26.292Z · forced_liquidation\n\nForced close 15: #17 Sell 0.71 @ 1506.182 · realized -459.65400"
+          },
+          {
+            "id": 1339,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:26.292Z · forced_liquidation\n\nForced close 16: #26 Buy 2.13 @ 1505.618 · realized -424.72200"
+          },
+          {
+            "id": 1340,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:26.292Z · forced_liquidation\n\nForced close 17: #24 Buy 1.67 @ 1505.618 · realized -373.07800"
+          },
+          {
+            "id": 1341,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:26.292Z · forced_liquidation\n\nForced close 18: #15 Sell 0.55 @ 1506.182 · realized -340.67000"
+          },
+          {
+            "id": 1342,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:26.292Z · forced_liquidation\n\nForced close 19: #13 Sell 0.43 @ 1506.182 · realized -291.28200"
+          },
+          {
+            "id": 1343,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:26.292Z · forced_liquidation\n\nForced close 20: #22 Buy 1.30 @ 1505.618 · realized -247.52000"
+          },
+          {
+            "id": 1344,
+            "type": "margin_call_left",
+            "text": "2020-03-23 12:06:31.683Z · margin_call_left\n\nMargin Call left · level 50.527796633616261935283560360%"
+          },
+          {
+            "id": 1345,
+            "type": "margin_call_entered",
+            "text": "2020-03-23 12:06:31.733Z · margin_call_entered\n\nMargin Call entered · level 40.758770713901659444445921060%"
+          },
+          {
+            "id": 1346,
+            "type": "stop_out_triggered",
+            "text": "2020-03-23 12:06:32.137Z · stop_out_triggered\n\nStop Out MarginLevel · margin level 14.044723012601403672131154440% · 16 open"
+          },
+          {
+            "id": 1347,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:32.137Z · forced_liquidation\n\nForced close 1: #11 Sell 0.34 @ 1506.625 · realized -227.01800"
+          },
+          {
+            "id": 1348,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:32.137Z · forced_liquidation\n\nForced close 2: #3 Sell 0.30 @ 1506.625 · realized -199.11000"
+          },
+          {
+            "id": 1349,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:32.137Z · forced_liquidation\n\nForced close 3: #20 Buy 1.02 @ 1505.615 · realized -195.53400"
+          },
+          {
+            "id": 1350,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:32.137Z · forced_liquidation\n\nForced close 4: #5 Sell 0.28 @ 1506.625 · realized -188.16000"
+          },
+          {
+            "id": 1351,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:32.137Z · forced_liquidation\n\nForced close 5: #9 Sell 0.26 @ 1506.625 · realized -176.72200"
+          },
+          {
+            "id": 1352,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:32.137Z · forced_liquidation\n\nForced close 6: #18 Buy 0.80 @ 1505.615 · realized -158.96000"
+          },
+          {
+            "id": 1353,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:32.137Z · forced_liquidation\n\nForced close 7: #7 Sell 0.20 @ 1506.625 · realized -136.14000"
+          },
+          {
+            "id": 1354,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:32.137Z · forced_liquidation\n\nForced close 8: #16 Buy 0.62 @ 1505.615 · realized -122.57400"
+          },
+          {
+            "id": 1355,
+            "type": "margin_call_left",
+            "text": "2020-03-23 12:06:35.374Z · margin_call_left\n\nMargin Call left · level 51.787122613769942760453312040%"
+          },
+          {
+            "id": 1356,
+            "type": "margin_call_entered",
+            "text": "2020-03-23 12:06:35.425Z · margin_call_entered\n\nMargin Call entered · level 46.572605604263155335731318290%"
+          },
+          {
+            "id": 1357,
+            "type": "stop_out_triggered",
+            "text": "2020-03-23 12:06:38.717Z · stop_out_triggered\n\nStop Out MarginLevel · margin level 18.257217541887589212240922170% · 8 open"
+          },
+          {
+            "id": 1358,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:38.717Z · forced_liquidation\n\nForced close 1: #14 Buy 0.49 @ 1505.508 · realized -98.19600"
+          },
+          {
+            "id": 1359,
+            "type": "margin_call_left",
+            "text": "2020-03-23 12:06:47.964Z · margin_call_left\n\nMargin Call left · level 50.282154318619912716090095010%"
+          },
+          {
+            "id": 1360,
+            "type": "margin_call_entered",
+            "text": "2020-03-23 12:06:48.116Z · margin_call_entered\n\nMargin Call entered · level 47.755296885991894479966277810%"
+          },
+          {
+            "id": 1361,
+            "type": "stop_out_triggered",
+            "text": "2020-03-23 12:06:54.330Z · stop_out_triggered\n\nStop Out MarginLevel · margin level 17.269307628222299049788064650% · 7 open"
+          },
+          {
+            "id": 1362,
+            "type": "forced_liquidation",
+            "text": "2020-03-23 12:06:54.330Z · forced_liquidation\n\nForced close 1: #4 Buy 0.40 @ 1505.298 · realized -102.16000"
+          },
+          {
+            "id": 1363,
+            "type": "margin_call_left",
+            "text": "2020-03-23 12:06:57.119Z · margin_call_left\n\nMargin Call left · level 52.826586029782931794862838510%"
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [],
+  "layout": {
+    "width": 1432,
+    "height": 768,
+    "scrollWidth": 1417,
+    "clientWidth": 1417
+  },
+  "result": "FAIL acceptance: one Next/Play candle step reveals all four Stop Outs and all 30 liquidations, skipping 29 intermediate post-liquidation account rows",
+  "ended": "2026-10-03T23:10:38.649Z"
+}

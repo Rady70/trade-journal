@@ -1,0 +1,34 @@
+{
+  "platform": "win32",
+  "node": "v24.19.0",
+  "date": "2026-10-04T11:20:45.225Z",
+  "commands": [
+    {
+      "command": "corepack pnpm vitest run --reporter=json --outputFile=\"C:\\Users\\non_s\\AppData\\Local\\Temp\\opencode\\phase-g-vitest.json\"",
+      "exit": 0,
+      "output": "JSON report written to C:/Users/non_s/AppData/Local/Temp/opencode/phase-g-vitest.json"
+    },
+    {
+      "command": "corepack pnpm --filter web typecheck",
+      "exit": 0,
+      "output": "Generating route types...\n✓ Route types generated successfully\n\n$ next typegen && tsc --noEmit"
+    },
+    {
+      "command": "corepack pnpm --filter @luxalgo/journal-core typecheck",
+      "exit": 0,
+      "output": "$ tsc --noEmit"
+    },
+    {
+      "command": "corepack pnpm --filter @luxalgo/journal-importers typecheck",
+      "exit": 0,
+      "output": "$ tsc --noEmit"
+    }
+  ],
+  "tests": {
+    "total": 612,
+    "passed": 612,
+    "failed": 0,
+    "pending": 0,
+    "success": true
+  }
+}

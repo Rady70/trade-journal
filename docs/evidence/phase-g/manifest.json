@@ -1,0 +1,129 @@
+{
+  "contract": "marketlab-phase-g-basket-276-evidence-v1",
+  "status": "implemented/qualified; ready for independent review, not finalized",
+  "applicationImplementationCommit": "91a42a84b911a7d2465bb69c4ab7636880957cfd",
+  "startingHeads": {
+    "Market_Lab": "3f2e7a46521722f77ff279059d87b86fecf02c70",
+    "tradeJournal": "66ac370fd74a2d13613b21141bafcbeab4eff122",
+    "Lean": "2722bc3c2d67ebfb2b67fdec401904abfa825359"
+  },
+  "packageSha256": "d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4",
+  "evidenceManifestSha256": "f98263618bde5d2cd24542e028d322d0bab35074c430ce6b0bdb4c7a4b22f685",
+  "resultsSha256": "bc3958b2629e8930ef8de3890cac9c80006f26d7c8dffdf5ecf54d6a6aa9bdad",
+  "candleContentSha256": "ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
+  "runtimeSourceLfSha256": {
+    "apps/web/src/components/marketlab-replay.tsx": "309dc0b075112ef60331aaf1cd652d141f8ad3c4135395234718747c762786f4",
+    "apps/web/src/components/marketlab-replay-chart.tsx": "153dee7b3f63c264e0e7ff03835b0b08ba7fb63307f880d2548dafcbe5e65aba",
+    "apps/web/src/server/marketlab-replay.ts": "2dfcfbf5e3f6e780b7612d78365eb8705fb4676cd690a614b0635b4896c5d6d2",
+    "apps/web/src/lib/marketlab-replay.ts": "1f6354ab2dbf28fe37720f47c8903f85e530b9ff508bc565807cc29dbd1802ad",
+    "apps/web/src/app/backtests/page.tsx": "ac28b6667c6a971cad0be44ea8704f44409da5162dcbc1a286061aa9a52cdf11",
+    "apps/web/src/app/api/marketlab-replay/baskets/[number]/reveal/route.ts": "3ea051cd951fc9797f4cd33440cb7a0b63ac30fdae14c99cfd639d970e784fc9"
+  },
+  "artifacts": [
+    {
+      "path": "source.mjs",
+      "bytes": 4066,
+      "sha256": "df4440e2aba055dc106331f769dfd15266b00d27848fa1ee0ec569f2e7bab905"
+    },
+    {
+      "path": "compare.mjs",
+      "bytes": 7042,
+      "sha256": "a4e775faccfb8eac9d32be44f62cbc67c691e1fcabeeee4b6363a438195a5a88"
+    },
+    {
+      "path": "validate.mjs",
+      "bytes": 21801,
+      "sha256": "889913086e67b5f2672d7f620341d9a9b6b4650ebd2de4036eb53296081031cb"
+    },
+    {
+      "path": "automated.mjs",
+      "bytes": 1721,
+      "sha256": "d9fae6e3b73d116b6754834b22aa241b590972cdb9e4a2e6390a81c261e19a79"
+    },
+    {
+      "path": "seal.mjs",
+      "bytes": 2159,
+      "sha256": "e8bc3696f87a85bc1dae51f8f7874835cf1723d27895012d40342a9e911756ed"
+    },
+    {
+      "path": "baseline.json",
+      "bytes": 20848,
+      "sha256": "215d0961cad3c2ec5eee95a995c6b989151a486791fa07df0f0de30096318ec1"
+    },
+    {
+      "path": "baseline-skipped-liquidation-states.png",
+      "bytes": 337531,
+      "sha256": "c88f47c0245e80f1a936629be40eaf359c63f23fc99761bdacadf41c4079ecfd"
+    },
+    {
+      "path": "attempts.json",
+      "bytes": 867,
+      "sha256": "8d78238037ee6bb4a313cbce811c723a8ebe75d83f22aa68fd223dc85ab3e0a3"
+    },
+    {
+      "path": "automated.json",
+      "bytes": 984,
+      "sha256": "a454e2616015def0f61652672799b8535b7d7922ffe446367e9e4b32888dba64"
+    },
+    {
+      "path": "qualified.json",
+      "bytes": 111875,
+      "sha256": "e85985afa11276dea89cce3a6216b2fad7b6697932da869442c6a1cb21402fc8"
+    },
+    {
+      "path": "01-basket-276-start.png",
+      "bytes": 82347,
+      "sha256": "e9735b1a6beb4b11e15fd3ff95de905300ce65ed88fd9ee91b58cd87802086a2"
+    },
+    {
+      "path": "02-escape-close.png",
+      "bytes": 138243,
+      "sha256": "03c5389ba3276f9dccad0bb50c69a3200f3b521b04b796eb068b6a257260e565"
+    },
+    {
+      "path": "risk-1323.png",
+      "bytes": 136618,
+      "sha256": "2d504f314e6df657bd165bd0ce8e4a67e90371e997aaa25e68598825588e12ac"
+    },
+    {
+      "path": "risk-1324.png",
+      "bytes": 139794,
+      "sha256": "bc0b52539f4e11239976e71ae9a4e4517c32a7bdc5f600755b48c66cf8f90ab8"
+    },
+    {
+      "path": "risk-1343.png",
+      "bytes": 138031,
+      "sha256": "14ad0de4c40d0e86d0a5d051002ca12ce62294cb01c6fb33e18e7be1aa7edc4a"
+    },
+    {
+      "path": "risk-1346.png",
+      "bytes": 138094,
+      "sha256": "da50fe598553dc5fdffa6b48a201a7a89b92a2040aa6bf1892916021f6033cb1"
+    },
+    {
+      "path": "risk-1354.png",
+      "bytes": 139301,
+      "sha256": "1933de52b60ce905c9b6210d5986ed4279c715029914c50cf332ac2b19f41659"
+    },
+    {
+      "path": "risk-1357.png",
+      "bytes": 138469,
+      "sha256": "c46176f3ac85bf30aea9e542a3fcfb027479456e1be9b0d8e2cdd3fa60cb4554"
+    },
+    {
+      "path": "risk-1358.png",
+      "bytes": 138576,
+      "sha256": "5dc26fb3100140d3fead6be3d1ffd21a5fe8c44551f7502cfea0a4cafe53a747"
+    },
+    {
+      "path": "risk-1361.png",
+      "bytes": 138881,
+      "sha256": "f96af2b96565e8d2f28cec5f931681658686a28d8329161b17d92861d1003d60"
+    },
+    {
+      "path": "risk-1362.png",
+      "bytes": 135853,
+      "sha256": "2f75ba3159084a67ba854bb302ccc72223dd03c3b57509943c9915f5a7afbb20"
+    }
+  ]
+}

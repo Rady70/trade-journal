@@ -46,9 +46,9 @@ function Backtests() {
     [basketNumber],
   );
   const loadReveal = useCallback(
-    async (afterEventId: number, cursorMs: number) => {
+    async (afterEventId: number, cursorMs: number, step = false) => {
       const response = await fetch(
-        `/api/marketlab-replay/baskets/${basketNumber}/reveal?after=${afterEventId}&cursor=${cursorMs}`,
+        `/api/marketlab-replay/baskets/${basketNumber}/reveal?after=${afterEventId}&cursor=${cursorMs}${step ? "&step=1" : ""}`,
       );
       const body = (await response.json()) as ReplayRevealResponse & { error?: string };
       if (!response.ok) throw new Error(body.error ?? "Replay reveal request failed.");
@@ -117,10 +117,10 @@ function Backtests() {
         )}
         {data?.valid && data.package && (
           <>
-            <Card>
-              <CardHeader>
-                <CardTitle>Authoritative package provenance</CardTitle>
-              </CardHeader>
+            <details className="rounded-xl border bg-card">
+              <summary className="cursor-pointer p-3 text-xs text-muted-foreground">
+                Authoritative package provenance · {data.package.symbol} · UTC
+              </summary>
               <CardContent className="space-y-2 text-sm">
                 <dl className="grid gap-x-4 gap-y-1 sm:grid-cols-2 lg:grid-cols-3">
                   <Field label="Contract" value={data.package.contract} />
@@ -165,7 +165,7 @@ function Backtests() {
                   not the authority for any execution decision.
                 </p>
               </CardContent>
-            </Card>
+            </details>
             {!data.candles.valid && (
               <Card>
                 <CardHeader>
@@ -203,7 +203,7 @@ function Backtests() {
             )}
             {data.candles.valid && data.compatibility.valid && (
               <Card>
-                <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
+                <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3 p-3 pb-2">
                   <CardTitle>Select a SingleAnchor basket</CardTitle>
                   <div className="min-w-64">
                     <OptionSelect
@@ -223,7 +223,7 @@ function Backtests() {
                   </div>
                 </CardHeader>
                 {basketNumber !== null && (
-                  <CardContent>
+                  <CardContent className="p-3 pt-2">
                     {detailLoading && (
                       <p className="text-sm text-muted-foreground">Loading basket…</p>
                     )}
@@ -255,7 +255,7 @@ function Field({ label, value, mono = false }: { label: string; value: string; m
   return (
     <div className="min-w-0">
       <dt className="text-xs text-muted-foreground">{label}</dt>
-      <dd className={`truncate text-sm ${mono ? "font-mono text-xs" : ""}`} title={value}>
+      <dd className={`break-all text-sm ${mono ? "font-mono text-xs" : ""}`} title={value}>
         {value}
       </dd>
     </div>
