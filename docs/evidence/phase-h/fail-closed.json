@@ -1,0 +1,84 @@
+{
+  "platform": "win32",
+  "started": "2026-10-04T21:30:41.575Z",
+  "cases": [
+    {
+      "name": "payload changed after acceptance",
+      "status": 422,
+      "error": "Replay payload events.jsonl is 679228 bytes; the manifest records 679227.",
+      "summaryHidden": true,
+      "replayHidden": true
+    },
+    {
+      "name": "unexpected authoritative package identity",
+      "status": 422,
+      "error": "Replay package identity mismatch: expected 0000000000000000000000000000000000000000000000000000000000000000, loaded d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4.",
+      "summaryHidden": true,
+      "replayHidden": true
+    },
+    {
+      "name": "unexpected derived candle identity",
+      "status": 422,
+      "error": "Candle-cache identity mismatch: expected 0000000000000000000000000000000000000000000000000000000000000000, loaded ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d.",
+      "summaryHidden": true,
+      "replayHidden": true
+    },
+    {
+      "name": "accepted candle identity changes with unchanged replay package/manifest",
+      "oldSource": {
+        "packageSha256": "d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4",
+        "manifestSha256": "825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+        "candleContentSha256": "ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d"
+      },
+      "newSource": {
+        "packageSha256": "d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4",
+        "manifestSha256": "825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+        "candleContentSha256": "a1047ca8277221bfc80f16a5e02a1a06be78588926cdfdf319912ebb7519e91f"
+      },
+      "fixture": "Isolated cache copy; one CSV decimal gains a trailing zero. Numerical observations unchanged.",
+      "requests": [
+        {
+          "path": "/run?view=baskets",
+          "staleStatus": 422,
+          "freshStatus": 200
+        },
+        {
+          "path": "/run?view=timeline",
+          "staleStatus": 422,
+          "freshStatus": 200
+        },
+        {
+          "path": "/baskets/1?event=2",
+          "staleStatus": 422,
+          "freshStatus": 200
+        },
+        {
+          "path": "/baskets/1/window?from=1546383908037",
+          "staleStatus": 422,
+          "freshStatus": 200
+        },
+        {
+          "path": "/baskets/1/reveal?after=0&cursor=1546383908037&event=2",
+          "staleStatus": 422,
+          "freshStatus": 200
+        }
+      ],
+      "browserRejectedRoutes": [
+        "/api/marketlab-replay/baskets/1",
+        "/api/marketlab-replay/baskets/1/reveal",
+        "/api/marketlab-replay/baskets/1/window",
+        "/api/marketlab-replay/run",
+        "/api/marketlab-replay/run"
+      ],
+      "staleDetailHidden": true,
+      "stalePagesHidden": true,
+      "revealCursorUnchanged": true,
+      "windowCleared": true,
+      "explicitReloadRecovers": true
+    }
+  ],
+  "errors": [],
+  "developmentHmrBlocked": true,
+  "result": "PASS",
+  "ended": "2026-10-04T21:34:55.137Z"
+}

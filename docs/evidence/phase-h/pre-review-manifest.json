@@ -1,0 +1,223 @@
+{
+  "status": "Phase H implemented and ready for independent review; not finalized",
+  "sealed": "2026-10-04T20:15:10.807Z",
+  "implementation": "8e93aa10e9dd7accd158f75d6486cd027038b7a0",
+  "packageHash": "d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4",
+  "candleHash": "ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
+  "resultsHash": "bc3958b2629e8930ef8de3890cac9c80006f26d7c8dffdf5ecf54d6a6aa9bdad",
+  "evidenceHash": "f98263618bde5d2cd24542e028d322d0bab35074c430ce6b0bdb4c7a4b22f685",
+  "replayManifestSha256": "825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+  "runtimeSourceLfSha256": {
+    "apps/web/src/components/marketlab-replay.tsx": "2ae55498f3eaff702784f6cc485abf3cdda27838fd2a92f778b710b1a879560e",
+    "apps/web/src/components/marketlab-replay-chart.tsx": "153dee7b3f63c264e0e7ff03835b0b08ba7fb63307f880d2548dafcbe5e65aba",
+    "apps/web/src/server/marketlab-replay.ts": "c9f27155ef83db24f74df3fcaf020483c8f3e06cee98822a92906b79a09ed1f3",
+    "apps/web/src/lib/marketlab-replay.ts": "1f6354ab2dbf28fe37720f47c8903f85e530b9ff508bc565807cc29dbd1802ad",
+    "apps/web/src/app/backtests/page.tsx": "791dbf0d2e42d6a8e15bbc701eea5fbda2ccd099dfc6f23d44b4f92805faaa4d",
+    "apps/web/src/app/api/marketlab-replay/baskets/[number]/reveal/route.ts": "4b69ccda468eaa2ee3f69d30a026c6cd673b1e2bcf103b88c86b453f04eef17b",
+    "apps/web/src/app/api/marketlab-replay/baskets/[number]/route.ts": "dabea8d1975d70d72f0ba869c1cd815f7ce799c397d407701d69805984cae3e6",
+    "apps/web/src/app/api/marketlab-replay/baskets/[number]/window/route.ts": "25693caade4fcc1fb4b5fae4cb9d23b576f0278d6fe822f4f6a99fe21967907d",
+    "apps/web/src/app/api/marketlab-replay/route.ts": "efbfae5a172a64a1a7ab2fdc420edc08b6ba5fc953b161a7fb3757849a4dd615",
+    "apps/web/src/app/api/marketlab-replay/run/route.ts": "3842714b0864014d462b9b100db1e07f320205bb135d21cd7339b8e6e4a369ac",
+    "apps/web/src/components/marketlab-run.tsx": "aa96ee33dba59f64857fb15ab28c76a51aa0e742cfe9f126c6959765d1519168",
+    "apps/web/src/lib/marketlab-run.ts": "9f2ee92ae448e05c7978bcfe715b91229457184f286967bc2e7db28bede279ef",
+    "apps/web/src/server/marketlab-run.ts": "365649d81c7eaa9de7ccd0b1930facb65a717fb4f7a124c6de83a30b13b90712"
+  },
+  "testsSourceLfSha256": {
+    "apps/web/tests/marketlab-replay-ui.test.ts": "aa4c4a05f423f879ca713fdfdf86339e8fa165dc5b382b6b4ccf856ce634b310",
+    "apps/web/tests/marketlab-replay.test.ts": "bace9e578fb4d852b479dbcafb0df508e98b3ee37bfafdaf50bf31fe12de9b22",
+    "apps/web/tests/marketlab-run.test.ts": "af64d4c4ddc9f9eeb891ad8fea7e697f9d3f3da5067e1bbde4fc605c756f4f15"
+  },
+  "startingDefaults": {
+    "control": "f77ecdb8588ba6ccc4453da6916365d2a399aa4d",
+    "application": "99ff48cd4b71be51e220230480dadae048489ef3",
+    "lean": "2722bc3c2d67ebfb2b67fdec401904abfa825359"
+  },
+  "controlReviewBase": "f0c49cd945d28d1b5c7fe5ad1c8ab635a2677230",
+  "browserMode": "native Windows / headless installed Edge / real application",
+  "tests": {
+    "total": 620,
+    "passed": 620,
+    "failed": 0,
+    "pending": 0,
+    "success": true
+  },
+  "bounds": {
+    "pageRows": 40,
+    "candleBars": 12000,
+    "observedMaxCandleBytes": 692475
+  },
+  "evidence": [
+    {
+      "path": "attempts.json",
+      "bytes": 4950,
+      "sha256": "3fea19b7420edc71dfb249028aff022da82c5a57df94ee7591c9ec09ce6ff707"
+    },
+    {
+      "path": "automated-attempts.json",
+      "bytes": 4028,
+      "sha256": "4867fa2883e7ae033e8d4dfb88ee13e93b82c5db4e79c1fdd0e75db1270f9035"
+    },
+    {
+      "path": "automated.json",
+      "bytes": 2133,
+      "sha256": "0af9c767a88040e6423fef4a2cede31c37a591bacac18c7feb8a4379a60a73ac"
+    },
+    {
+      "path": "automated.mjs",
+      "bytes": 3237,
+      "sha256": "3187791af9a1c871d05d6f806765de099b4f2ddf78546190f82ebb5b6eebeb09"
+    },
+    {
+      "path": "browser.json",
+      "bytes": 34979,
+      "sha256": "e2489c24f99c4e1be97b4f3b617dfbe6e306bb4a82b24c6cd50a08047ca98e90"
+    },
+    {
+      "path": "browser.mjs",
+      "bytes": 20433,
+      "sha256": "80ccd1486dda2b6319cd6c3b532725df27ad6a0b17b5f91f7ac8797dfda6ee4b"
+    },
+    {
+      "path": "exact-liquidation-jump.png",
+      "bytes": 138629,
+      "sha256": "ae2d5a57970a0892e684e9b836b6039740c2bb52c02b4e34bd4b29a3e004c4e2"
+    },
+    {
+      "path": "fail-closed.json",
+      "bytes": 2918,
+      "sha256": "11fd49079d25a5fd1490a7875b81b6c6c03edaf73b770bb32818d2f47d9fd30b"
+    },
+    {
+      "path": "fail-closed.mjs",
+      "bytes": 7129,
+      "sha256": "1609f8ddb7ed057cff263a8d88a835896a6c99b4b4947f1b4d51d6cd749156fa"
+    },
+    {
+      "path": "failure-attempts.json",
+      "bytes": 517,
+      "sha256": "0a5882074ae5a392e5729e1375790c4ec18c99bf052efda03cadb6e428cfabb1"
+    },
+    {
+      "path": "final-open.png",
+      "bytes": 122351,
+      "sha256": "6332b33c4e780633dc6f0195ef5004c428cc823d42af1716293195fd3d79b367"
+    },
+    {
+      "path": "invalid-input.png",
+      "bytes": 48025,
+      "sha256": "51e3eec4d5f3c7b0da4200e19ff63da5a198ae98214d9d1de11160bbe0e425c1"
+    },
+    {
+      "path": "overview.png",
+      "bytes": 104452,
+      "sha256": "fe7e339b1eacc0b7abf595191fae7b35096abea892e43c4525efb4d1dc52ce6c"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2430,
+      "sha256": "e0cee59c6763e4e628d12a94e82c60b27ec4cd8b57c373934f13308f784d0127"
+    },
+    {
+      "path": "regression.mjs",
+      "bytes": 2275,
+      "sha256": "1ee5d8f71dd88484f412611427b3d34397f9210c527ba50e552f454404ef2c9c"
+    },
+    {
+      "path": "regression/01-basket-276-start.png",
+      "bytes": 84028,
+      "sha256": "f308a6c51eb07da712d1ecb85ea70f07d72f724cd904201693b7e520f162485a"
+    },
+    {
+      "path": "regression/02-escape-close.png",
+      "bytes": 139708,
+      "sha256": "69753d1486e62a9f1ac43dbcc31d012ddc5b0b56393ff60ebd338e059419f51d"
+    },
+    {
+      "path": "regression/attempts.json",
+      "bytes": 1647,
+      "sha256": "a410e1174b2c80058718e7aa8c7ceb3b8cb390377ac37a9d8513b349066e0c86"
+    },
+    {
+      "path": "regression/failure-qualified.png",
+      "bytes": 139584,
+      "sha256": "158117d4cd830a7a83a44a362f7ceffd96e9e038cff0a0de668f9a5fdf2478b2"
+    },
+    {
+      "path": "regression/qualified.json",
+      "bytes": 111874,
+      "sha256": "598ac9d5ed9cc985d51196edd42a3aaa40d61df4660754fca2958173977e333e"
+    },
+    {
+      "path": "regression/README.md",
+      "bytes": 237,
+      "sha256": "0cf39e40fe99c1c226cca6aaf54d9743d74e8b79188400f4f870e97ca2e72fd9"
+    },
+    {
+      "path": "regression/risk-1323.png",
+      "bytes": 138148,
+      "sha256": "8782ba04ff532251cff10b2eff92831e46d8125fe668bda66f6e44c87110b9a6"
+    },
+    {
+      "path": "regression/risk-1324.png",
+      "bytes": 141258,
+      "sha256": "768016b2c13c31817564e32c4403e1531705cf30e0db2749deef0f8e464b3737"
+    },
+    {
+      "path": "regression/risk-1343.png",
+      "bytes": 139548,
+      "sha256": "c8a28a9715cf661be0f8325e73b60334100dd7e9e21efef64fcd7f14684c2786"
+    },
+    {
+      "path": "regression/risk-1346.png",
+      "bytes": 139616,
+      "sha256": "78b07de08240b784c3827baf4ba360a1fdae4d70ca0efa54999aa5d09e04e819"
+    },
+    {
+      "path": "regression/risk-1354.png",
+      "bytes": 140774,
+      "sha256": "af3b2f721316c54f8ea86177953d40592de23baafcdb2f9cd8aa4b6100bb9512"
+    },
+    {
+      "path": "regression/risk-1357.png",
+      "bytes": 139996,
+      "sha256": "81a9a803b45ddb663e00eb497d6947d4a0929f311b129388ce7d82d5c4af1604"
+    },
+    {
+      "path": "regression/risk-1358.png",
+      "bytes": 140098,
+      "sha256": "55f15494658f63746976bae2eeebe98f48d4067b2689ac37c270fb648084abdf"
+    },
+    {
+      "path": "regression/risk-1361.png",
+      "bytes": 140411,
+      "sha256": "e2e16ed317127b7e0d455b4b5889b15c33c8b2ddba4fabc59be84752ab2f8532"
+    },
+    {
+      "path": "regression/risk-1362.png",
+      "bytes": 137409,
+      "sha256": "4a6328645a2f526977506e5a83ee6b17698abdc58d020daec58a62ef36e593f9"
+    },
+    {
+      "path": "seal.mjs",
+      "bytes": 4169,
+      "sha256": "932ec7009f79d8b162685a7e270856f6011a6aa4ebb1dfb7a5381c5444a0f1c2"
+    },
+    {
+      "path": "source.mjs",
+      "bytes": 2158,
+      "sha256": "fea77e2a69d302eb45f407a313cca80699808cc8fadb1928fccca995f89028b6"
+    },
+    {
+      "path": "timeline-run-end.png",
+      "bytes": 106672,
+      "sha256": "ad926970ad37c73079c380b363a98765228069e4f8c85a0170d9b1136fee82ed"
+    }
+  ],
+  "phaseI": "not started",
+  "hostedCiDispatched": false,
+  "sourceCounts": {
+    "baskets": 280,
+    "events": 1454,
+    "liveEvents": 1452
+  }
+}

@@ -1,6 +1,10 @@
 import { bad, handler, ok, requireValue } from "@/server/api";
 import { parseUtcMs } from "@/lib/marketlab-replay";
-import { basketWindow, ReplayPackageError } from "@/server/marketlab-replay";
+import {
+  basketWindow,
+  ReplayPackageError,
+  requireNavigationSource,
+} from "@/server/marketlab-replay";
 
 type Context = { params: Promise<{ number: string }> };
 
@@ -28,6 +32,7 @@ export const GET = handler(async (request: Request, { params }: Context) => {
     '"from" must be epoch milliseconds or a canonical UTC timestamp.',
   );
   try {
+    requireNavigationSource(new URL(request.url).searchParams.get("source"));
     return ok(basketWindow(basketNumber, fromMs));
   } catch (error) {
     if (error instanceof ReplayPackageError) return bad(error.message, 422);

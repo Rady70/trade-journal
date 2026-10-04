@@ -14,6 +14,7 @@ import {
   type ReplayWindowResponse,
 } from "@/lib/marketlab-replay";
 import { usePrivacy } from "./privacy";
+import type { ReplayTarget } from "@/lib/marketlab-run";
 import { MarketlabReplayChart } from "./marketlab-replay-chart";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -24,6 +25,7 @@ const REPLAY_SCRUB_CONTEXT_MS = 6 * 60 * 60_000;
 
 export interface MarketlabReplayProps {
   basket: BasketIdentity;
+  initialTarget?: ReplayTarget;
   /** Loads one bounded window of derived candles plus the carry-in account row. */
   loadWindow: (fromMs: number) => Promise<ReplayWindowResponse>;
   /** Returns only events and account state at or before the cursor. */
@@ -31,6 +33,7 @@ export interface MarketlabReplayProps {
     afterEventId: number,
     cursorMs: number,
     step?: boolean,
+    occurrenceId?: number,
   ) => Promise<ReplayRevealResponse>;
 }
 
@@ -81,7 +84,12 @@ const eventTitle = (view: ReplayEventView): string => {
   }
 };
 
-export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabReplayProps) {
+export function MarketlabReplay({
+  basket,
+  initialTarget,
+  loadWindow,
+  loadReveal,
+}: MarketlabReplayProps) {
   const privacy = usePrivacy();
   const [bars, setBars] = useState<CompactBar[]>([]);
   const [nextFromMs, setNextFromMs] = useState<number | null>(null);
@@ -99,6 +107,7 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
   const [error, setError] = useState("");
   const requestRef = useRef(0);
   const revealRef = useRef(0);
+  const playbackRef = useRef(0);
   const lastEventIdRef = useRef(0);
   const pendingRevealRef = useRef<number | null>(null);
   const revealBusyRef = useRef(false);
@@ -108,13 +117,16 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
 
   /** Fetches every event at or before the cursor, in bounded batches. */
   const revealOnce = useCallback(
-    async (cursor: number) => {
+    async (cursor: number, occurrenceId?: number) => {
       const token = ++revealRef.current;
       let after = lastEventIdRef.current;
       const collected: ReplayEventView[] = [];
       let account: AccountRow | null = null;
       for (let attempt = 0; attempt < 20; attempt += 1) {
-        const response = await loadReveal(after, cursor);
+        const response =
+          occurrenceId === undefined
+            ? await loadReveal(after, cursor)
+            : await loadReveal(after, cursor, false, occurrenceId);
         collected.push(...response.events);
         after = response.lastEventId;
         account = response.account;
@@ -128,7 +140,7 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
         merged.sort((a, b) => a.id - b.id);
         return merged;
       });
-      setAccountState({ cursorMs: cursor, eventId: null, row: account });
+      setAccountState({ cursorMs: cursor, eventId: occurrenceId ?? null, row: account });
     },
     [loadReveal],
   );
@@ -156,45 +168,61 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
     [revealOnce],
   );
 
-  const reset = useCallback(async () => {
-    setPlaying(false);
-    const request = ++requestRef.current;
-    revealRef.current += 1;
-    pendingRevealRef.current = null;
-    setLoading(true);
-    setError("");
-    setEvents([]);
-    lastEventIdRef.current = 0;
-    setAccountState(null);
-    setCursorEventId(null);
-    try {
-      const chunk = await loadWindow(basket.windowStartMs);
-      if (requestRef.current !== request) return;
-      setBars(chunk.bars);
-      setNextFromMs(chunk.nextFromMs);
-      const first = chunk.bars[0];
-      const cursor = first ? barCloseMs(first) : chunk.windowStartMs;
-      setCursorMs(cursor);
-      requestReveal(cursor);
-    } catch (cause) {
-      if (requestRef.current !== request) return;
-      setBars([]);
-      setNextFromMs(null);
-      setCursorMs(null);
+  const reset = useCallback(
+    async (target?: ReplayTarget) => {
+      setPlaying(false);
+      const request = ++requestRef.current;
+      revealRef.current += 1;
+      pendingRevealRef.current = null;
+      setLoading(true);
+      setError("");
+      setEvents([]);
+      lastEventIdRef.current = 0;
       setAccountState(null);
-      setError(cause instanceof Error ? cause.message : "Replay window request failed.");
-    } finally {
-      if (requestRef.current === request) setLoading(false);
-    }
-  }, [basket.windowStartMs, loadWindow, requestReveal]);
+      setCursorEventId(null);
+      try {
+        const chunk = await loadWindow(
+          target
+            ? Math.max(basket.windowStartMs, target.timeMs - REPLAY_SCRUB_CONTEXT_MS)
+            : basket.windowStartMs,
+        );
+        if (requestRef.current !== request) return;
+        setBars(chunk.bars);
+        setNextFromMs(chunk.nextFromMs);
+        const first = chunk.bars[0];
+        const cursor = target?.timeMs ?? (first ? barCloseMs(first) : chunk.windowStartMs);
+        setCursorMs(cursor);
+        if (target) {
+          setCursorEventId(target.id);
+          await revealOnce(cursor, target.id);
+        } else requestReveal(cursor);
+      } catch (cause) {
+        if (requestRef.current !== request) return;
+        setBars([]);
+        setNextFromMs(null);
+        setCursorMs(null);
+        setAccountState(null);
+        setError(cause instanceof Error ? cause.message : "Replay window request failed.");
+      } finally {
+        if (requestRef.current === request) setLoading(false);
+      }
+    },
+    [basket.windowStartMs, loadWindow, requestReveal, revealOnce],
+  );
 
   useEffect(() => {
-    void reset();
-  }, [reset]);
+    void reset(initialTarget);
+    return () => {
+      requestRef.current += 1;
+      revealRef.current += 1;
+      pendingRevealRef.current = null;
+    };
+  }, [reset, initialTarget]);
 
   const stepTo = useCallback(
     async (target: number) => {
       const token = ++revealRef.current;
+      const playbackToken = playbackRef.current;
       const state = stateRef.current;
       const after =
         state.cursorEventId ??
@@ -206,7 +234,7 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
           .at(-1)?.id ??
         0;
       const response = await loadReveal(after, target, true);
-      if (revealRef.current !== token) return;
+      if (revealRef.current !== token || playbackRef.current !== playbackToken) return;
       const cursor = response.reachedCursorMs ?? target;
       const eventId = response.reachedEventId ?? null;
       lastEventIdRef.current = Math.max(lastEventIdRef.current, response.lastEventId);
@@ -563,7 +591,12 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
             <Button
               className="min-w-24"
               disabled={loading || complete || bars.length === 0}
-              onClick={() => setPlaying((current) => !current)}
+              onClick={() => {
+                // Pause also cancels an in-flight occurrence advance. Otherwise
+                // a slow response can move the cursor after the user pauses.
+                if (playing) playbackRef.current += 1;
+                setPlaying((current) => !current);
+              }}
             >
               {playing ? <Pause /> : <Play />}
               {playing ? "Pause" : "Play"}
@@ -629,7 +662,7 @@ export function MarketlabReplay({ basket, loadWindow, loadReveal }: MarketlabRep
           <CardHeader>
             <CardTitle>Account state at the replay cursor</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-2" aria-label="Replay cursor account">
             {accountSyncing ? (
               <p role="status" className="text-sm text-muted-foreground">
                 Synchronizing the exported account state at the cursor…

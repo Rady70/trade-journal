@@ -216,6 +216,7 @@ const renderReplay = async (
   overrides: {
     window?: typeof loadWindow;
     reveal?: typeof loadReveal;
+    target?: { id: number; timeMs: number };
   } = {},
 ) =>
   act(async () =>
@@ -228,6 +229,7 @@ const renderReplay = async (
           null,
           createElement(MarketlabReplay, {
             basket: replayBasket,
+            initialTarget: overrides.target,
             loadWindow: overrides.window ?? loadWindow,
             loadReveal: overrides.reveal ?? loadReveal,
           }),
@@ -238,6 +240,29 @@ const renderReplay = async (
 const button = (label: string) =>
   container.querySelector<HTMLButtonElement>(`button[aria-label="${label}"]`)!;
 const feed = () => container.textContent ?? "";
+
+it("opens an exact occurrence inside a candle without revealing later same-time events; Restart returns before the anchor", async () => {
+  const target = { id: 6, timeMs: minuteMs(5, 30) };
+  const later = { ...events[6]!, timeMs: target.timeMs, time: iso(target.timeMs) };
+  const jumpReveal = vi.fn(
+    async (_after: number, cursor: number, _step?: boolean, id?: number) => ({
+      events:
+        id === undefined ? [] : [...events, later].filter((e) => e.id <= id && e.timeMs! <= cursor),
+      account: id === undefined ? null : accounts.find((a) => a.eventId === id)!,
+      lastEventId: id ?? 0,
+      hasMore: false,
+    }),
+  );
+  await renderReplay(basket, { target, reveal: jumpReveal });
+  expect(jumpReveal).toHaveBeenCalledWith(0, target.timeMs, false, 6);
+  expect(feed()).toContain("occurrence #6");
+  expect(feed()).toContain("Forced close 1");
+  expect(feed()).not.toContain("Basket liquidated");
+  expect(container.querySelector('[aria-label="Authoritative basket close"]')).toBeNull();
+  await act(async () => button("Restart replay").click());
+  expect(feed()).not.toContain("Forced close");
+  expect(feed()).not.toContain("occurrence #6");
+});
 
 it("reveals authoritative events only up to the cursor and syncs the exported account state", async () => {
   await renderReplay();
@@ -266,6 +291,44 @@ it("reveals authoritative events only up to the cursor and syncs the exported ac
   expect(feed()).toContain("Forced close 1: #1 Buy 0.10 @ 98.2");
   expect(feed()).toContain("Basket liquidated");
   expect(feed()).toContain("880.00000");
+});
+
+it("Pause cancels a delayed playback response without revealing its event/account after pausing", async () => {
+  let finish: (response: ReplayRevealResponse) => void = () => {};
+  const delayed = vi.fn((after: number, cursor: number, step?: boolean) =>
+    step
+      ? new Promise<ReplayRevealResponse>((resolve) => {
+          finish = resolve;
+        })
+      : loadReveal(after, cursor),
+  );
+  await renderReplay(basket, { reveal: delayed });
+  vi.useFakeTimers();
+  await act(async () =>
+    [...container.querySelectorAll("button")]
+      .find((b) => b.textContent?.trim() === "Play")!
+      .click(),
+  );
+  await act(async () => vi.advanceTimersByTimeAsync(250));
+  expect(delayed).toHaveBeenLastCalledWith(0, minuteMs(2), true);
+  await act(async () =>
+    [...container.querySelectorAll("button")]
+      .find((b) => b.textContent?.trim() === "Pause")!
+      .click(),
+  );
+  await act(async () =>
+    finish({
+      events: [events[0]!],
+      account: accountRow(iso(minuteMs(2)), "123.00000", 2),
+      hasMore: false,
+      lastEventId: 2,
+      reachedCursorMs: minuteMs(2),
+      reachedEventId: 2,
+    }),
+  );
+  expect(feed()).not.toContain("occurrence #2");
+  expect(feed()).not.toContain("123.00000");
+  expect(feed()).not.toContain("Basket anchored");
 });
 
 it("restarts to the first candle without revealing future events", async () => {

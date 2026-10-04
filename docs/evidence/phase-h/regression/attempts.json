@@ -1,0 +1,46 @@
+[
+  {
+    "started": "2026-10-04T19:08:45.721Z",
+    "ended": "2026-10-04T19:08:51.545Z",
+    "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ '2020-03-16 15:24:00Z'\n- '2020-03-16 15:23:00Z'\n                  ^\n",
+    "checks": [
+      "Basket #276 opened; pre-anchor events, levels, outcome and account hidden"
+    ]
+  },
+  {
+    "started": "2026-10-04T19:10:46.657Z",
+    "ended": "2026-10-04T19:18:58.451Z",
+    "failure": "AssertionError [ERR_ASSERTION]: collapsed-provenance replay, controls and account/event panels fit the tested screen",
+    "checks": [
+      "Basket #276 opened; pre-anchor events, levels, outcome and account hidden",
+      "4× Play advances; Pause holds the cursor",
+      "64× continuous Play from Restart visits all 117 event occurrences with exact DOM event values and exact bound account snapshots"
+    ]
+  },
+  {
+    "started": "2026-10-04T19:25:05.400Z",
+    "ended": "2026-10-04T19:34:59.650Z",
+    "failure": null,
+    "checks": [
+      "Basket #276 opened; pre-anchor events, levels, outcome and account hidden",
+      "4× Play advances; Pause holds the cursor",
+      "64× continuous Play from Restart visits all 117 event occurrences with exact DOM event values and exact bound account snapshots",
+      "Backward scrub, Next through all 30 liquidations, Previous before the risk minute, and Next again remain occurrence/account coherent",
+      "Full-window navigation retains the basket close snapshot rather than another basket's account",
+      "Restart after full-history navigation removes future events, account and levels"
+    ]
+  },
+  {
+    "started": "2026-10-04T19:47:16.759Z",
+    "ended": "2026-10-04T19:56:26.040Z",
+    "failure": null,
+    "checks": [
+      "Basket #276 opened; pre-anchor events, levels, outcome and account hidden",
+      "4× Play advances; Pause holds the cursor",
+      "64× continuous Play from Restart visits all 117 event occurrences with exact DOM event values and exact bound account snapshots",
+      "Backward scrub, Next through all 30 liquidations, Previous before the risk minute, and Next again remain occurrence/account coherent",
+      "Full-window navigation retains the basket close snapshot rather than another basket's account",
+      "Restart after full-history navigation removes future events, account and levels"
+    ]
+  }
+]

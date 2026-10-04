@@ -44,7 +44,16 @@ The MarketLab adaptation is confined to new, reviewable paths:
   qualification and its bounded playback/close-display corrections,
   independently reviewed, user-approved and finalized through PR #3 (approved
   head `f0766d5800ee8ebe29cbb6442fdf358ede706d3d`, merge
-  `77377f5275e4ceb6094f9f6f31abadafb116598b`); Phase H/I remain unstarted.
+  `77377f5275e4ceb6094f9f6f31abadafb116598b`). Historical Phase G records remain unchanged.
+- `apps/web/src/{lib,server}/marketlab-run.ts`,
+  `apps/web/src/components/marketlab-run.tsx` and the replay `run` route —
+  Phase H completed-run summary, paged basket/event browsing, distinct risk
+  filters and exact occurrence navigation into the existing basket replay.
+- `docs/marketlab-phase-h.md`, `docs/evidence/phase-h/` and run/navigation tests —
+  Phase H implemented and ready for independent review, **not finalized**.
+  Phase I remains **not started**. Replay/navigation requests are source-bound;
+  candle arrays remain bounded. Local Windows browser/Phase G regression pass;
+  the inherited production-build symlink limitation remains documented.
 
 Upstream files edited by MarketLab (kept minimal so they merge easily):
 

@@ -1,6 +1,10 @@
 import { bad, handler, ok, requireValue } from "@/server/api";
 import { parseUtcMs } from "@/lib/marketlab-replay";
-import { basketReveal, ReplayPackageError } from "@/server/marketlab-replay";
+import {
+  basketReveal,
+  ReplayPackageError,
+  requireNavigationSource,
+} from "@/server/marketlab-replay";
 
 type Context = { params: Promise<{ number: string }> };
 
@@ -34,8 +38,23 @@ export const GET = handler(async (request: Request, { params }: Context) => {
   );
   const stepRaw = search.get("step");
   requireValue(stepRaw === null || stepRaw === "1", '"step" must be 1 when supplied.');
+  const event = search.get("event");
+  requireValue(
+    event === null ||
+      (/^\d+$/.test(event) && Number.isSafeInteger(Number(event)) && Number(event) > 0),
+    "Invalid occurrence id.",
+  );
   try {
-    return ok(basketReveal(basketNumber, afterEventId, cursorMs, stepRaw === "1"));
+    requireNavigationSource(search.get("source"));
+    return ok(
+      basketReveal(
+        basketNumber,
+        afterEventId,
+        cursorMs,
+        stepRaw === "1",
+        event === null ? undefined : Number(event),
+      ),
+    );
   } catch (error) {
     if (error instanceof ReplayPackageError) return bad(error.message, 422);
     throw error;
