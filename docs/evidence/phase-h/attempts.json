@@ -1,0 +1,49 @@
+[
+  {
+    "started": "2026-10-04T19:07:09.894Z",
+    "ended": "2026-10-04T19:07:31.618Z",
+    "result": "FAIL",
+    "failure": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(state.text.includes(`Basket #${number} · replay in progress`))\n\n    at file:///E:/MarketLab-LuxAlgo/docs/evidence/phase-h/browser.mjs:330:12",
+    "checks": 5,
+    "jumps": 0
+  },
+  {
+    "started": "2026-10-04T19:08:45.871Z",
+    "ended": "2026-10-04T19:09:08.722Z",
+    "result": "FAIL",
+    "failure": "AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n+ actual - expected\n\n  {\n+   'Candle content SHA-256': 'ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d',\n+   'Expected candle identity': 'anchored',\n+   'Expected package identity': 'anchored',\n    'Floating P/L': '0',\n    'Free margin': '20000',\n    'Gross exposure (lots)': '0',\n+   'M1 candle cache': '2019-01 .. 2026-06 · 90 monthly files',\n+   'Manifest SHA-256': '825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18',\n    'Margin level': 'not defined',\n+   'Model revision': 'marketlab-single-anchor-broker-liquidation-v1',\n    'Net exposure (lots, signed)': '0',\n    'Open positions': '0',\n+   'Package SHA-256': 'd145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4',\n    'Realized P/L': '0',\n+   'Run window': '2019-01-01 .. 2026-06-30',\n+   'Stop Out model': 'BrokerLiquidation',\n    'Used margin': '0',\n    Balance: '20000',\n+   Contract: 'marketlab-single-anchor-replay-package-v1',\n    Equity: '20000',\n+   Instrument: 'XAUUSD · dukascopy · UTC'\n  }\n\n    at exact (file:///E:/MarketLab-LuxAlgo/docs/evidence/phase-h/browser.mjs:160:10)\n    at async file:///E:/MarketLab-LuxAlgo/docs/evidence/phase-h/browser.mjs:370:19",
+    "checks": 12,
+    "jumps": 0
+  },
+  {
+    "started": "2026-10-04T19:10:46.804Z",
+    "ended": "2026-10-04T19:13:58.637Z",
+    "result": "FAIL",
+    "failure": "TimeoutError: Waiting failed: 120000ms exceeded\n    at new WaitTask (C:\\Users\\non_s\\AppData\\Local\\Temp\\opencode\\marketlab-ui-validation\\node_modules\\puppeteer-core\\lib\\cjs\\puppeteer\\common\\WaitTask.js:49:34)\n    at IsolatedWorld.waitForFunction (C:\\Users\\non_s\\AppData\\Local\\Temp\\opencode\\marketlab-ui-validation\\node_modules\\puppeteer-core\\lib\\cjs\\puppeteer\\api\\Realm.js:25:26)\n    at CdpFrame.waitForFunction (C:\\Users\\non_s\\AppData\\Local\\Temp\\opencode\\marketlab-ui-validation\\node_modules\\puppeteer-core\\lib\\cjs\\puppeteer\\api\\Frame.js:583:43)\n    at CdpFrame.<anonymous> (C:\\Users\\non_s\\AppData\\Local\\Temp\\opencode\\marketlab-ui-validation\\node_modules\\puppeteer-core\\lib\\cjs\\puppeteer\\util\\decorators.js:109:27)\n    at CdpPage.waitForFunction (C:\\Users\\non_s\\AppData\\Local\\Temp\\opencode\\marketlab-ui-validation\\node_modules\\puppeteer-core\\lib\\cjs\\puppeteer\\api\\Page.js:1451:37)\n    at exact (file:///E:/MarketLab-LuxAlgo/docs/evidence/phase-h/browser.mjs:154:14)\n    at file:///E:/MarketLab-LuxAlgo/docs/evidence/phase-h/browser.mjs:394:13",
+    "checks": 12,
+    "jumps": 15
+  },
+  {
+    "started": "2026-10-04T19:25:05.887Z",
+    "ended": "2026-10-04T19:29:21.220Z",
+    "result": "FAIL",
+    "failure": "TimeoutError: Waiting failed: 120000ms exceeded\n    at new WaitTask (C:\\Users\\non_s\\AppData\\Local\\Temp\\opencode\\marketlab-ui-validation\\node_modules\\puppeteer-core\\lib\\cjs\\puppeteer\\common\\WaitTask.js:49:34)\n    at IsolatedWorld.waitForFunction (C:\\Users\\non_s\\AppData\\Local\\Temp\\opencode\\marketlab-ui-validation\\node_modules\\puppeteer-core\\lib\\cjs\\puppeteer\\api\\Realm.js:25:26)\n    at CdpFrame.waitForFunction (C:\\Users\\non_s\\AppData\\Local\\Temp\\opencode\\marketlab-ui-validation\\node_modules\\puppeteer-core\\lib\\cjs\\puppeteer\\api\\Frame.js:583:43)\n    at CdpFrame.<anonymous> (C:\\Users\\non_s\\AppData\\Local\\Temp\\opencode\\marketlab-ui-validation\\node_modules\\puppeteer-core\\lib\\cjs\\puppeteer\\util\\decorators.js:109:27)\n    at CdpPage.waitForFunction (C:\\Users\\non_s\\AppData\\Local\\Temp\\opencode\\marketlab-ui-validation\\node_modules\\puppeteer-core\\lib\\cjs\\puppeteer\\api\\Page.js:1451:37)\n    at exact (file:///E:/MarketLab-LuxAlgo/docs/evidence/phase-h/browser.mjs:169:14)\n    at file:///E:/MarketLab-LuxAlgo/docs/evidence/phase-h/browser.mjs:416:13",
+    "checks": 12,
+    "jumps": 15
+  },
+  {
+    "started": "2026-10-04T19:36:30.673Z",
+    "ended": "2026-10-04T19:37:08.814Z",
+    "result": "FAIL",
+    "failure": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(state.text.includes(\"open at run end\"))\n\n    at file:///E:/MarketLab-LuxAlgo/docs/evidence/phase-h/browser.mjs:429:14",
+    "checks": 13,
+    "jumps": 61
+  },
+  {
+    "started": "2026-10-04T19:39:05.989Z",
+    "ended": "2026-10-04T19:39:56.761Z",
+    "result": "PASS",
+    "checks": 13,
+    "jumps": 61
+  }
+]

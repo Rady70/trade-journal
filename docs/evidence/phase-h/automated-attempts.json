@@ -1,0 +1,60 @@
+[
+  {
+    "started": "2026-10-04T19:47:16.476Z",
+    "platform": "win32",
+    "node": "v24.19.0",
+    "commands": [
+      {
+        "command": "corepack pnpm exec vitest run --reporter=json --outputFile=\"C:\\Users\\non_s\\AppData\\Local\\Temp\\opencode\\phase-h-vitest.json\"",
+        "exit": 1,
+        "output": "JSON report written to C:/Users/non_s/AppData/Local/Temp/opencode/phase-h-vitest.json"
+      }
+    ],
+    "result": "FAIL",
+    "failure": "AssertionError [ERR_ASSERTION]: corepack pnpm exec vitest run --reporter=json --outputFile=\"C:\\Users\\non_s\\AppData\\Local\\Temp\\opencode\\phase-h-vitest.json\"\n\n1 !== 0\n\n    at file:///E:/MarketLab-LuxAlgo/docs/evidence/phase-h/automated.mjs:44:12\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)",
+    "ended": "2026-10-04T19:47:42.492Z",
+    "failedTests": [
+      {
+        "name": "API route handlers serves package status, basket identity, a window and a cursor reveal",
+        "messages": [
+          "AssertionError: expected 500 to be 200 // Object.is equality\n    at E:\\MarketLab-LuxAlgo\\apps\\web\\tests\\marketlab-replay.test.ts:588:26\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at file:///E:/MarketLab-LuxAlgo/node_modules/.pnpm/@vitest+runner@3.2.7/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20"
+        ]
+      },
+      {
+        "name": "API route handlers reports an invalid package without exposing a replay",
+        "messages": [
+          "AssertionError: expected 500 to be 200 // Object.is equality\n    at E:\\MarketLab-LuxAlgo\\apps\\web\\tests\\marketlab-replay.test.ts:677:26\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at file:///E:/MarketLab-LuxAlgo/node_modules/.pnpm/@vitest+runner@3.2.7/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20"
+        ]
+      }
+    ]
+  },
+  {
+    "started": "2026-10-04T19:58:06.162Z",
+    "platform": "win32",
+    "node": "v24.19.0",
+    "commands": [
+      {
+        "command": "corepack pnpm exec vitest run --reporter=json --outputFile=\"C:\\Users\\non_s\\AppData\\Local\\Temp\\opencode\\phase-h-vitest.json\"",
+        "exit": 1,
+        "output": "JSON report written to C:/Users/non_s/AppData/Local/Temp/opencode/phase-h-vitest.json"
+      }
+    ],
+    "result": "FAIL",
+    "failure": "AssertionError [ERR_ASSERTION]: corepack pnpm exec vitest run --reporter=json --outputFile=\"C:\\Users\\non_s\\AppData\\Local\\Temp\\opencode\\phase-h-vitest.json\"\n\n1 !== 0\n\n    at file:///E:/MarketLab-LuxAlgo/docs/evidence/phase-h/automated.mjs:60:12\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)",
+    "ended": "2026-10-04T19:58:21.886Z",
+    "failedTests": [
+      {
+        "name": "API route handlers serves package status, basket identity, a window and a cursor reveal",
+        "messages": [
+          "AssertionError: expected 500 to be 200 // Object.is equality\n    at E:\\MarketLab-LuxAlgo\\apps\\web\\tests\\marketlab-replay.test.ts:588:26\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at file:///E:/MarketLab-LuxAlgo/node_modules/.pnpm/@vitest+runner@3.2.7/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20"
+        ]
+      },
+      {
+        "name": "API route handlers reports an invalid package without exposing a replay",
+        "messages": [
+          "AssertionError: expected 500 to be 200 // Object.is equality\n    at E:\\MarketLab-LuxAlgo\\apps\\web\\tests\\marketlab-replay.test.ts:677:26\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at file:///E:/MarketLab-LuxAlgo/node_modules/.pnpm/@vitest+runner@3.2.7/node_modules/@vitest/runner/dist/chunk-hooks.js:752:20"
+        ]
+      }
+    ]
+  }
+]

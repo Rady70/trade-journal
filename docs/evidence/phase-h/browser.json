@@ -1,0 +1,1193 @@
+{
+  "started": "2026-10-04T19:47:15.638Z",
+  "platform": "win32",
+  "node": "v24.19.0",
+  "packageHash": "d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4",
+  "candleHash": "ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d",
+  "resultsHash": "bc3958b2629e8930ef8de3890cac9c80006f26d7c8dffdf5ecf54d6a6aa9bdad",
+  "evidenceHash": "f98263618bde5d2cd24542e028d322d0bab35074c430ce6b0bdb4c7a4b22f685",
+  "checks": [
+    "All seven browser table pages match all 280 authoritative basket identities",
+    "stop-out: 5 exact occurrences, browser pagination/identities match raw source",
+    "margin-call: 46 exact occurrences, browser pagination/identities match raw source",
+    "forced-liquidation: 65 exact occurrences, browser pagination/identities match raw source",
+    "strategy-exit: 278 exact occurrences, browser pagination/identities match raw source",
+    "Basket #1: direct table navigation, pre-anchor causal hiding",
+    "Basket #5: direct table navigation, pre-anchor causal hiding",
+    "Basket #6: direct table navigation, pre-anchor causal hiding",
+    "Basket #4: direct table navigation, pre-anchor causal hiding",
+    "Basket #276: direct table navigation, pre-anchor causal hiding",
+    "Basket #279: direct table navigation, pre-anchor causal hiding",
+    "Basket #280: direct table navigation, pre-anchor causal hiding",
+    "Exact jump followed by Next/Previous/Next hides cached future same-time liquidations",
+    "Direct basket-number navigation from distant Basket #280 to ordinary Basket #6 is causal",
+    "Unavailable basket fails closed with no stale replay"
+  ],
+  "jumps": [
+    {
+      "basket": 1,
+      "id": 1,
+      "type": "run_started",
+      "time": "2019-01-01T00:00:00.000Z",
+      "snapshot": 1,
+      "revealed": 1,
+      "loadedCandles": 467
+    },
+    {
+      "basket": 1,
+      "id": 2,
+      "type": "basket_anchored",
+      "time": "2019-01-01T23:05:08.037Z",
+      "snapshot": 2,
+      "revealed": 1,
+      "loadedCandles": 467
+    },
+    {
+      "basket": 1,
+      "id": 4,
+      "type": "trailing_activated",
+      "time": "2019-01-02T06:02:25.707Z",
+      "snapshot": 4,
+      "revealed": 3,
+      "loadedCandles": 404
+    },
+    {
+      "basket": 1,
+      "id": 5,
+      "type": "strategy_exit",
+      "time": "2019-01-02T06:17:59.941Z",
+      "snapshot": 5,
+      "revealed": 4,
+      "loadedCandles": 389
+    },
+    {
+      "basket": 4,
+      "id": 26,
+      "type": "strategy_exit",
+      "time": "2019-02-20T01:24:48.424Z",
+      "snapshot": 26,
+      "revealed": 13,
+      "loadedCandles": 326
+    },
+    {
+      "basket": 276,
+      "id": 1253,
+      "type": "hard_breakeven_activated",
+      "time": "2020-03-16T17:18:58.529Z",
+      "snapshot": 1253,
+      "revealed": 6,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1286,
+      "type": "margin_call_entered",
+      "time": "2020-03-23T12:05:19.738Z",
+      "snapshot": 1286,
+      "revealed": 39,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1287,
+      "type": "margin_call_left",
+      "time": "2020-03-23T12:05:19.889Z",
+      "snapshot": 1287,
+      "revealed": 40,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1323,
+      "type": "stop_out_triggered",
+      "time": "2020-03-23T12:06:26.292Z",
+      "snapshot": 1323,
+      "revealed": 76,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1346,
+      "type": "stop_out_triggered",
+      "time": "2020-03-23T12:06:32.137Z",
+      "snapshot": 1346,
+      "revealed": 99,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1357,
+      "type": "stop_out_triggered",
+      "time": "2020-03-23T12:06:38.717Z",
+      "snapshot": 1357,
+      "revealed": 110,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1361,
+      "type": "stop_out_triggered",
+      "time": "2020-03-23T12:06:54.330Z",
+      "snapshot": 1361,
+      "revealed": 114,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 279,
+      "id": 1411,
+      "type": "stop_out_triggered",
+      "time": "2020-06-17T09:32:50.569Z",
+      "snapshot": 1411,
+      "revealed": 39,
+      "loadedCandles": 389
+    },
+    {
+      "basket": 276,
+      "id": 1324,
+      "type": "forced_liquidation",
+      "time": "2020-03-23T12:06:26.292Z",
+      "snapshot": 1324,
+      "revealed": 77,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1325,
+      "type": "forced_liquidation",
+      "time": "2020-03-23T12:06:26.292Z",
+      "snapshot": 1325,
+      "revealed": 78,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1285,
+      "type": "entry_executed",
+      "time": "2020-03-23T12:05:16.724Z",
+      "snapshot": 1285,
+      "revealed": 38,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1286,
+      "type": "margin_call_entered",
+      "time": "2020-03-23T12:05:19.738Z",
+      "snapshot": 1286,
+      "revealed": 39,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1287,
+      "type": "margin_call_left",
+      "time": "2020-03-23T12:05:19.889Z",
+      "snapshot": 1287,
+      "revealed": 40,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1288,
+      "type": "margin_call_entered",
+      "time": "2020-03-23T12:05:19.940Z",
+      "snapshot": 1288,
+      "revealed": 41,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1289,
+      "type": "margin_call_left",
+      "time": "2020-03-23T12:05:19.990Z",
+      "snapshot": 1289,
+      "revealed": 42,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1290,
+      "type": "margin_call_entered",
+      "time": "2020-03-23T12:06:19.385Z",
+      "snapshot": 1290,
+      "revealed": 43,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1291,
+      "type": "margin_call_left",
+      "time": "2020-03-23T12:06:19.435Z",
+      "snapshot": 1291,
+      "revealed": 44,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1292,
+      "type": "margin_call_entered",
+      "time": "2020-03-23T12:06:19.839Z",
+      "snapshot": 1292,
+      "revealed": 45,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1293,
+      "type": "margin_call_left",
+      "time": "2020-03-23T12:06:19.889Z",
+      "snapshot": 1293,
+      "revealed": 46,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1294,
+      "type": "margin_call_entered",
+      "time": "2020-03-23T12:06:20.091Z",
+      "snapshot": 1294,
+      "revealed": 47,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1295,
+      "type": "margin_call_left",
+      "time": "2020-03-23T12:06:20.191Z",
+      "snapshot": 1295,
+      "revealed": 48,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1296,
+      "type": "margin_call_entered",
+      "time": "2020-03-23T12:06:20.595Z",
+      "snapshot": 1296,
+      "revealed": 49,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1297,
+      "type": "margin_call_left",
+      "time": "2020-03-23T12:06:20.709Z",
+      "snapshot": 1297,
+      "revealed": 50,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1298,
+      "type": "margin_call_entered",
+      "time": "2020-03-23T12:06:21.163Z",
+      "snapshot": 1298,
+      "revealed": 51,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1299,
+      "type": "margin_call_left",
+      "time": "2020-03-23T12:06:21.441Z",
+      "snapshot": 1299,
+      "revealed": 52,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1300,
+      "type": "margin_call_entered",
+      "time": "2020-03-23T12:06:21.592Z",
+      "snapshot": 1300,
+      "revealed": 53,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1301,
+      "type": "margin_call_left",
+      "time": "2020-03-23T12:06:21.894Z",
+      "snapshot": 1301,
+      "revealed": 54,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1302,
+      "type": "margin_call_entered",
+      "time": "2020-03-23T12:06:22.045Z",
+      "snapshot": 1302,
+      "revealed": 55,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1303,
+      "type": "margin_call_left",
+      "time": "2020-03-23T12:06:22.548Z",
+      "snapshot": 1303,
+      "revealed": 56,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1304,
+      "type": "margin_call_entered",
+      "time": "2020-03-23T12:06:23.357Z",
+      "snapshot": 1304,
+      "revealed": 57,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1305,
+      "type": "margin_call_left",
+      "time": "2020-03-23T12:06:23.408Z",
+      "snapshot": 1305,
+      "revealed": 58,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1306,
+      "type": "margin_call_entered",
+      "time": "2020-03-23T12:06:23.509Z",
+      "snapshot": 1306,
+      "revealed": 59,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1307,
+      "type": "margin_call_left",
+      "time": "2020-03-23T12:06:23.559Z",
+      "snapshot": 1307,
+      "revealed": 60,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1308,
+      "type": "margin_call_entered",
+      "time": "2020-03-23T12:06:23.660Z",
+      "snapshot": 1308,
+      "revealed": 61,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1309,
+      "type": "margin_call_left",
+      "time": "2020-03-23T12:06:23.812Z",
+      "snapshot": 1309,
+      "revealed": 62,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1310,
+      "type": "margin_call_entered",
+      "time": "2020-03-23T12:06:23.862Z",
+      "snapshot": 1310,
+      "revealed": 63,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1311,
+      "type": "margin_call_left",
+      "time": "2020-03-23T12:06:23.913Z",
+      "snapshot": 1311,
+      "revealed": 64,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1312,
+      "type": "margin_call_entered",
+      "time": "2020-03-23T12:06:24.114Z",
+      "snapshot": 1312,
+      "revealed": 65,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1313,
+      "type": "margin_call_left",
+      "time": "2020-03-23T12:06:24.226Z",
+      "snapshot": 1313,
+      "revealed": 66,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1314,
+      "type": "margin_call_entered",
+      "time": "2020-03-23T12:06:24.276Z",
+      "snapshot": 1314,
+      "revealed": 67,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1315,
+      "type": "margin_call_left",
+      "time": "2020-03-23T12:06:24.327Z",
+      "snapshot": 1315,
+      "revealed": 68,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1316,
+      "type": "margin_call_entered",
+      "time": "2020-03-23T12:06:24.377Z",
+      "snapshot": 1316,
+      "revealed": 69,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1317,
+      "type": "margin_call_left",
+      "time": "2020-03-23T12:06:24.428Z",
+      "snapshot": 1317,
+      "revealed": 70,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1318,
+      "type": "margin_call_entered",
+      "time": "2020-03-23T12:06:25.234Z",
+      "snapshot": 1318,
+      "revealed": 71,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1319,
+      "type": "margin_call_left",
+      "time": "2020-03-23T12:06:25.285Z",
+      "snapshot": 1319,
+      "revealed": 72,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1320,
+      "type": "margin_call_entered",
+      "time": "2020-03-23T12:06:25.385Z",
+      "snapshot": 1320,
+      "revealed": 73,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1321,
+      "type": "margin_call_left",
+      "time": "2020-03-23T12:06:25.486Z",
+      "snapshot": 1321,
+      "revealed": 74,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1322,
+      "type": "margin_call_entered",
+      "time": "2020-03-23T12:06:25.536Z",
+      "snapshot": 1322,
+      "revealed": 75,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1323,
+      "type": "stop_out_triggered",
+      "time": "2020-03-23T12:06:26.292Z",
+      "snapshot": 1323,
+      "revealed": 76,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1323,
+      "type": "stop_out_triggered",
+      "time": "2020-03-23T12:06:26.292Z",
+      "snapshot": 1323,
+      "revealed": 76,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1325,
+      "type": "forced_liquidation",
+      "time": "2020-03-23T12:06:26.292Z",
+      "snapshot": 1325,
+      "revealed": 78,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 276,
+      "id": 1364,
+      "type": "strategy_exit",
+      "time": "2020-04-13T18:24:10.475Z",
+      "snapshot": 1364,
+      "revealed": 117,
+      "loadedCandles": 389
+    },
+    {
+      "basket": 279,
+      "id": 1448,
+      "type": "basket_liquidated",
+      "time": "2020-06-17T09:32:50.569Z",
+      "snapshot": 1448,
+      "revealed": 76,
+      "loadedCandles": 389
+    },
+    {
+      "basket": 280,
+      "id": 1450,
+      "type": "entry_rejected",
+      "time": "2020-06-17T10:58:24.776Z",
+      "snapshot": 1450,
+      "revealed": 2,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 280,
+      "id": 1451,
+      "type": "entry_rejected",
+      "time": "2021-03-02T03:18:08.907Z",
+      "snapshot": 1451,
+      "revealed": 3,
+      "loadedCandles": 12000
+    },
+    {
+      "basket": 280,
+      "id": 1454,
+      "type": "run_ended",
+      "time": "2026-06-30T23:59:59.678Z",
+      "snapshot": 1454,
+      "revealed": 4,
+      "loadedCandles": 299
+    }
+  ],
+  "windows": [
+    {
+      "url": "/api/marketlab-replay/baskets/1/window?from=1546382108037&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 26982,
+      "bars": 467,
+      "first": 1546383600000,
+      "last": 1546411560000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/1/window?from=1546382108037&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 26982,
+      "bars": 467,
+      "first": 1546383600000,
+      "last": 1546411560000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/5/window?from=1550624088474&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 64798,
+      "bars": 1132,
+      "first": 1550624100000,
+      "last": 1550692020000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/5/window?from=1550624088474&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 64798,
+      "bars": 1132,
+      "first": 1550624100000,
+      "last": 1550692020000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/6/window?from=1550688514205&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 78109,
+      "bars": 1360,
+      "first": 1550688540000,
+      "last": 1550773740000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/6/window?from=1550688514205&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 78109,
+      "bars": 1360,
+      "first": 1550688540000,
+      "last": 1550773740000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/4/window?from=1546468669002&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 681886,
+      "bars": 12000,
+      "first": 1546470000000,
+      "last": 1547566260000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/4/window?from=1546468669002&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 681886,
+      "bars": 12000,
+      "first": 1546470000000,
+      "last": 1547566260000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584371837769&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 670007,
+      "bars": 12000,
+      "first": 1584371880000,
+      "last": 1585298580000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584371837769&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 670007,
+      "bars": 12000,
+      "first": 1584371880000,
+      "last": 1585298580000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/279/window?from=1586821313011&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 655640,
+      "bars": 12000,
+      "first": 1586821320000,
+      "last": 1587742920000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/279/window?from=1586821313011&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 655640,
+      "bars": 12000,
+      "first": 1586821320000,
+      "last": 1587742920000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/280/window?from=1592384570619&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 684358,
+      "bars": 12000,
+      "first": 1592384580000,
+      "last": 1593482640000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/280/window?from=1592384570619&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 684358,
+      "bars": 12000,
+      "first": 1592384580000,
+      "last": 1593482640000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/1/window?from=1546382108037&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 26982,
+      "bars": 467,
+      "first": 1546383600000,
+      "last": 1546411560000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/1/window?from=1546382108037&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 26982,
+      "bars": 467,
+      "first": 1546383600000,
+      "last": 1546411560000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/1/window?from=1546382108037&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 26982,
+      "bars": 467,
+      "first": 1546383600000,
+      "last": 1546411560000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/1/window?from=1546382108037&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 26982,
+      "bars": 467,
+      "first": 1546383600000,
+      "last": 1546411560000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/1/window?from=1546387345707&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 23349,
+      "bars": 404,
+      "first": 1546387380000,
+      "last": 1546411560000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/1/window?from=1546387345707&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 23349,
+      "bars": 404,
+      "first": 1546387380000,
+      "last": 1546411560000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/1/window?from=1546388279941&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 22507,
+      "bars": 389,
+      "first": 1546388280000,
+      "last": 1546411560000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/1/window?from=1546388279941&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 22507,
+      "bars": 389,
+      "first": 1546388280000,
+      "last": 1546411560000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/4/window?from=1550604288424&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 18956,
+      "bars": 326,
+      "first": 1550604300000,
+      "last": 1550627580000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/4/window?from=1550604288424&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 18956,
+      "bars": 326,
+      "first": 1550604300000,
+      "last": 1550627580000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584371837769&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 670007,
+      "bars": 12000,
+      "first": 1584371880000,
+      "last": 1585298580000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584371837769&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 670007,
+      "bars": 12000,
+      "first": 1584371880000,
+      "last": 1585298580000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943519738&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 659696,
+      "bars": 12000,
+      "first": 1584943560000,
+      "last": 1585870320000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943519738&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 659696,
+      "bars": 12000,
+      "first": 1584943560000,
+      "last": 1585870320000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943519889&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 659696,
+      "bars": 12000,
+      "first": 1584943560000,
+      "last": 1585870320000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943519889&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 659696,
+      "bars": 12000,
+      "first": 1584943560000,
+      "last": 1585870320000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943586292&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 659696,
+      "bars": 12000,
+      "first": 1584943620000,
+      "last": 1585870380000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943586292&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 659696,
+      "bars": 12000,
+      "first": 1584943620000,
+      "last": 1585870380000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943592137&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 659696,
+      "bars": 12000,
+      "first": 1584943620000,
+      "last": 1585870380000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943592137&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 659696,
+      "bars": 12000,
+      "first": 1584943620000,
+      "last": 1585870380000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943598717&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 659696,
+      "bars": 12000,
+      "first": 1584943620000,
+      "last": 1585870380000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943598717&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 659696,
+      "bars": 12000,
+      "first": 1584943620000,
+      "last": 1585870380000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943614330&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 659696,
+      "bars": 12000,
+      "first": 1584943620000,
+      "last": 1585870380000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943614330&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 659696,
+      "bars": 12000,
+      "first": 1584943620000,
+      "last": 1585870380000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/279/window?from=1592364770569&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 22505,
+      "bars": 389,
+      "first": 1592364780000,
+      "last": 1592388060000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/279/window?from=1592364770569&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 22505,
+      "bars": 389,
+      "first": 1592364780000,
+      "last": 1592388060000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943586292&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 659696,
+      "bars": 12000,
+      "first": 1584943620000,
+      "last": 1585870380000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943586292&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 659696,
+      "bars": 12000,
+      "first": 1584943620000,
+      "last": 1585870380000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943586292&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 659696,
+      "bars": 12000,
+      "first": 1584943620000,
+      "last": 1585870380000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/276/window?from=1584943586292&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 659696,
+      "bars": 12000,
+      "first": 1584943620000,
+      "last": 1585870380000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/276/window?from=1586780650475&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 22003,
+      "bars": 389,
+      "first": 1586780700000,
+      "last": 1586803980000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/276/window?from=1586780650475&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 22003,
+      "bars": 389,
+      "first": 1586780700000,
+      "last": 1586803980000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/279/window?from=1592364770569&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 22505,
+      "bars": 389,
+      "first": 1592364780000,
+      "last": 1592388060000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/279/window?from=1592364770569&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 22505,
+      "bars": 389,
+      "first": 1592364780000,
+      "last": 1592388060000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/280/window?from=1592384570619&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 684358,
+      "bars": 12000,
+      "first": 1592384580000,
+      "last": 1593482640000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/280/window?from=1592384570619&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 684358,
+      "bars": 12000,
+      "first": 1592384580000,
+      "last": 1593482640000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/280/window?from=1614633488907&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 692475,
+      "bars": 12000,
+      "first": 1614633540000,
+      "last": 1615558680000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/280/window?from=1614633488907&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 692475,
+      "bars": 12000,
+      "first": 1614633540000,
+      "last": 1615558680000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/280/window?from=1782842399678&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 16241,
+      "bars": 299,
+      "first": 1782842400000,
+      "last": 1782863880000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/280/window?from=1782842399678&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 16241,
+      "bars": 299,
+      "first": 1782842400000,
+      "last": 1782863880000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/280/window?from=1592384570619&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 684358,
+      "bars": 12000,
+      "first": 1592384580000,
+      "last": 1593482640000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/280/window?from=1592384570619&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 684358,
+      "bars": 12000,
+      "first": 1592384580000,
+      "last": 1593482640000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/280/window?from=1623792076414&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 658801,
+      "bars": 12000,
+      "first": 1623794400000,
+      "last": 1624888740000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/280/window?from=1718460352656&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 676869,
+      "bars": 12000,
+      "first": 1718575200000,
+      "last": 1719505860000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/280/window?from=1782651920249&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 157443,
+      "bars": 2879,
+      "first": 1782684000000,
+      "last": 1782863880000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/6/window?from=1550688514205&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 78109,
+      "bars": 1360,
+      "first": 1550688540000,
+      "last": 1550773740000
+    },
+    {
+      "url": "/api/marketlab-replay/baskets/6/window?from=1550688514205&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "bytes": 78109,
+      "bars": 1360,
+      "first": 1550688540000,
+      "last": 1550773740000
+    }
+  ],
+  "errors": [],
+  "browser": "Edg/154.0.4258.53",
+  "summary": {
+    "source": {
+      "packageSha256": "d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4",
+      "manifestSha256": "825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "candleContentSha256": "ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d"
+    },
+    "started": "2019-01-01T00:00:00.000Z",
+    "ended": "2026-06-30T23:59:59.678Z",
+    "completed": true,
+    "failureKind": null,
+    "failureCondition": null,
+    "counters": {
+      "basketsClosed": 278,
+      "basketsLiquidated": 1,
+      "forcedLiquidations": 65,
+      "legsOpened": 555,
+      "distinctRejectedEntries": 2,
+      "rejectedEntryAttempts": 346942369,
+      "skippedFirstEntryQuotes": 0,
+      "strategyEligibleQuotes": 412402479,
+      "quoteOnlyQuotes": 1347651,
+      "quoteTicksProcessed": 413750130,
+      "engineRealizedProfit": "-20090.41800"
+    },
+    "eventCounts": {
+      "basket_anchored": 280,
+      "basket_liquidated": 1,
+      "entry_executed": 555,
+      "entry_rejected": 2,
+      "entry_rejection_summary": 2,
+      "forced_liquidation": 65,
+      "hard_breakeven_activated": 11,
+      "margin_call_entered": 23,
+      "margin_call_left": 23,
+      "run_ended": 1,
+      "run_started": 1,
+      "stop_out_triggered": 5,
+      "strategy_exit": 278,
+      "trailing_activated": 207
+    },
+    "basketCount": 280,
+    "openBaskets": [
+      280
+    ],
+    "initialAccount": {
+      "kind": "event",
+      "eventId": 1,
+      "time": "2019-01-01T00:00:00.000Z",
+      "timeMs": 1546300800000,
+      "quoteSequence": 0,
+      "balance": "20000",
+      "equity": "20000",
+      "floatingProfit": "0",
+      "floatingObservable": true,
+      "realizedProfit": "0",
+      "usedMargin": "0",
+      "freeMargin": "20000",
+      "marginLevelPercent": null,
+      "marginCallActive": false,
+      "openPositions": 0,
+      "grossLots": "0",
+      "netLots": "0",
+      "absoluteNetLots": "0"
+    },
+    "finalAccount": {
+      "kind": "event",
+      "eventId": 1454,
+      "time": "2026-06-30T23:59:59.678Z",
+      "timeMs": 1782863999678,
+      "quoteSequence": 413750130,
+      "balance": "-90.41800",
+      "equity": "-90.41800",
+      "floatingProfit": "0",
+      "floatingObservable": true,
+      "realizedProfit": "-20090.41800",
+      "usedMargin": "0",
+      "freeMargin": "-90.41800",
+      "marginLevelPercent": null,
+      "marginCallActive": false,
+      "openPositions": 0,
+      "grossLots": "0",
+      "netLots": "0",
+      "absoluteNetLots": "0"
+    }
+  },
+  "summaryPayloadBytes": 1880,
+  "basketPages": [
+    {
+      "offset": 0,
+      "bytes": 11390,
+      "ms": 9408.006399999998,
+      "count": 40
+    },
+    {
+      "offset": 40,
+      "bytes": 11460,
+      "ms": 67.73790000000008,
+      "count": 40
+    },
+    {
+      "offset": 80,
+      "bytes": 11462,
+      "ms": 58.794800000003306,
+      "count": 40
+    },
+    {
+      "offset": 120,
+      "bytes": 11495,
+      "ms": 29.56040000000212,
+      "count": 40
+    },
+    {
+      "offset": 160,
+      "bytes": 11494,
+      "ms": 33.60049999999319,
+      "count": 40
+    },
+    {
+      "offset": 200,
+      "bytes": 11527,
+      "ms": 42.64640000000509,
+      "count": 40
+    },
+    {
+      "offset": 240,
+      "bytes": 11545,
+      "ms": 35.26029999999446,
+      "count": 40
+    }
+  ],
+  "liveTimelineOccurrences": 1452,
+  "distantDates": [
+    {
+      "requested": "2021-06-15T12:00:00.000Z",
+      "cursor": "2021-06-16 03:21:16.414Z",
+      "candles": 12000,
+      "accountSnapshot": "1451"
+    },
+    {
+      "requested": "2024-06-15T12:00:00.000Z",
+      "cursor": "2024-06-16 22:01:00Z",
+      "candles": 12000,
+      "accountSnapshot": "1451"
+    },
+    {
+      "requested": "2026-06-29T12:00:00.000Z",
+      "cursor": "2026-06-28 22:01:00Z",
+      "candles": 2879,
+      "accountSnapshot": "1451"
+    }
+  ],
+  "invalidRequests": [
+    {
+      "path": "/run?view=baskets&source=0000000000000000000000000000000000000000000000000000000000000000",
+      "status": 422,
+      "body": {
+        "error": "Run navigation source identity changed; reload the run."
+      }
+    },
+    {
+      "path": "/run?view=timeline&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18&filter=unknown",
+      "status": 400,
+      "body": {
+        "error": "Unsupported run filter."
+      }
+    },
+    {
+      "path": "/baskets/1?event=1323&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "status": 422,
+      "body": {
+        "error": "The requested occurrence does not belong to this basket context."
+      }
+    },
+    {
+      "path": "/baskets/276/reveal?after=0&cursor=1584965186293&event=1323&source=825d98232e79e6d6f5d381118985ee3efea30ad86a29d485972193af47231a18",
+      "status": 422,
+      "body": {
+        "error": "The occurrence cursor is inconsistent."
+      }
+    }
+  ],
+  "maxWindowBars": 12000,
+  "maxWindowBytes": 692475,
+  "result": "PASS",
+  "ended": "2026-10-04T19:49:05.495Z"
+}

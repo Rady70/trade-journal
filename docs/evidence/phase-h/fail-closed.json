@@ -1,0 +1,49 @@
+{
+  "platform": "win32",
+  "started": "2026-10-04T19:47:18.337Z",
+  "cases": [
+    {
+      "name": "payload changed after acceptance",
+      "status": 422,
+      "error": "Replay payload events.jsonl is 679228 bytes; the manifest records 679227.",
+      "summaryHidden": true,
+      "replayHidden": true
+    },
+    {
+      "name": "unexpected authoritative package identity",
+      "status": 422,
+      "error": "Replay package identity mismatch: expected 0000000000000000000000000000000000000000000000000000000000000000, loaded d145a49b548fe9356f1355d33df3329f87ce667cd15b367369219b8f27a9ccb4.",
+      "summaryHidden": true,
+      "replayHidden": true
+    },
+    {
+      "name": "unexpected derived candle identity",
+      "status": 422,
+      "error": "Candle-cache identity mismatch: expected 0000000000000000000000000000000000000000000000000000000000000000, loaded ab1b0c7f4321afc7ba31e149e31631a6c61deba40a88091ba951d5d886165d9d.",
+      "summaryHidden": true,
+      "replayHidden": true
+    }
+  ],
+  "errors": [],
+  "result": "PASS",
+  "build": {
+    "command": "node <installed next/dist/bin/next> build",
+    "environment": "isolated same-source Windows snapshot, unchanged installed dependencies",
+    "exit": 1,
+    "compiled": true,
+    "errors": [
+      "go\\.cache\\marketlab-phase-h-failure-zErVnu\\apps\\web\\.next\\server\\pages\\_app.js [Error: EPERM: operation not permitted, symlink 'E:\\MarketLab-LuxAlgo\\apps\\web\\node_modules' -> 'E:\\MarketLab-LuxAlgo\\.cache\\marketlab-phase-h-failure-zErVnu\\apps\\web\\.next\\standalone\\.ca",
+      "  code: 'EPERM',",
+      "\\.cache\\marketlab-phase-h-failure-zErVnu\\apps\\web\\.next\\server\\pages\\_error.js [Error: EPERM: operation not permitted, symlink 'E:\\MarketLab-LuxAlgo\\node_modules\\.pnpm\\react@19.2.8\\node_modules\\react' -> 'E:\\MarketLab-LuxAlgo\\.cache\\marketlab-phase-h-failure-zErVnu\\",
+      "  code: 'EPERM',",
+      "ache\\marketlab-phase-h-failure-zErVnu\\apps\\web\\.next\\server\\pages\\_document.js [Error: EPERM: operation not permitted, symlink 'E:\\MarketLab-LuxAlgo\\node_modules\\.pnpm\\client-only@0.0.1\\node_modules\\client-only' -> 'E:\\MarketLab-LuxAlgo\\.cache\\marketlab-phase-h-fail",
+      "  code: 'EPERM',",
+      "-h-failure-zErVnu\\apps\\web\\.next\\server\\app\\api\\accounts\\[id]\\actions\\route.js [Error: EPERM: operation not permitted, symlink 'E:\\MarketLab-LuxAlgo\\node_modules\\.pnpm\\bindings@1.5.0\\node_modules\\bindings' -> 'E:\\MarketLab-LuxAlgo\\.cache\\marketlab-phase-h-failure-zE",
+      "  code: 'EPERM',",
+      "[Error: EPERM: operation not permitted, symlink 'E:\\MarketLab-LuxAlgo\\node_modules\\.pnpm\\@next+env@15.5.23\\node_modules\\@next\\env' -> 'E:\\MarketLab-LuxAlgo\\.cache\\marketlab-phase-h-failure-zErV",
+      "  code: 'EPERM',"
+    ],
+    "log": "E:\\MarketLab-LuxAlgo\\.cache\\marketlab-phase-h-failure-zErVnu\\build.log"
+  },
+  "ended": "2026-10-04T19:50:47.701Z"
+}
